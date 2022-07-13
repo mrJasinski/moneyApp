@@ -16,7 +16,6 @@ public class Genre
     private String description;
     private int hash;
 
-
     public GenreDTO toDto()
     {
         var dto = new GenreDTO();

@@ -45,4 +45,14 @@ public class ProductService
     {
         return this.unitRepository.findAll().stream().map(Unit::toDto).collect(Collectors.toList());
     }
+
+    public List<Genre> readAllGenres()
+    {
+        return this.genreRepository.findAll();
+    }
+
+    public List<Unit> readAllUnits()
+    {
+        return this.unitRepository.findAll();
+    }
 }

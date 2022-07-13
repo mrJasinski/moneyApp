@@ -3,6 +3,8 @@ package com.moneyAppV5.cart.controller;
 import com.moneyAppV5.bill.dto.BillWriteModel;
 import com.moneyAppV5.cart.dto.ShoppingListWrapperDTO;
 import com.moneyAppV5.cart.dto.ShoppingPositionDTO;
+import com.moneyAppV5.product.Genre;
+import com.moneyAppV5.product.Unit;
 import com.moneyAppV5.product.dto.GenreDTO;
 import com.moneyAppV5.product.dto.UnitDTO;
 import com.moneyAppV5.product.service.ProductService;
@@ -63,15 +65,15 @@ public class CartGeneratorController
     }
 
     @ModelAttribute("genresList")
-    List<GenreDTO> getGenresList()
+    List<Genre> getGenresList()
     {
-        return this.service.readAllGenresAsDto();
+        return this.service.readAllGenres();
     }
 
     @ModelAttribute("unitsList")
-    List<UnitDTO> getUnitsList()
+    List<Unit> getUnitsList()
     {
-        return this.service.readAllUnitsAsDTO();
+        return this.service.readAllUnits();
     }
 
 
