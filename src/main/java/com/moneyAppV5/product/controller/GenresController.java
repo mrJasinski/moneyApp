@@ -58,12 +58,6 @@ public class GenresController
         return "genres";
     }
 
-//    @ModelAttribute("genre")
-//    GenreDTO getGenre()
-//    {
-//        return new GenreDTO();
-//    }
-
     @ModelAttribute("genres")
     List<GenreDTO> getGenres()
     {
