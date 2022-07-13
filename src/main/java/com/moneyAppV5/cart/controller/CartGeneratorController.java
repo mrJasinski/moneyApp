@@ -3,6 +3,11 @@ package com.moneyAppV5.cart.controller;
 import com.moneyAppV5.bill.dto.BillWriteModel;
 import com.moneyAppV5.cart.dto.ShoppingListWrapperDTO;
 import com.moneyAppV5.cart.dto.ShoppingPositionDTO;
+import com.moneyAppV5.product.Genre;
+import com.moneyAppV5.product.Unit;
+import com.moneyAppV5.product.dto.GenreDTO;
+import com.moneyAppV5.product.dto.UnitDTO;
+import com.moneyAppV5.product.service.ProductService;
 import com.moneyAppV5.transaction.Transaction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,12 +15,18 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequestMapping("/cartGenerator")
 public class CartGeneratorController
 {
+    private final ProductService service;
 
+    public CartGeneratorController(ProductService service)
+    {
+        this.service = service;
+    }
 
     @GetMapping
     String getCarGenerator(Model model)
@@ -53,10 +64,16 @@ public class CartGeneratorController
         return "cartGenerator";
     }
 
-    @ModelAttribute("shoppingList")
-    ShoppingListWrapperDTO getShoppingList()
+    @ModelAttribute("genresList")
+    List<Genre> getGenresList()
     {
-        return new ShoppingListWrapperDTO();
+        return this.service.readAllGenres();
+    }
+
+    @ModelAttribute("unitsList")
+    List<Unit> getUnitsList()
+    {
+        return this.service.readAllUnits();
     }
 
 

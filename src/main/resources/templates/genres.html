@@ -26,6 +26,18 @@
         </fieldset>
     </form>
     <a th:href="@{/moneys}">Strona główna</a>
+
+    <h3>Grupy produktów:</h3>
+    <table>
+        <tr>
+            <td>Nazwa</td>
+            <td>Opis</td>
+        </tr>
+        <tr th:each="genre : ${genres}">
+            <td th:text="${genre.name}"></td>
+            <td th:text="${genre.description}"></td>
+        </tr>
+    </table>
 </main>
 
 </body>

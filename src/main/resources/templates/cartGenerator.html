@@ -11,19 +11,24 @@
 <body>
 <main>
     <!--/*@thymesVar id="shoppingList" type="com.moneyAppV5.cart.dto.ShoppingListWrapperDTO"*/-->
+    <!--/*@thymesVar id="position" type="com.moneyAppV5.cart.dto.ShoppingPositionDTO"*/-->
+    <!--/*@thymesVar id="genre" type="com.moneyAppV5.product.Genre"*/-->
+    <!--/*@thymesVar id="unit" type="com.moneyAppV5.product.Unit"*/-->
     <form action="#" method="post" th:action="@{/cartGenerator}" th:object="${shoppingList}">
         <fieldset th:each="position, i : *{positions}">
             <label>Produkt
-                <select th:field = "*{positions[__${i.index}__].genre}">
-                    <!--                TODO-->
+                <select name="genres" th:field = "*{positions[__${i.index}__].genre}">
+                    <option value="0">Proszę wybrać</option>
+                    <option th:each="genre : ${genresList}" th:value="${genre.id}" th:text="${genre.name}" ></option>
                 </select>
             </label>
             <label>Ilość
                 <input type="number" step="0.1" th:field = "*{positions[__${i.index}__].quantity}">
             </label>
             <label>Miara ilości
-                <select th:field = "*{positions[__${i.index}__].unit}">
-                    <!--                TODO-->
+                <select name="units" th:field = "*{positions[__${i.index}__].unit}">
+                    <option value="0">Proszę wybrać</option>
+                    <option th:each="unit : ${unitsList}" th:value="${unit.id}" th:text="${unit.name}" ></option>
                 </select>
             </label>
             <div>
