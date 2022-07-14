@@ -18,25 +18,14 @@
         <fieldset>
             <legend>Nowy budżet</legend>
             <label>Miesiąc budżetu
-                <!--                <select name="months">-->
-                <!--                <select name="months" th:field="*{month}">-->
-                <!--&lt;!&ndash;                    <option value="0">Proszę wybrać miesiąc</option>&ndash;&gt;-->
-                <!--                    <option th:each="month : ${T(java.time.Month).values()}" th:value="${month.name()}" th:text="${month.name()}"></option>-->
-                <!--                </select>-->
                 <input type="number" th:field="*{month}"/>
             </label>
             <label>Rok budżetu
-                <!--                <input type="number" />-->
                 <input type="number" th:field="*{year}"/>
             </label>
-<!--            <input type="hidden" th:field="*{incomes}"/>-->
-<!--            <input type="hidden" th:field="*{expenses}"/>-->
-<!--            TODO sprawdzenie czy budżet o danym miesiącu i roku już istnieje-->
             <button type="submit">Dodaj budżet</button>
             <button type="reset">Wyczyść</button>
         </fieldset>
-
-        <!--        TODO potrzebny panel tworzenia nowegu budżetu na podstawie podanego miesiąca i roku-->
         <!--        TODO przejście do wybranego budżetu na dany miesiąc-->
 
     </form>
@@ -49,8 +38,7 @@
                 <td>Miesiąc</td><td>...</td><td>Opis</td><td>Link</td>
             </tr>
             <tr th:each="budget : ${budgetsList}">
-                             <!--                TODO w wolnej chwili dodać opcje filtrowania listy-->
-<!--                TODO przy budżecie przycisk/link do przejścia do konkretnego budżetu-->
+                             <!--                TODO dodać opcje filtrowania listy-->
                 <td>
                     <a th:href="@{/budgetView/{hash}(hash=${budget.hash})}"
                        th:text="${budget.name}"></a>

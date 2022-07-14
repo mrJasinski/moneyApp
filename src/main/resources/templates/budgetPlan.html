@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Planowanie budżetu</title>
     <link rel="stylesheet" href="https://igoradamenko.github.io/awsm.css/css/awsm_theme_black.css">
 </head>
 <body>
@@ -30,7 +30,6 @@
             <table>
                 <tr th:each="position, positionStat : *{incomesList}">
                     <td th:text="${position.category.category}">
-
                     </td>
                     <td >
                         <input type="number" th:field="*{incomesList[__${positionStat.index}__].plannedAmount}" >
@@ -57,15 +56,15 @@
                     <td >
                         <input type="number" th:field="*{expensesList[__${positionStat.index}__].plannedAmount}" >
                     </td>
-                    <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.mainCategory.mainCategory}"/>
-                    <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.mainCategory.hash}"/>
+                        <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.mainCategory.mainCategory}"/>
+                        <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.mainCategory.hash}"/>
 
-                    <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.subCategory}"/>
-                    <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.category}"/>
-                    <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.type}"/>
-                    <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.hash}"/>
+                        <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.subCategory}"/>
+                        <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.category}"/>
+                        <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.type}"/>
+                        <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].category.hash}"/>
 
-                    <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].hash}">
+                        <input type="hidden" th:field="*{expensesList[__${positionStat.index}__].hash}">
                 </tr>
             </table>
         </fieldset>

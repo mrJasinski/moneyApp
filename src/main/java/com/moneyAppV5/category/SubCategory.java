@@ -14,13 +14,8 @@ public class SubCategory
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String subCategory;
-//    TODO prawdopodobnie opis będzie można wyeliminować ponieważ będzie na poziomie category
-//    private String description;
     @OneToMany(mappedBy = "subCategory")
     private Set<Category> categories;
-//    @ManyToOne
-//    @JoinColumn(name = "category_id")
-//    private Category category;
     @ManyToOne
     @JoinColumn(name = "main_category_id")
     private MainCategory mainCategory;
@@ -50,34 +45,6 @@ public class SubCategory
     public void setSubCategory(String mainCategory)
     {
         this.subCategory = mainCategory;
-    }
-
-//    public String getDescription()
-//    {
-//        return description;
-//    }
-//
-//    public void setDescription(String description)
-//    {
-//        this.description = description;
-//    }
-//
-//    public Category getCategory() {
-//        return category;
-//    }
-//
-//    public void setCategory(Category category) {
-//        this.category = category;
-//    }
-
-        Set<Category> getCategories()
-    {
-        return categories;
-    }
-
-    void setCategories(Set<Category> categories)
-    {
-        this.categories = categories;
     }
 
     public MainCategory getMainCategory() {

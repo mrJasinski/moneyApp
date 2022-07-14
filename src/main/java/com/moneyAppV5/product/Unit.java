@@ -3,6 +3,7 @@ package com.moneyAppV5.product;
 import com.moneyAppV5.product.dto.UnitDTO;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "units")
@@ -17,6 +18,8 @@ public class Unit
     @ManyToOne
     @JoinColumn(name = "sub_unit_id")
     private SubUnit subUnit;
+    @OneToMany(mappedBy = "product")
+    private Set<Product> products;
 
     public UnitDTO toDto()
     {
@@ -28,5 +31,29 @@ public class Unit
         result.setBaseUnitSymbol(this.mainUnit.getSymbol());
 
         return result;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public MainUnit getMainUnit() {
+        return mainUnit;
+    }
+
+    public void setMainUnit(MainUnit mainUnit) {
+        this.mainUnit = mainUnit;
+    }
+
+    public SubUnit getSubUnit() {
+        return subUnit;
+    }
+
+    public void setSubUnit(SubUnit subUnit) {
+        this.subUnit = subUnit;
     }
 }

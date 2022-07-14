@@ -20,10 +20,14 @@
                 <td>Data</td><td>konto</td><td>Kwota [zł]</td><td>Kontrahent</td><td>Kategoria</td><td>Beneficjent</td><td>opis</td>
             </tr>
             <tr th:each="transaction : ${transactions}">
-<!--                TODO w wolnej chwili dodać opcje filtrowania listy-->
-                <td th:text="${transaction.date}" ></td><td th:text="${transaction.account.name}"></td><td th:text="${transaction.amount}"></td>
-                <td th:text="${transaction.isPaid.name}"></td><td th:text="${transaction.category.category}"></td>
-                <td th:text="${transaction.forWhom.name}"></td><td th:text="${transaction.description}"></td>
+<!--                TODO dodać opcje filtrowania listy-->
+                <td th:text="${transaction.date}" ></td>
+                <td th:text="${transaction.account.name}"></td>
+                <td th:text="${transaction.amount}"></td>
+                <td th:text="${transaction.payee.name}"></td>
+                <td th:text="${transaction.category.category}"></td>
+                <td th:text="${transaction.gainer.name}"></td>
+                <td th:text="${transaction.description}"></td>
             </tr>
         </table>
     </div>

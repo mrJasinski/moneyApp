@@ -16,16 +16,12 @@ public class Category
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String category;
-//    private String mainCategory;
-//    private String subCategory;
     @ManyToOne
     @JoinColumn(name = "main_category_id")
     private MainCategory mainCategory;
     @ManyToOne
     @JoinColumn(name = "sub_category_id")
     private SubCategory subCategory;
-//    @OneToMany(mappedBy = "category")
-//    private Set<SubCategory> subCategories;
     @OneToMany(mappedBy = "category")
     private Set<Transaction> transactions;
     @Enumerated(EnumType.STRING)
@@ -54,31 +50,6 @@ public class Category
     {
         this.id = id;
     }
-
-//    public String getMainCategory() {
-//        return mainCategory;
-//    }
-//
-//    public void setMainCategory(String mainCategory) {
-//        this.mainCategory = mainCategory;
-//    }
-//
-//    public String getSubCategory() {
-//        return subCategory;
-//    }
-//
-//    public void setSubCategory(String subCategory) {
-//        this.subCategory = subCategory;
-//    }
-
-    //    public Set<SubCategory> getSubCategories() {
-//        return subCategories;
-//    }
-//
-//    public void setSubCategories(Set<SubCategory> subCategories) {
-//        this.subCategories = subCategories;
-//    }
-
 
     public String getCategory() {
         return category;

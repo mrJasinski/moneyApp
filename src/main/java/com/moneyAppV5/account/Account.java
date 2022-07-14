@@ -3,7 +3,6 @@ package com.moneyAppV5.account;
 import com.moneyAppV5.account.dto.AccountDTO;
 import com.moneyAppV5.bill.Bill;
 import com.moneyAppV5.bill.dto.BillDTO;
-import com.moneyAppV5.transaction.Transaction;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -108,16 +107,6 @@ public class Account
     {
         this.target = target;
     }
-
-//    public Set<Transaction> getTransactions()
-//    {
-//        return transactions;
-//    }
-//
-//    public void setTransactions(Set<Transaction> transactions)
-//    {
-//        this.transactions = transactions;
-
 
     public Set<Bill> getBills() {
         return bills;

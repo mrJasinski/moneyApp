@@ -137,7 +137,7 @@
         </tr>
         <!--        TODO lista transakcji z daneej nadkategorii - najlepiej sortowana od najnowszych-->
         <tr th:each="transaction : ${mainCat.transactions}">
-            <!--                TODO w wolnej chwili dodać opcje filtrowania listy-->
+            <!--                TODO dodać opcje filtrowania listy-->
             <!--                TODO dateView? pokazujący transakcje z danego dnia-->
             <td th:text="${transaction.date}" ></td>
             <td>
@@ -150,16 +150,16 @@
                    th:text="${transaction.category.subCategory.subCategory}"></a>
             </td>
             <td>
-                <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.isPaid.hash})}"
-                   th:text="${transaction.isPaid.name}"></a>
+                <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.payee.hash})}"
+                   th:text="${transaction.payee.name}"></a>
             </td>
             <td>
                 <a th:href="@{/typeView/{type}(type=${category.type.name})}"
                    th:text="${category.type.name}"></a>
             </td>
             <td>
-                <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.isPaid.hash})}"
-                   th:text="${transaction.forWhom.name}"></a>
+                <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.gainer.hash})}"
+                   th:text="${transaction.gainer.name}"></a>
             </td>
             <td th:text="${transaction.description}"></td>
         </tr>

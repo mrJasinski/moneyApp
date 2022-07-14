@@ -4,6 +4,7 @@ import com.moneyAppV5.product.dto.GenreDTO;
 
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "genres")
@@ -15,6 +16,8 @@ public class Genre
     private String name;
     private String description;
     private int hash;
+    @OneToMany(mappedBy = "product")
+    private Set<Product> products;
 
     public GenreDTO toDto()
     {

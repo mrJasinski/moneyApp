@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/yearBudgetView/{year}")
-public class YearBudgetView
+public class YearBudgetViewController
 {
     BudgetService budgetService;
 
-    public YearBudgetView(BudgetService budgetService)
+    public YearBudgetViewController(BudgetService budgetService)
     {
         this.budgetService = budgetService;
     }

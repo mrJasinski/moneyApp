@@ -81,12 +81,12 @@
                 </td>
                 <td th:text="${transaction.amount}"></td>
                 <td>
-                    <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.isPaid.hash})}"
-                       th:text="${transaction.isPaid.name}"></a>
+                    <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.payee.hash})}"
+                       th:text="${transaction.payee.name}"></a>
                 </td>
                 <td>
-                    <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.isPaid.hash})}"
-                       th:text="${transaction.forWhom.name}"></a>
+                    <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.gainer.hash})}"
+                       th:text="${transaction.gainer.name}"></a>
                 </td>
                 <td th:text="${transaction.description}"></td>
             </tr>

@@ -28,9 +28,6 @@ public class BudgetsController
     @GetMapping()
     String showBudgets(Model model)
     {
-        model.addAttribute("budget", getBudgetDto());
-        model.addAttribute("budgetsList", getBudgetsListDto());
-
         return "budgets";
     }
 
@@ -55,9 +52,7 @@ public class BudgetsController
 
         this.service.createPositionsListByBudget(result);
 
-        model.addAttribute("budget", getBudgetDto());
         model.addAttribute("message", "Dodano budżet!");
-        model.addAttribute("budgetsList", getBudgetsListDto());
 
         return "budgets";
     }

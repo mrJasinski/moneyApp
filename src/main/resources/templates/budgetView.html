@@ -53,7 +53,6 @@
             <td>Suma</td><td th:text="${budget.plannedIncomes}"></td><td th:text="${budget.actualIncomes}"></td><td th:text="${budget.balanceIncomes}"></td><td>Opis</td>
         </tr>
         <tr th:each="position : ${budget.incomesDto}">
-<!--            TODO czy na pewno wartości powinny się zaczytywać z pozycji a nie być obliczane?-->
             <td >
                 <a th:href="@{/categoryView/{hash}(hash=${position.category.hash})}"
                    th:text="${position.category.category}"></a>
@@ -110,7 +109,7 @@
         </tr>
 <!--        TODO - najlepiej domyslnie sortowana od najnowszych-->
         <tr th:each="transaction : ${budget.transactionsDto}">
-            <!--                TODO w wolnej chwili dodać opcje filtrowania listy-->
+            <!--                TODO opcje filtrowania listy-->
             <td th:text="${transaction.day}" ></td>
             <td>
                 <a th:href="@{/accountView/{hash}(hash=${transaction.account.hash})}"
@@ -118,16 +117,16 @@
             </td>
             <td th:text="${transaction.amount}"></td>
             <td>
-                <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.isPaid.hash})}"
-                   th:text="${transaction.isPaid.name}"></a>
+                <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.payee.hash})}"
+                   th:text="${transaction.payee.name}"></a>
             </td>
             <td>
                 <a th:href="@{/categoryView/{hash}(hash=${transaction.category.hash})}"
                    th:text="${transaction.category.category}"></a>
             </td>
             <td>
-                <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.isPaid.hash})}"
-                   th:text="${transaction.forWhom.name}"></a>
+                <a th:href="@{/payeeView/{payeeHash}(payeeHash=${transaction.gainer.hash})}"
+                   th:text="${transaction.gainer.name}"></a>
             </td>
             <td th:text="${transaction.description}"></td>
         </tr>

@@ -1,15 +1,26 @@
 package com.moneyAppV5.product;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "products")
 public class Product
 {
-//    TODO placeholder dla klasy produkt będącej bazą do tworzenia wózków zakupowych
-//    private int id;
-//    private String name
-//    private String barCode;
-//    private Quantity quantity; - to prawdopodnie też obiekt (ilość miara etc) - różne miary dla jednego? np słoik/200g?
-//    private String description;
-//    private Brand brand; - marka produktów
-//    private Genre genre - rodzja np suszone pomidory
-//    private Price price - to na pewno bardziej rozbudowane ze względu na sklep aktualną cenę itd
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    @ManyToOne
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
+    @ManyToOne
+    @JoinColumn(name = "genre_id")
+    private Genre genre;
+    private String name;
+    private String barCode;
+    private float quantity;
+    @ManyToOne
+    @JoinColumn(name = "unit_id")
+    private Unit unit;
+    private String description;
 
 }

@@ -34,6 +34,7 @@ public class AccountViewController
     {
         var account = this.service.readAccountByHash(hash);
         var result = this.service.readAccountAsDto(account);
+//        TODO przeniesienie całości do metody serwisu "readAccountAsDto"?
 
         model.addAttribute("message", String.format("Konto: %s", result.getName()));
         model.addAttribute("account", result);
@@ -44,11 +45,6 @@ public class AccountViewController
 
         model.addAttribute("budgetStats", new BudgetStatsWrapperDTO(this.budgetService.readBudgetsWithMaxMinTransactionCountsByListAsDto(transactions),
                 this.budgetService.readBudgetsWithMaxMinTransactionSumsByListAsDto(transactions)));
-
-
-        System.out.println();
-        System.out.println("konto");
-        System.out.println(result.toString());
 
         return "accountView";
     }

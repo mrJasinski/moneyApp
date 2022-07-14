@@ -14,6 +14,7 @@
     <!--/*@thymesVar id="position" type="com.moneyAppV5.cart.dto.ShoppingPositionDTO"*/-->
     <!--/*@thymesVar id="genre" type="com.moneyAppV5.product.Genre"*/-->
     <!--/*@thymesVar id="unit" type="com.moneyAppV5.product.Unit"*/-->
+<!--    TODO myślę że lepiej jeśli inputy będą leżały poziomo obok siebie-->
     <form action="#" method="post" th:action="@{/cartGenerator}" th:object="${shoppingList}">
         <fieldset th:each="position, i : *{positions}">
             <label>Produkt
@@ -28,7 +29,11 @@
             <label>Miara ilości
                 <select name="units" th:field = "*{positions[__${i.index}__].unit}">
                     <option value="0">Proszę wybrać</option>
-                    <option th:each="unit : ${unitsList}" th:value="${unit.id}" th:text="${unit.name}" ></option>
+<!--                    TODO pomysł na ogarnięcie tego na poziomie serwisu?-->
+                    <option th:each="unit : ${unitsList}" th:value="${unit.id}" th:if="${unit.subUnit.name} != null"
+                            th:text="|${unit.subUnit.name}${unit.mainUnit.name}|" ></option>
+                    <option th:each="unit : ${unitsList}" th:value="${unit.id}" th:if="${unit.subUnit.name} == null"
+                            th:text="|${unit.mainUnit.name}|" ></option>
                 </select>
             </label>
             <div>

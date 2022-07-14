@@ -10,20 +10,15 @@ public interface AccountRepository
     List<Account> findAll();
 
     Optional<Account> findById(Integer id);
+    Optional<Account> findByHash(Integer hash);
     Account findByName(String name);
-
-    boolean existsById(int id);
-
     Account save(Account entity);
+    boolean existsById(int id);
+    boolean existsByName(String name);
 
     double getAccountActualBalance(Account account);
 
     void changeBalance(Integer id, double amount);
-
-
-    Optional<Account> findByHash(Integer hash);
-
-    boolean existsByName(String name);
 
     Optional<Double> sumAllAccountsBalances();
 }

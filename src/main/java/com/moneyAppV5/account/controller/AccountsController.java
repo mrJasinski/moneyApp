@@ -17,7 +17,7 @@ import java.util.List;
 class AccountsController
 {
     private static final Logger logger = LoggerFactory.getLogger(AccountsController.class);
-    AccountService service;
+    private final AccountService service;
 
     AccountsController(AccountService service)
     {
@@ -28,7 +28,6 @@ class AccountsController
     String showAccounts(Model model)
     {
         model.addAttribute("account", new AccountDTO());
-        model.addAttribute("allAccountsSum", this.service.sumAllAccountsBalances());
 
         return "accounts";
     }
@@ -53,9 +52,7 @@ class AccountsController
         this.service.createAccount(current);
 
         model.addAttribute("account", new AccountDTO());
-        model.addAttribute("accounts", getAccountsDto());
         model.addAttribute("message", "Dodano konto!");
-        model.addAttribute("allAccountsSum", this.service.sumAllAccountsBalances());
 
         return "accounts";
     }
@@ -64,5 +61,11 @@ class AccountsController
     List<AccountDTO> getAccountsDto()
     {
         return this.service.readAllAccountsDTO();
+    }
+
+    @ModelAttribute("allAccountsSum")
+    double getAllAccountsSum()
+    {
+        return this.service.sumAllAccountsBalances();
     }
 }

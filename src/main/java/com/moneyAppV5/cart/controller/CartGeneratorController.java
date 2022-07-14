@@ -1,18 +1,17 @@
 package com.moneyAppV5.cart.controller;
 
-import com.moneyAppV5.bill.dto.BillWriteModel;
 import com.moneyAppV5.cart.dto.ShoppingListWrapperDTO;
 import com.moneyAppV5.cart.dto.ShoppingPositionDTO;
 import com.moneyAppV5.product.Genre;
 import com.moneyAppV5.product.Unit;
-import com.moneyAppV5.product.dto.GenreDTO;
-import com.moneyAppV5.product.dto.UnitDTO;
 import com.moneyAppV5.product.service.ProductService;
-import com.moneyAppV5.transaction.Transaction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -31,6 +30,9 @@ public class CartGeneratorController
     @GetMapping
     String getCarGenerator(Model model)
     {
+        System.out.println();
+        System.out.println("uruchomiłem się!");
+
         model.addAttribute("shoppingList", new ShoppingListWrapperDTO());
 
         return "cartGenerator";

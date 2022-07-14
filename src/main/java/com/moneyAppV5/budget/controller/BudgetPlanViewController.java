@@ -23,9 +23,9 @@ class BudgetPlanViewController
     @GetMapping
     String showBudgetPlan(Model model, @PathVariable Integer hash)
     {
+//        TODO odczyt po hashu i wyniesienie dodatkowej logiki do serwisu?
         var result = this.service.readBudgetPlanAsDto(this.service.readBudgetByHash(hash));
 
-        model.addAttribute("budgetHash", hash);
         model.addAttribute("positions", this.service.readPositionsWrapperAsDto(hash));
         model.addAttribute("message", String.format("Planowanie budżetu: %s/%s", result.getMonth(), result.getYear()));
         model.addAttribute("budget", result);
@@ -47,11 +47,16 @@ class BudgetPlanViewController
 
         this.service.updatePlannedAmountInPositions(current);
 
-        model.addAttribute("budgetHash", hash);
         model.addAttribute("positions", current);
         model.addAttribute("message", String.format("Planowanie: %s/%s", result.getMonth(), result.getYear()));
         model.addAttribute("budget", result);
 
         return "budgetPlan";
+    }
+
+    @ModelAttribute("budgetHash")
+    int getBudgetHash(@PathVariable Integer hash)
+    {
+        return hash;
     }
 }

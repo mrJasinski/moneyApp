@@ -35,7 +35,7 @@
         <h2>Saldo</h2>
         <table th:object="${account}">
             <tr>
-<!--                TODO określenia miesięcy-->
+<!--                TODO określenia miesięcy - bardziej polskie określenia-->
                 <td></td>
                 <td>Bieżący miesiąc</td>
                 <td>Poprzedni miesiąc</td>
@@ -108,8 +108,6 @@
 
         </table>
     </div>
-<!--    TODO obkodować-->
-<!--    TODO thif w td usuwa kolumnę-->
     <div>
         <h2>Miesiąc z: </h2>
         <table>
@@ -171,7 +169,7 @@
             </tr>
             <!--        TODO  najlepiej domyslnie sortowana od najnowszych-->
             <tr th:each="transaction : ${account.transactions}">
-                <!--                TODO w wolnej chwili dodać opcje filtrowania listy-->
+                <!--                TODO dodać opcje filtrowania listy-->
                 <td th:text="${transaction.date}" ></td>
                 <td th:text="${transaction.amount}"></td>
                 <td>

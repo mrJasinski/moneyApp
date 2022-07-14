@@ -2,18 +2,14 @@ package com.moneyAppV5.transaction.dto;
 
 import com.moneyAppV5.account.Account;
 import com.moneyAppV5.account.dto.AccountDTO;
-import com.moneyAppV5.budget.Budget;
-import com.moneyAppV5.budget.BudgetPosition;
 import com.moneyAppV5.budget.dto.BudgetDTO;
 import com.moneyAppV5.budget.dto.BudgetPositionDTO;
 import com.moneyAppV5.category.Category;
 import com.moneyAppV5.category.dto.CategoryDTO;
-import com.moneyAppV5.transaction.Gainer;
 import com.moneyAppV5.transaction.Payee;
 import com.moneyAppV5.transaction.Transaction;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class TransactionDTO
 {
