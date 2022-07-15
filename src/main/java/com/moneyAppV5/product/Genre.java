@@ -16,7 +16,7 @@ public class Genre
     private String name;
     private String description;
     private int hash;
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "genre")
     private Set<Product> products;
 
     public GenreDTO toDto()

@@ -18,7 +18,7 @@ public class Unit
     @ManyToOne
     @JoinColumn(name = "sub_unit_id")
     private SubUnit subUnit;
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "unit")
     private Set<Product> products;
 
     public UnitDTO toDto()

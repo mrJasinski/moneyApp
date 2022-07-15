@@ -3,8 +3,10 @@ package com.moneyAppV5.product.service;
 import com.moneyAppV5.product.Genre;
 import com.moneyAppV5.product.Unit;
 import com.moneyAppV5.product.dto.GenreDTO;
+import com.moneyAppV5.product.dto.ProductDTO;
 import com.moneyAppV5.product.dto.UnitDTO;
 import com.moneyAppV5.product.repository.GenreRepository;
+import com.moneyAppV5.product.repository.ProductRepository;
 import com.moneyAppV5.product.repository.UnitRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +17,12 @@ import java.util.stream.Collectors;
 public class ProductService
 {
     private final GenreRepository genreRepository;
+    private final ProductRepository repository;
     private final UnitRepository unitRepository;
 
-    public ProductService(GenreRepository genreRepository, UnitRepository unitRepository) {
+    public ProductService(GenreRepository genreRepository, ProductRepository repository, UnitRepository unitRepository) {
         this.genreRepository = genreRepository;
+        this.repository = repository;
         this.unitRepository = unitRepository;
     }
 
@@ -54,5 +58,10 @@ public class ProductService
     public List<Unit> readAllUnits()
     {
         return this.unitRepository.findAll();
+    }
+
+    public void createProduct(ProductDTO current)
+    {
+        this.repository.save(current.toProduct());
     }
 }

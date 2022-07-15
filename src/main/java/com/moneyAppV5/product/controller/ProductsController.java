@@ -31,7 +31,14 @@ public class ProductsController
     @PostMapping
     String addProduct(@ModelAttribute("product") @Valid ProductDTO current, BindingResult bindingResult, Model model)
     {
+        if (bindingResult.hasErrors())
+        {
+            model.addAttribute("message", "Błędne dane!");
 
+            return "products";
+        }
+
+        this.service.createProduct(current);
 
         return "products";
     }

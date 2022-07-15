@@ -1,6 +1,7 @@
 package com.moneyAppV5.product.dto;
 
 import com.moneyAppV5.product.MainUnit;
+import com.moneyAppV5.product.Unit;
 
 public class UnitDTO
 {
@@ -50,5 +51,11 @@ public class UnitDTO
 
     public void setBaseUnitSymbol(String baseUnitSymbol) {
         this.baseUnitSymbol = baseUnitSymbol;
+    }
+
+    public Unit toUnit()
+    {
+//        TODO
+        return null;
     }
 }

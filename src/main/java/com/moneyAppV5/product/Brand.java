@@ -13,7 +13,7 @@ public class Brand
     private int id;
     private String name;
     private Integer hash;
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "brand")
     private Set<Product> products;
 
     @Override
