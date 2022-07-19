@@ -14,7 +14,8 @@ create table if not exists products
     bar_code varchar,
     quantity float not null,
     unit_id int not null ,
-    description varchar
+    description varchar,
+    hash int not null
 );
 
 alter table products add foreign key (brand_id) references brands (id);

@@ -1,13 +1,19 @@
 package com.moneyAppV5.product;
 
-//@Entity
-//@Table(name = "prices")
+import javax.persistence.*;
+
+@Entity
+@Table(name = "prices")
 public class Price
 {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    cena
-//    private Product product
-//    private Shop shop;
-//    private float price
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+    @ManyToOne
+    @JoinColumn(name = "shop_id")
+    private Shop shop;
+    private float price;
 }

@@ -1,13 +1,14 @@
 package com.moneyAppV5.product.service;
 
+import com.moneyAppV5.product.Brand;
 import com.moneyAppV5.product.Genre;
+import com.moneyAppV5.product.Shop;
 import com.moneyAppV5.product.Unit;
 import com.moneyAppV5.product.dto.GenreDTO;
 import com.moneyAppV5.product.dto.ProductDTO;
+import com.moneyAppV5.product.dto.ProductWriteModel;
 import com.moneyAppV5.product.dto.UnitDTO;
-import com.moneyAppV5.product.repository.GenreRepository;
-import com.moneyAppV5.product.repository.ProductRepository;
-import com.moneyAppV5.product.repository.UnitRepository;
+import com.moneyAppV5.product.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,13 +17,19 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService
 {
+    private final BrandRepository brandRepository;
     private final GenreRepository genreRepository;
     private final ProductRepository repository;
+    private final ShopRepository shopRepository;
     private final UnitRepository unitRepository;
 
-    public ProductService(GenreRepository genreRepository, ProductRepository repository, UnitRepository unitRepository) {
+    public ProductService(BrandRepository brandRepository, GenreRepository genreRepository, ProductRepository repository,
+                          ShopRepository shopRepository, UnitRepository unitRepository)
+    {
+        this.brandRepository = brandRepository;
         this.genreRepository = genreRepository;
         this.repository = repository;
+        this.shopRepository = shopRepository;
         this.unitRepository = unitRepository;
     }
 
@@ -60,8 +67,18 @@ public class ProductService
         return this.unitRepository.findAll();
     }
 
-    public void createProduct(ProductDTO current)
+    public void createProduct(ProductWriteModel current)
     {
         this.repository.save(current.toProduct());
+    }
+
+    public List<Brand> readAllBrands()
+    {
+        return this.brandRepository.findAll();
+    }
+
+    public List<Shop> readAllShops()
+    {
+        return this.shopRepository.findAll();
     }
 }

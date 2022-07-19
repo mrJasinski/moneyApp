@@ -3,6 +3,7 @@ package com.moneyAppV5.product;
 import com.moneyAppV5.product.dto.ProductDTO;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "products")
@@ -24,6 +25,9 @@ public class Product
     @JoinColumn(name = "unit_id")
     private Unit unit;
     private String description;
+    @OneToMany(mappedBy = "product")
+    private Set<Price> prices;
+    private int hash;
 
     public ProductDTO toDto()
     {
@@ -93,5 +97,21 @@ public class Product
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Set<Price> getPrices() {
+        return prices;
+    }
+
+    public void setPrices(Set<Price> prices) {
+        this.prices = prices;
+    }
+
+    public int getHash() {
+        return hash;
+    }
+
+    public void setHash(int hash) {
+        this.hash = hash;
     }
 }
