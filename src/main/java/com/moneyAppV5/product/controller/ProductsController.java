@@ -1,9 +1,7 @@
 package com.moneyAppV5.product.controller;
 
-import com.moneyAppV5.product.Brand;
-import com.moneyAppV5.product.Genre;
-import com.moneyAppV5.product.Shop;
-import com.moneyAppV5.product.Unit;
+import com.moneyAppV5.bill.dto.BillWriteModel;
+import com.moneyAppV5.product.*;
 import com.moneyAppV5.product.dto.BrandDTO;
 import com.moneyAppV5.product.dto.ProductDTO;
 import com.moneyAppV5.product.dto.ProductWriteModel;
@@ -52,12 +50,20 @@ public class ProductsController
         return "products";
     }
 
-//    TODO postmapping z paramtrem (dodawanie cen)
+    @PostMapping(params = "addPrice")
+    String addPriceToProduct(@ModelAttribute("product") ProductWriteModel current, Model model)
+    {
+        current.getPrices().add(new Price());
+
+        model.addAttribute("product", current);
+
+        return "products";
+    }
 
     @ModelAttribute("product")
-    ProductDTO getNewProductAsDto()
+    ProductWriteModel getNewProductAsWriteModel()
     {
-        return new ProductDTO();
+        return new ProductWriteModel();
     }
 
     @ModelAttribute("brands")
