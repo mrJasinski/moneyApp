@@ -1,6 +1,9 @@
 package com.moneyAppV5.product;
 
+import com.moneyAppV5.product.dto.ShopDTO;
+
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "shops")
@@ -11,6 +14,13 @@ public class Shop
     private int id;
     private String name;
     private int hash;
+
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id, this.name);
+    }
 
     public int getId() {
         return id;
@@ -34,5 +44,10 @@ public class Shop
 
     public void setHash(int hash) {
         this.hash = hash;
+    }
+
+    public ShopDTO toDto()
+    {
+        return new ShopDTO(this.name, this.hash);
     }
 }

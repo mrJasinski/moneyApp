@@ -7,4 +7,6 @@ import java.util.List;
 public interface ShopRepository
 {
     List<Shop> findAll();
+
+    Shop save(Shop entity);
 }

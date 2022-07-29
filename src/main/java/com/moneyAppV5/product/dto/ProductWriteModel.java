@@ -5,6 +5,7 @@ import com.moneyAppV5.product.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 public class ProductWriteModel
 {
@@ -36,9 +37,14 @@ public class ProductWriteModel
         result.setUnit(this.unit);
         result.setDescription(this.description);
         result.setPrices(new HashSet<>(this.prices));
-        result.setHash(this.hash);
+        result.setHash(this.hashCode());
 
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.brand, this.genre, this.name, this.barCode, this.quantity, this.unit);
     }
 
     public Brand getBrand() {

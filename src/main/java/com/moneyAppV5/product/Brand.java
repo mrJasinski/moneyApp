@@ -1,5 +1,7 @@
 package com.moneyAppV5.product;
 
+import com.moneyAppV5.product.dto.BrandDTO;
+
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
@@ -15,6 +17,11 @@ public class Brand
     private Integer hash;
     @OneToMany(mappedBy = "brand")
     private Set<Product> products;
+
+    public BrandDTO toDto()
+    {
+        return new BrandDTO(this.name, this.hash);
+    }
 
     @Override
     public int hashCode() {
@@ -36,4 +43,22 @@ public class Brand
     public void setName(String name) {
         this.name = name;
     }
+
+    public Integer getHash() {
+        return hash;
+    }
+
+    public void setHash(Integer hash) {
+        this.hash = hash;
+    }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
+    }
+
+
 }

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<main>
+    <!--/*@thymesVar id="shop" type="com.moneyAppV5.product.dto.ShopDTO"*/-->
+    <!--/*@thymesVar id="message" type="java.lang.String"*/-->
+    <h2 th:if="${message != null}" th:text="${message}"></h2>
+    <form action="#" method="post" th:action="@{/shops}" th:object="${shop}">
+        <fieldset>
+            <label>Nazwa
+                <input th:field="*{name}">
+            </label>
+            <button type="submit">Dodaj</button>
+            <button type="reset">Wyczyść</button>
+        </fieldset>
+    </form>
+    <a th:href="@{/moneys}">Strona główna</a>
+
+    <h3>Sklepy:</h3>
+    <table>
+        <tr>
+            <td>Nazwa</td>
+            <td>Opis</td>
+        </tr>
+        <tr th:each="shop : ${shopsList}">
+            <td th:text="${shop.name}"></td>
+
+        </tr>
+    </table>
+</main>
+</body>
+</html>

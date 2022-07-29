@@ -7,4 +7,6 @@ import java.util.List;
 public interface BrandRepository
 {
     List<Brand> findAll();
+
+    Brand save(Brand entity);
 }

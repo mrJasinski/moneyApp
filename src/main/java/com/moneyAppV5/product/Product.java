@@ -1,8 +1,10 @@
 package com.moneyAppV5.product;
 
 import com.moneyAppV5.product.dto.ProductDTO;
+import com.moneyAppV5.product.dto.ShopDTO;
 
 import javax.persistence.*;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -33,6 +35,30 @@ public class Product
     {
 //        TODO
         return null;
+    }
+
+    public ProductDTO toDto(ShopDTO shop, float price)
+    {
+//        TODO
+        var result = new ProductDTO();
+
+        result.setBrand(this.brand.toDto());
+        result.setGenre(this.genre.toDto());
+        result.setName(this.name);
+        result.setBarCode(this.barCode);
+        result.setQuantity(this.quantity);
+        result.setUnit(this.unit.toDto());
+        result.setDescription(this.description);
+        result.setPrice(price);
+        result.setShop(shop);
+        result.setHash(this.hash);
+
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.brand, this.genre, this.name, this.barCode, this.quantity, this.unit);
     }
 
     public int getId() {

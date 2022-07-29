@@ -1,11 +1,11 @@
 package com.moneyAppV5.product.controller;
 
-import com.moneyAppV5.bill.dto.BillWriteModel;
 import com.moneyAppV5.product.*;
-import com.moneyAppV5.product.dto.BrandDTO;
 import com.moneyAppV5.product.dto.ProductDTO;
 import com.moneyAppV5.product.dto.ProductWriteModel;
 import com.moneyAppV5.product.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,14 +22,16 @@ import java.util.List;
 public class ProductsController
 {
     private final ProductService service;
+    private static final Logger logger = LoggerFactory.getLogger(ProductsController.class);
 
     public ProductsController(ProductService service) {
         this.service = service;
     }
 
     @GetMapping
-    String showProducts()
+    String showProducts(Model model)
     {
+        model.addAttribute("product", new ProductWriteModel());
         return "products";
     }
 
@@ -45,7 +47,7 @@ public class ProductsController
 
         this.service.createProduct(current);
 
-
+        model.addAttribute("message", "Dodano!");
 
         return "products";
     }
@@ -53,17 +55,18 @@ public class ProductsController
     @PostMapping(params = "addPrice")
     String addPriceToProduct(@ModelAttribute("product") ProductWriteModel current, Model model)
     {
+        System.out.println();
+        System.out.println("1");
+
         current.getPrices().add(new Price());
+
+        System.out.println("2");
 
         model.addAttribute("product", current);
 
-        return "products";
-    }
+        System.out.println("3");
 
-    @ModelAttribute("product")
-    ProductWriteModel getNewProductAsWriteModel()
-    {
-        return new ProductWriteModel();
+        return "products";
     }
 
     @ModelAttribute("brands")
@@ -88,5 +91,11 @@ public class ProductsController
     List<Shop> getAllShops()
     {
         return this.service.readAllShops();
+    }
+
+    @ModelAttribute("productsListAsDto")
+    List<ProductDTO> getAllProductsAsDto()
+    {
+        return this.service.readAllProductsAsDto();
     }
 }

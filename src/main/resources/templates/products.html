@@ -20,26 +20,26 @@
         <fieldset>
             <legend>Nowy produkt</legend>
             <label>Producent
-                <input list="brandsList" th:field="${product.brand}" />
-                <datalist id="brandsList">
-                    <option >Proszę wybrać</option>
-                    <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.name}"></option>
-                </datalist>
-<!--                <select th:field="${product.brand}">-->
-<!--                    <option value="0">Proszę wybrać</option>-->
-<!--                    <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.name}" ></option>-->
-<!--                </select>-->
+<!--                <input list="brandsList" th:field="${product.brand}" />-->
+<!--                <datalist id="brandsList">-->
+<!--                    <option >Proszę wybrać</option>-->
+<!--                    <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.name}"></option>-->
+<!--                </datalist>-->
+                <select th:field="${product.brand}">
+                    <option value="0">Proszę wybrać</option>
+                    <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.name}" ></option>
+                </select>
             </label>
             <label>Grupa produktów
-                <input list="genresList" th:field="${product.genre}" />
-                <datalist id="genresList">
-                    <option >Proszę wybrać</option>
-                    <option th:each="genre : ${genres}" th:text="${genre.name}"></option>
-                </datalist>
-<!--                <select th:field="${product.genre}">-->
-<!--                    <option value="0">Proszę wybrać</option>-->
-<!--                    <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}" ></option>-->
-<!--                </select>-->
+<!--                <input list="genresList" th:field="${product.genre}" />-->
+<!--                <datalist id="genresList">-->
+<!--                    <option >Proszę wybrać</option>-->
+<!--                    <option th:each="genre : ${genres}" th:text="${genre.name}"></option>-->
+<!--                </datalist>-->
+                <select th:field="${product.genre}">
+                    <option value="0">Proszę wybrać</option>
+                    <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}" ></option>
+                </select>
             </label>
             <label>Nazwa
                 <input th:field="*{name}" />
@@ -65,11 +65,15 @@
                     <input type="number" step="0.01" th:field="*{prices[__${i.index}__].price}"/>
                 </label>
                 <label>Sklep
-                    <input list="shopsList" th:field="*{prices[__${i.index}__].shop}" />
-                    <datalist id="shopsList">
-                        <option >Proszę wybrać</option>
-                        <option th:each="shop : ${shops}" th:value="${shop.id}" th:text="${shop.name}"></option>
-                    </datalist>
+<!--                    <input list="shopsList" th:field="*{prices[__${i.index}__].shop}" />-->
+<!--                    <datalist id="shopsList">-->
+<!--                        <option >Proszę wybrać</option>-->
+<!--                        <option th:each="shop : ${shops}" th:text="${shop.name}"></option>-->
+<!--                    </datalist>-->
+                    <select th:field="*{prices[__${i.index}__].shop}">
+                        <option value="0">Proszę wybrać</option>
+                        <option th:each="shop : ${shops}" th:value="${shop.id}" th:text="${shop.name}" ></option>
+                    </select>
                 </label>
             </fieldset>
             <div>

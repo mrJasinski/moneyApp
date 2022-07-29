@@ -93,4 +93,20 @@ public class ProductDTO
     public void setPrice(float price) {
         this.price = price;
     }
+
+    public int getHash() {
+        return hash;
+    }
+
+    public void setHash(int hash) {
+        this.hash = hash;
+    }
+
+    public ShopDTO getShop() {
+        return shop;
+    }
+
+    public void setShop(ShopDTO shop) {
+        this.shop = shop;
+    }
 }

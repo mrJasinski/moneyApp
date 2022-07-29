@@ -30,9 +30,6 @@ public class CartGeneratorController
     @GetMapping
     String getCarGenerator(Model model)
     {
-        System.out.println();
-        System.out.println("uruchomiłem się!");
-
         model.addAttribute("shoppingList", new ShoppingListWrapperDTO());
 
         return "cartGenerator";
@@ -52,6 +49,9 @@ public class CartGeneratorController
 //        TODO po wysłaniu formularza lista sie czyści czy zostaje?
         model.addAttribute("shoppingList", current);
         model.addAttribute("message", "Lista utworzona!");
+
+        //        TODO na początek nieinteraktywna mapa<shop list<product>>
+        this.service.generateCarts(current);
 
         return "cartGenerator";
     }

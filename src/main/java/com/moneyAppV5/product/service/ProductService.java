@@ -1,17 +1,17 @@
 package com.moneyAppV5.product.service;
 
-import com.moneyAppV5.product.Brand;
-import com.moneyAppV5.product.Genre;
-import com.moneyAppV5.product.Shop;
-import com.moneyAppV5.product.Unit;
-import com.moneyAppV5.product.dto.GenreDTO;
-import com.moneyAppV5.product.dto.ProductDTO;
-import com.moneyAppV5.product.dto.ProductWriteModel;
-import com.moneyAppV5.product.dto.UnitDTO;
+import com.moneyAppV5.cart.dto.CartPositionWrapper;
+import com.moneyAppV5.cart.dto.ShoppingListWrapperDTO;
+import com.moneyAppV5.cart.dto.ShoppingPositionDTO;
+import com.moneyAppV5.product.*;
+import com.moneyAppV5.product.dto.*;
 import com.moneyAppV5.product.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,5 +80,116 @@ public class ProductService
     public List<Shop> readAllShops()
     {
         return this.shopRepository.findAll();
+    }
+
+    public void createShop(ShopDTO current)
+    {
+        this.shopRepository.save(current.toShop());
+    }
+
+    public List<ShopDTO> readAllShopsAsDto()
+    {
+       return this.shopRepository.findAll().stream().map(Shop::toDto).collect(Collectors.toList());
+    }
+
+    public void createBrand(BrandDTO current)
+    {
+        this.brandRepository.save(current.toBrand());
+    }
+
+    public List<BrandDTO> readAllBrandsAsDto()
+    {
+        return this.brandRepository.findAll().stream().map(Brand::toDto).collect(Collectors.toList());
+    }
+
+    public Map<ShopDTO, List<CartPositionWrapper>> generateCarts(ShoppingListWrapperDTO current)
+    {
+        var map = new HashMap<ShopDTO, List<CartPositionWrapper>>();
+//        TODO
+//        wrapper to lista pozycji zakupowych
+//        pozycja składa się z genre ilośc i unit
+        List<ShopDTO> shops = readAllShopsAsDto();
+
+        for(ShoppingPositionDTO position : current.getPositions())
+        {
+            for (ShopDTO shop : shops)
+            {
+//                lista z wynikami
+                var resultList = new ArrayList<CartPositionWrapper>();
+
+//                lista produktów danego asortymentu z danego sklepu
+                var products = this.repository.findProductsByShopNameAndGenreId(shop.getName(), position.getGenre().getId());
+
+//                wynalezienie z ww listy najtańszej opcji aby uzyskać wymaganą ilość
+
+                var wrapper = new CartPositionWrapper();
+                CartPositionWrapper temp;
+//TODO czy to też zadziała dla produktów niepaczkowanych?
+                for (Product p : products)
+                {
+                    temp = new CartPositionWrapper(p);
+                    //                        TODO obługa optionala
+                    temp.setPrice(this.repository.findPriceByProductIdAndShopName(p.getId(), shop.getName()).orElseThrow());
+
+                    if  (p.getQuantity() >= position.getQuantity())
+                    {
+                        temp.setQuantity(position.getQuantity());
+                        temp.setUnit(position.getUnit());
+                    }
+                    else
+                    {
+//                        TODO a może dzielenie oczekiwanej ilości przez daną w produkcie i wtedy wychodzi ilość opakowań?
+                        while(temp.getQuantity() < position.getQuantity())
+                        {
+                            temp.setAmount(temp.getAmount() + 1);
+                            temp.setQuantity(temp.getAmount() * temp.getQuantity());
+                            temp.setPrice(temp.getPrice() * temp.getAmount());
+                        }
+                    }
+                    if  (temp.getPrice() < wrapper.getPrice())
+                        wrapper = temp;
+
+                }
+                resultList.add(wrapper);
+
+//                zapisanie w wózku danej pozycji
+
+                if  (map.containsKey(shop))
+                    map.replace(shop, resultList);
+                else
+                    map.put(shop,resultList);
+
+//                TODO czy przez to że produktów może być x sztuk należy zamaista list<product> dać np list<cartPos>
+//                gdzie cartPost zawiera ilość i produkt?
+            }
+
+        }
+
+        System.out.println();
+        System.out.println(map);
+
+        return map;
+    }
+
+    public List<ProductDTO> readAllProductsAsDto()
+    {
+//        TODO
+        var products = this.repository.findAll();
+        var result = new ArrayList<ProductDTO>();
+//        product zawiera listę cen dla danych sklepów a dtro ma być już z konkretnym sklepem i ceną
+        for (Product p : products)
+        {
+            for (Price price : p.getPrices())
+            {
+//                tu może trzeba zrobić toDto które zapisuje pewne wartości i settery na cenę i sklep?
+//                albo toDto z parametrami?
+                result.add(p.toDto(price.getShop().toDto(), price.getPrice()));
+
+            }
+        }
+
+
+
+        return null;
     }
 }
