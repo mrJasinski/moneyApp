@@ -148,19 +148,20 @@ public class ProductService
                     }
                     if  (temp.getPrice() < wrapper.getPrice())
                         wrapper = temp;
-
                 }
-                resultList.add(wrapper);
+//                resultList.add(wrapper);
 
 //                zapisanie w wózku danej pozycji
 
                 if  (map.containsKey(shop))
-                    map.replace(shop, resultList);
+                    map.get(shop).add(wrapper);
                 else
-                    map.put(shop,resultList);
-
+                {
+                    resultList.add(wrapper);
+                    map.put(shop, resultList);
+                }
 //                TODO czy przez to że produktów może być x sztuk należy zamaista list<product> dać np list<cartPos>
-//                gdzie cartPost zawiera ilość i produkt?
+//                gdzie cartPos zawiera ilość i produkt?
             }
 
         }
@@ -188,8 +189,6 @@ public class ProductService
             }
         }
 
-
-
-        return null;
+        return result;
     }
 }

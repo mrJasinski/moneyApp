@@ -21,6 +21,7 @@ public interface SqlProductRepository extends ProductRepository, JpaRepository<P
     //    TODO zapytanie
 
     @Override
-    @Query(value = "", nativeQuery = true)
+    @Query(value = "select price from PRODUCTS inner join PRICES on PRICES.ID inner join shops on shops.id where shops.name " +
+            "= :shopName and PRODUCTS.ID = :productId", nativeQuery = true)
     Optional<Float> findPriceByProductIdAndShopName(Integer productId, String shopName);
 }
