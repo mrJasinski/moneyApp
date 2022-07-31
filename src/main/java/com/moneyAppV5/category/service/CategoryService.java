@@ -47,7 +47,8 @@ public class CategoryService
 //    }
     public SubCategory createSubCategory(final SubCategoryDTO toSave)
     {
-        return this.subCategoryRepository.save(toSave.toSubCategory());
+//        TODO obsługa wyjścia z optionala
+        return this.subCategoryRepository.save(toSave.toSubCategory(this.mainCategoryRepository.findByMainCategory(toSave.getMainCategory().getMainCategory()).orElseThrow()));
     }
 
     MainCategory readMainCategoryByName(String name)

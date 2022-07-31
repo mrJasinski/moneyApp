@@ -1,7 +1,6 @@
 package com.moneyAppV5.category.repository;
 
 import com.moneyAppV5.category.MainCategory;
-import com.moneyAppV5.category.Type;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +18,7 @@ public interface MainCategoryRepository
     boolean existsByMainCategory(String mainCategory);
 
     MainCategory save(MainCategory entity);
+
 
 
 

@@ -47,6 +47,7 @@ public class MainCategoryDTO
     public MainCategory toMainCategory()
     {
         var result = new MainCategory();
+
         result.setMainCategory(this.mainCategory);
         result.setHash(result.hashCode());
 

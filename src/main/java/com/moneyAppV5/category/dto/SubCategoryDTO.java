@@ -50,6 +50,17 @@ public class SubCategoryDTO
         return result;
     }
 
+    public SubCategory toSubCategory(MainCategory mainCategory)
+    {
+        var result = new SubCategory();
+        result.setSubCategory(this.subCategory);
+//        result.setDescription(this.description);
+        result.setMainCategory(mainCategory);
+        result.setHash(result.hashCode());
+
+        return result;
+    }
+
     public String getSubCategory() {
         return subCategory;
     }

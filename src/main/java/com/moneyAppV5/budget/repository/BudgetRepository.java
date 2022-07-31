@@ -1,7 +1,6 @@
 package com.moneyAppV5.budget.repository;
 
 import com.moneyAppV5.budget.Budget;
-import com.moneyAppV5.budget.dto.BudgetDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,7 @@ public interface BudgetRepository
 
 //    Budget findByMonthAndYear(int month, int year);
 
-    Budget findByHash(Integer hash);
+    Optional<Budget> findByHash(Integer hash);
 
     Optional<Integer> findNewestBudgetHash();
 

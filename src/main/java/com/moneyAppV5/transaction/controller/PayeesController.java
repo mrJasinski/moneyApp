@@ -43,6 +43,8 @@ public class PayeesController
         }
 //        TODO odświeżenie strony (F5) powoduje ponowne dodanie do bazy jak temu zapobiec?
 
+//        TODO grupa ogólna tak żeby zmieniało z np Bar na [Bar] jako wryóżnik po np kliknięciu checkboxa
+
         this.service.createPayee(current);
 
         model.addAttribute("payee", new PayeeDTO());

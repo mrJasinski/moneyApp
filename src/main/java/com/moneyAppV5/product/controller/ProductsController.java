@@ -55,16 +55,9 @@ public class ProductsController
     @PostMapping(params = "addPrice")
     String addPriceToProduct(@ModelAttribute("product") ProductWriteModel current, Model model)
     {
-        System.out.println();
-        System.out.println("1");
-
         current.getPrices().add(new Price());
 
-        System.out.println("2");
-
         model.addAttribute("product", current);
-
-        System.out.println("3");
 
         return "products";
     }

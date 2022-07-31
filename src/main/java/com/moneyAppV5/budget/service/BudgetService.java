@@ -306,7 +306,7 @@ public class BudgetService
 
     public Budget readBudgetByHash(Integer hash)
     {
-        return this.repository.findByHash(hash);
+        return this.repository.findByHash(hash).orElseThrow();
     }
 
     public BudgetPosition readPositionByHash(Integer hash) {

@@ -51,7 +51,10 @@ public class CartGeneratorController
         model.addAttribute("message", "Lista utworzona!");
 
         //        TODO na początek nieinteraktywna mapa<shop list<product>>
-        this.service.generateCarts(current);
+        var carts = this.service.generateCarts(current);
+
+        model.addAttribute("shops", carts.keySet());
+        model.addAttribute("carts", carts);
 
         return "cartGenerator";
     }
