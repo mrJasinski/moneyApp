@@ -1,0 +1,167 @@
+package com.moneyApp.bill.service;
+
+import com.moneyApp.account.Account;
+import com.moneyApp.account.service.AccountService;
+import com.moneyApp.bill.Bill;
+import com.moneyApp.bill.dto.BillDTO;
+import com.moneyApp.bill.repository.BillRepository;
+import com.moneyApp.budget.Budget;
+import com.moneyApp.budget.service.BudgetService;
+import com.moneyApp.payee.Payee;
+import com.moneyApp.payee.service.PayeeService;
+import com.moneyApp.transaction.Transaction;
+import com.moneyApp.transaction.dto.TransactionDTO;
+import com.moneyApp.transaction.service.TransactionService;
+import com.moneyApp.user.User;
+import com.moneyApp.user.service.UserService;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
+class BillServiceTest
+{
+//    public Bill createBill(BillDTO toSave)
+//    {
+//        var user = this.userService.getUserByEmail(toSave.getUserEmail());
+//        var payee = this.payeeService.getPayeeByNameAndUserId(toSave.getPayeeName(), user.getId());
+//        var account = this.accountService.getAccountByNameAndUserId(toSave.getAccountName(), user.getId());
+//        var budget = this.budgetService.getBudgetByDateAndUserId(toSave.getDate(), user.getId());
+//        var number = getHighestBillNumberByMonthYearAndUserId(toSave.getDate(), user.getId()) + 1;
+//
+//        var bill = this.billRepo.save(new Bill(number, toSave.getDate(), payee, account, budget, toSave.getDescription(), user));
+//
+//        var transactions = this.transactionService.createTransactionsByBillAndUser(toSave.getTransactions(),bill, user);
+//
+//         var sum = transactions.stream().mapToDouble(Transaction::getAmount).sum();
+//
+//        this.accountService.updateAccountBalance(account.getId(), sum, transactions.get(0).getCategory().getType());
+//
+//        return bill;
+//    }
+//TODO naprawić!
+    @Test
+    void createBill_shouldReturnCreatedBill()
+    {
+//    given
+        var mockUserService = mock(UserService.class);
+        given(mockUserService.getUserByEmail(anyString())).willReturn(new User());
+        var mockPayeeService = mock(PayeeService.class);
+        given(mockPayeeService.getPayeeByNameAndUserId(anyString(), anyLong())).willReturn(new Payee());
+        var mockAccountService = mock(AccountService.class);
+        given(mockAccountService.getAccountByNameAndUserId(anyString(), anyLong())).willReturn(new Account());
+        var mockBudgetService = mock(BudgetService.class);
+        given(mockBudgetService.getBudgetByDateAndUserId(any(), anyLong())).willReturn(new Budget());
+        var mockBillRepo = mock(BillRepository.class);
+        given(mockBillRepo.save(any())).willReturn(new Bill());
+        given(mockBillRepo.findHighestBillNumberByMonthYearAndUserId(any(), any(), anyLong())).willReturn(Optional.of(1L));
+        var mockTransactionService = mock(TransactionService.class);
+        given(mockTransactionService.createTransactionsByBillAndUser(anyList(), any(), any())).willReturn(List.of(new Transaction(), new Transaction()));
+
+//    system under test
+        var toTest = new BillService(mockBillRepo, mockUserService, mockAccountService, mockPayeeService, mockBudgetService,
+                mockTransactionService);
+//    when
+//        TODO
+//        var result = toTest.createBillByUserEmail(new BillDTO(LocalDate.now(), "payee", "account",
+//                "desc", List.of(new TransactionDTO(), new TransactionDTO())));
+//    then
+//        assertNotNull(result);
+    }
+
+    @Test
+    void getHighestBillNumberByMonthYearAndUserId_shouldReturnHighestNumberStoredInDbForGivenMonthAndYear()
+    {
+//    given
+        var mockBillRepo = mock(BillRepository.class);
+        given(mockBillRepo.findHighestBillNumberByMonthYearAndUserId(anyInt(), anyInt(), anyLong())).willReturn(Optional.of(1L));
+
+//    system under test
+        var toTest = new BillService(mockBillRepo, null, null, null, null,
+                null);
+
+//    when
+        var result = toTest.getHighestBillNumberByMonthYearAndUserId(LocalDate.now(), 5L);
+
+//    then
+        assertNotEquals(0, result);
+        assertEquals(1L, result);
+    }
+
+    @Test
+    void getHighestBillNumberByMonthYearAndUserId_shouldReturnZeroInNoNumberInDbForGivenMonthAndYear()
+    {
+//    given
+        var mockBillRepo = mock(BillRepository.class);
+        given(mockBillRepo.findHighestBillNumberByMonthYearAndUserId(anyInt(), anyInt(), anyLong())).willReturn(Optional.empty());
+
+//    system under test
+        var toTest = new BillService(mockBillRepo, null, null, null, null,
+                null);
+
+//    when
+        var result = toTest.getHighestBillNumberByMonthYearAndUserId(LocalDate.now(), 5L);
+
+//    then
+        assertEquals(0, result);
+    }
+
+//List<Bill> getBillsByUserId(long userId)
+//{
+//    return this.billRepo.findByUserId(userId);
+//}
+
+    @Test
+    void getBillsByUserId_shouldReturnBillsList()
+    {
+//    given
+        var mockBillRepo = mock(BillRepository.class);
+        given(mockBillRepo.findByUserId(anyLong())).willReturn(List.of(new Bill(), new Bill()));
+//    system under test
+        var toTest = new BillService(mockBillRepo, null, null, null, null,
+                null);
+//    when
+        var result = toTest.getBillsByUserId(5L);
+
+//    then
+        assertTrue(result.size() > 0);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void getBillsByUserId_shouldReturnEmptyListWhenNoBillsInDb()
+    {
+        //    given
+        var mockBillRepo = mock(BillRepository.class);
+        given(mockBillRepo.findByUserId(anyLong())).willReturn(List.of());
+//    system under test
+        var toTest = new BillService(mockBillRepo, null, null, null, null,
+                null);
+//    when
+        var result = toTest.getBillsByUserId(5L);
+
+//    then
+        assertEquals(0, result.size());
+    }
+//TODO konwersja do dto w encji?
+//    public List<BillDTO> getBillsByUserEmailAsDto(String email)
+//    {
+//        return getBillsByUserId(this.userService.getUserIdByEmail(email))
+//                .stream()
+//                .map(Bill::toDto)
+//                .collect(Collectors.toList());
+//    }
+
+
+//    given
+//    system under test
+//    when
+//    then
+}
