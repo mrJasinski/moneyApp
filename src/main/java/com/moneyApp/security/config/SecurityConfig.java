@@ -63,9 +63,11 @@ public class SecurityConfig
 //                .requestMatchers("/budgets/**", "/user/**").hasRole("USER")
                 .requestMatchers("/budgets/**", "/user/**", "/categories/**", "/bills/**", "/accounts/**", "/payees/**", "/payments/**",
                         "/myDashboard").authenticated()
-                .requestMatchers("/register", "/authenticate").permitAll()
+//                TODO sendMail tylko dla testu - usunąć po!
+                .requestMatchers("/register", "/authenticate", "/sendMail").permitAll()
                 .and().formLogin()
                 .and().httpBasic();
+
 
         return http.build();
     }

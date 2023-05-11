@@ -1,13 +1,14 @@
 package com.moneyApp.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.moneyApp.user.User;
 import com.moneyApp.user.UserRole;
 
 public class UserDTO
 {
     private String email;   // również nazwa użytkownika
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String name;    // imię wykorzystywane do komunikatów wewnątrz apki
     private UserRole role;

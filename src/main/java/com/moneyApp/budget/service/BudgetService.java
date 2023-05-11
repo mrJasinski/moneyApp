@@ -49,7 +49,7 @@ public class BudgetService
     Budget getBudgetByMonthYearAndUserId(LocalDate date, Long userId)
     {
         return this.budgetRepo.findByMonthYearAndUserId(date, userId)
-                .orElseThrow(() -> new IllegalArgumentException("No budget for given moth and year!"));
+                .orElseThrow(() -> new IllegalArgumentException("No budget for given month and year!"));
     }
 
     public void getBudgetDtoAmounts(BudgetDTO dto, Long userId)
@@ -71,7 +71,7 @@ public class BudgetService
         dto.setExpensesSum(dto.getPlannedExpenses() - dto.getActualExpenses());;
     }
 
-    private Long getBudgetIdByNumberAndUserId(String number, Long userId)
+    Long getBudgetIdByNumberAndUserId(String number, Long userId)
     {
         return this.budgetRepo.findIdByMonthYearAndUserId(getBudgetMonthYearByNumber(number), userId)
                 .orElseThrow(() -> new IllegalArgumentException("No budget for given number!"));
@@ -79,10 +79,15 @@ public class BudgetService
 
     LocalDate getBudgetMonthYearByNumber(String number)
     {
-        var month = Integer.parseInt(number.substring(0, 2));
-        var year = Integer.parseInt(number.substring(2, 6));
+        if (number.length() == 6 && number.matches("\\d+"))
+        {
+            var month = Integer.parseInt(number.substring(0, 2));
+            var year = Integer.parseInt(number.substring(2, 6));
 
-        return LocalDate.of(year, month, 1);
+            return LocalDate.of(year, month, 1);
+        }
+        else
+            throw new IllegalArgumentException("Wrong budget number!");
     }
 
     List<BudgetPosition> getBudgetPositionsByBudgetIdAndCategoryType(long budgetId, CategoryType categoryType)
@@ -186,16 +191,16 @@ public class BudgetService
             toSave.setMonthYear(LocalDate.of(toSave.getMonthYear().getYear(), toSave.getMonthYear().getMonth().getValue(), 1));
 
 //        sprawdzenie czy budżet na dany miesiąc i rok już istnieje w bazie
-        if (!this.budgetRepo.existsByMonthYearAndUserId(toSave.getMonthYear(), this.userService.getUserIdByEmail(email)))
-        {
-            var budget = toSave.toBudget();
-
-            budget.setUser(this.userService.getUserByEmail(email));
-
-            return this.budgetRepo.save(budget);
-        }
-        else
+        if (this.budgetRepo.existsByMonthYearAndUserId(toSave.getMonthYear(), this.userService.getUserIdByEmail(email)))
             throw new IllegalArgumentException("Budget for given month and year already exists!");
+
+        var budget = toSave.toBudget();
+
+        budget.setUser(this.userService.getUserByEmail(email));
+
+        return this.budgetRepo.save(budget);
+
+
     }
 
     public List<Budget> getAllBudgets()

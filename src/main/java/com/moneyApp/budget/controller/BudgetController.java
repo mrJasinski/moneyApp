@@ -1,12 +1,16 @@
 package com.moneyApp.budget.controller;
 
+import com.moneyApp.budget.csv.BudgetCsvFileGenerator;
 import com.moneyApp.budget.dto.BudgetDTO;
 import com.moneyApp.budget.service.BudgetService;
 import com.moneyApp.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.URI;
 
 @RestController
@@ -15,6 +19,9 @@ public class BudgetController
 {
     private final BudgetService budgetService;
     private final JwtService jwtService;
+
+    @Autowired
+    private BudgetCsvFileGenerator csvGenerator;
 
     public BudgetController(BudgetService budgetService, JwtService jwtService)
     {
@@ -40,5 +47,18 @@ public class BudgetController
     ResponseEntity<?> getBudgetByMontAndYear(@PathVariable String number, HttpServletRequest request)
     {
         return ResponseEntity.ok().body(this.budgetService.getBudgetByNumberAndUserEmailAsDto(number, this.jwtService.getUserEmail(request)));
+    }
+
+//    TODO test
+    @GetMapping("/{number}/export")
+    void exportBudgetToCSV(@PathVariable String number, HttpServletRequest request, HttpServletResponse response) throws IOException
+//    ResponseEntity<?> exportBudgetToCSV(@PathVariable String number, HttpServletRequest request, HttpServletResponse response) throws IOException
+    {
+        response.setContentType("text/csv");
+        response.addHeader("Content-Disposition", "attachment; filename=\"budget.csv\"");
+        this.csvGenerator.writeBudgetDtoToCsv(this.budgetService.getBudgetByNumberAndUserEmailAsDto(number,
+                this.jwtService.getUserEmail(request)), response.getWriter());
+
+//        return ResponseEntity.ok("Done!");
     }
 }

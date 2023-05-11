@@ -39,7 +39,6 @@ public class MoneyAppAuthenticationManager implements AuthenticationManager
             return new UsernamePasswordAuthenticationToken(username, pwd, getGrantedAuthorities(user.getRole()));
         else
             throw new BadCredentialsException("Invalid password!");
-
     }
 
     private List<GrantedAuthority> getGrantedAuthorities(UserRole role)

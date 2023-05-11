@@ -1,12 +1,15 @@
 package com.moneyApp.user.controller;
 
+import com.moneyApp.mail.service.MailService;
 import com.moneyApp.security.JwtRequest;
 import com.moneyApp.security.JwtService;
 import com.moneyApp.user.dto.UserDTO;
 import com.moneyApp.user.service.DashboardService;
 import com.moneyApp.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +24,12 @@ public class UserController
     private final DashboardService dashboardService;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private SimpleMailMessage message;
 
     public UserController(UserService userService, DashboardService dashboardService, JwtService jwtService, AuthenticationManager authManager)
     {
@@ -59,5 +68,15 @@ public class UserController
         var user = this.userService.createUser(toSave);
 
         return ResponseEntity.created(URI.create("/" + user.getEmail())).body(user);
+    }
+
+//    TODO test
+//    nawet zadziałało :D
+    @GetMapping("/sendMail")
+    ResponseEntity<?> sendMailToUser()
+    {
+        this.mailService.sendSimpleMessage("abakan@ymail.com", "Test", this.message.getText());
+
+        return ResponseEntity.ok("Sent!");
     }
 }
