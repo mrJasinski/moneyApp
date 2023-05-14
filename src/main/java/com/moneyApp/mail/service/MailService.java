@@ -1,5 +1,6 @@
 package com.moneyApp.mail.service;
 
+import com.moneyApp.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,7 +15,7 @@ public class MailService
     public void sendSimpleMessage(String mailTo, String subject, String text)
     {
         var message = new SimpleMailMessage();
-        message.setFrom("moneyAppMain@gmail.com");
+        message.setFrom(Utils.APP_MAIL);
         message.setTo(mailTo);
         message.setSubject(subject);
         message.setText(text);

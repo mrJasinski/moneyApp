@@ -8,14 +8,26 @@ import com.moneyApp.payment.PaymentStatus;
 import com.moneyApp.payment.dto.PaymentDTO;
 import com.moneyApp.payment.repository.PaymentDateRepository;
 import com.moneyApp.payment.repository.PaymentRepository;
+import com.moneyApp.quartz.bae.SendPaymentReminder;
+import com.moneyApp.quartz.stack.ScheduleService;
 import com.moneyApp.user.service.UserService;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobBuilder;
+import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.quartz.TriggerBuilder.newTrigger;
 
 @Service
 public class PaymentService
@@ -23,6 +35,9 @@ public class PaymentService
     private final PaymentRepository paymentRepo;
     private final PaymentDateRepository paymentDateRepo;
     private final UserService userService;
+
+    @Autowired
+    private ScheduleService scheduleService;
 
     public PaymentService(PaymentRepository paymentRepo, PaymentDateRepository paymentDateRepo, UserService userService)
     {
@@ -94,19 +109,22 @@ public class PaymentService
                 toSave.getDescription(), toSave.getAmount(), this.userService.getUserByEmail(userEmail)));
 
 //        sprawdzenie czy częstotliwości inne niż jednorazowa mają stosowną krotność
-//        sprawdzenie krotności dla jednorazowej się pomija ponieważ nie jest brana ona pod uwagę
+//        sprawdzenie krotności dla jednorazowej się pomija ponieważ nie jest brana ona [krotność] pod uwagę
         if (!(payment.getFrequencyType()).equals(PaymentFrequency.ONCE) && payment.getFrequency() <= 1)
             throw new IllegalArgumentException("Wrong payment frequency!");
-        else
-            generatePaymentDates(payment);
+
+        generatePaymentDates(payment);
 
         return payment;
     }
 
-    public void setPaymentAsPaid()
+    public void setPaymentDateAsPaid(Long paymentDateId)
     {
 //        TODO określenie warunku na odnalezienie płatności
-//        this.paymentDateRepo.setPaymentAsPaid();
+
+        this.paymentDateRepo.setPaymentAsPaidById(paymentDateId);
+
+        this.scheduleService.deleteJob();
     }
 
     void generatePaymentDates(Payment payment)
@@ -137,6 +155,59 @@ public class PaymentService
                     result.add(createPaymentDateByDate(payment.getStartDate().plusYears(i), payment));
             }
         }
+
+//        założeniem jest że przypomnienie jest wysyłane dzień przed o 18ej
+//        póki co zakodwane na szytwno a następnie o godzinie i ew ilości dni przed podanej przez uzytkownika
+        try
+        {
+            scheduleReminders(result);
+        } catch (SchedulerException e)
+        {
+//            TODO obsługa błędu
+            throw new RuntimeException(e);
+        }
+    }
+
+    void scheduleReminders(Set<PaymentDate> dates) throws SchedulerException
+    {
+        for (PaymentDate d : dates)
+        {
+            var jobDetail = JobBuilder.newJob().ofType(SendPaymentReminder.class)
+                    .storeDurably()
+                    .withIdentity(UUID.randomUUID().toString(), "PAYMENT_NOTIFICATIONS")
+                    .withDescription("Send email notification for payment")
+                    .build();
+
+            jobDetail.getJobDataMap().put("paymentDateId", d.getId());
+
+            var cronDateTime = getReminderCronDateTime(d);
+
+            var trigger = newTrigger().forJob(jobDetail)
+            .withIdentity(UUID.randomUUID().toString(), "PAYMENT_NOTIFICATIONS")
+            .withDescription("Trigger description")
+            .withSchedule(CronScheduleBuilder.cronSchedule(cronDateTime))
+            .build();
+
+            this.scheduleService.scheduleJob(jobDetail, trigger);
+        }
+    }
+
+    String getReminderCronDateTime(PaymentDate paymentDate)
+    {
+        var dateTime = computeReminderDate(paymentDate);
+
+        var year = dateTime.getYear();
+        var month = dateTime.getMonthValue();
+        var day = dateTime.getDayOfMonth();
+        var hour = dateTime.getHour();
+        var minute = dateTime.getMinute();
+
+        return String.format("0 %d %d %d %d ? %d", minute, hour, day, month, year);
+    }
+
+    LocalDateTime computeReminderDate(PaymentDate date)
+    {
+        return LocalDateTime.of(date.getPaymentDate().minusDays(1), LocalTime.of(18, 0));
     }
 
     PaymentDate createPaymentDateByDate(LocalDate date, Payment payment)
@@ -155,5 +226,11 @@ public class PaymentService
     public List<Payment> getPaymentsByUserId(Long userId)
     {
         return this.paymentRepo.findByUserId(userId);
+    }
+
+    public PaymentDate getPaymentDateById(Long paymentDateId)
+    {
+        return this.paymentDateRepo.findById(paymentDateId)
+                .orElseThrow(() -> new IllegalArgumentException("No payment date with given id!"));
     }
 }

@@ -3,6 +3,7 @@ package com.moneyApp.payment;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "payment_dates")
@@ -49,7 +50,7 @@ public class PaymentDate
         return this.payment;
     }
 
-//    TODO test
+    //    TODO test
 
     @Override
     public String toString()
