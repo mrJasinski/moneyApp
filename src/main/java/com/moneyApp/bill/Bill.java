@@ -20,7 +20,7 @@ public class Bill
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long number;  // numer kolejny w danym miesiącu
-    private LocalDate date;
+    private LocalDate billDate;
     @ManyToOne
     @JoinColumn(name = "payee_id")
     private Payee payee;
@@ -42,10 +42,10 @@ public class Bill
     {
     }
 
-    public Bill(Long number, LocalDate date, Payee payee, Account account, Budget budget, String description, User user)
+    public Bill(Long number, LocalDate billDate, Payee payee, Account account, Budget budget, String description, User user)
     {
         this.number = number;
-        this.date = date;
+        this.billDate = billDate;
         this.payee = payee;
         this.account = account;
         this.budget = budget;
@@ -53,9 +53,15 @@ public class Bill
         this.user = user;
     }
 
+    public Bill(Long id, Long number, LocalDate billDate, Payee payee, Account account, Budget budget, String description, User user)
+    {
+        this(number, billDate, payee, account, budget, description, user);
+        this.id = id;
+    }
+
     public BillDTO toDto()
     {
-        return new BillDTO(this.number, this.date, this.payee.getName(), this.description, this.transactions);
+        return new BillDTO(this.number, this.billDate, this.payee.getName(), this.description, this.transactions);
     }
 
     public Long getId()
@@ -68,9 +74,9 @@ public class Bill
         return this.number;
     }
 
-    public LocalDate getDate()
+    public LocalDate getBillDate()
     {
-        return this.date;
+        return this.billDate;
     }
 
     public Payee getPayee()

@@ -1,4 +1,4 @@
-package com.moneyApp.quartz.bae;
+package com.moneyApp.schedule;
 
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeansException;
@@ -9,7 +9,6 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 public final class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory implements ApplicationContextAware
 {
-
     private transient AutowireCapableBeanFactory beanFactory;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
@@ -25,5 +24,4 @@ public final class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory i
 
         return job;
     }
-
 }

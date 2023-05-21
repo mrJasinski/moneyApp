@@ -7,6 +7,8 @@ import com.moneyApp.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.regex.Pattern;
+
 @Service
 public class UserService
 {
@@ -32,14 +34,41 @@ public class UserService
 
     public User createUser(UserDTO toSave)
     {
-        if (!this.userRepo.existsByEmail(toSave.getEmail()))
-        {
-            toSave.setPassword(hashPassword(toSave.getPassword()));
+        if (!validateEmail(toSave.getEmail()))
+            throw new IllegalArgumentException("Invalid email address provided!");
 
-            return this.userRepo.save(toSave.toUser());
-        }
-        else
+        if (this.userRepo.existsByEmail(toSave.getEmail()))
             throw new IllegalArgumentException("User with given email already exists!");
+
+        if (!validatePassword(toSave.getPassword()))
+            throw new IllegalArgumentException("Provided password is invalid!");
+
+        toSave.setPassword(hashPassword(toSave.getPassword()));
+
+        return this.userRepo.save(toSave.toUser());
+    }
+
+    boolean validateEmail(String email)
+    {
+        var regex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+
+        return email.matches(regex);
+    }
+
+    boolean validatePassword(String password)
+    {
+//        wymagania dla hasła
+//        min 8 znaków
+//        max 24 znaki
+//        min jeden mały znak
+//        min jeden duży znak
+//        min jedna cyfra
+//        min jeden znak specjalny (#?!@$%^&*-)
+//        brak spacji
+
+        var regex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[#?!@$%^&*-])(?=\\S+$).{8,24}$";
+
+        return password.matches(regex);
     }
 
     String hashPassword(String toHash)
@@ -67,9 +96,9 @@ public class UserService
 
     public void deleteUserById(long userId)
     {
-        if (this.userRepo.existsById(userId))
-            this.userRepo.deleteById(userId);
-        else
+        if (!this.userRepo.existsById(userId))
             throw new IllegalArgumentException("User with given id not found!");
+
+        this.userRepo.deleteById(userId);
     }
 }

@@ -13,6 +13,9 @@ public interface PaymentDateRepository
     List<PaymentDate> findByDatesAndUserId(LocalDate startDate, LocalDate endDate, Long userId);
 
     Optional<PaymentDate> findById(Long paymentDateId);
+    Optional<PaymentDate> findByHash(Integer hash);
 
     void setPaymentAsPaidById(Long paymentDateId);
+
+
 }

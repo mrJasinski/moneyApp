@@ -46,7 +46,7 @@ public class BillService
 
         var bill = this.billRepo.save(new Bill(number, toSave.getDate(), payee, account, budget, toSave.getDescription(), user));
 
-        var transactions = this.transactionService.createTransactionsByBillAndUser(toSave.getTransactions(),bill, user);
+        var transactions = this.transactionService.createTransactionsByBill(toSave.getTransactions(),bill);
 
          var sum = transactions.stream().mapToDouble(Transaction::getAmount).sum();
 

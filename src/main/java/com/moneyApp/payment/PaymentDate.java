@@ -17,6 +17,7 @@ public class PaymentDate
     @ManyToOne
     @JoinColumn(name = "payment_id")
     private Payment payment;
+    private int hash;
 
     public PaymentDate()
     {
@@ -28,6 +29,13 @@ public class PaymentDate
 //        domyślnie ustawiane na false ponieważ z założenia jest to do opłacenia w przyłości
         this.isPaid = false;
         this.payment = payment;
+        this.hash = hashCode();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.paymentDate, this.payment);
     }
 
     public Long getId()
@@ -48,6 +56,11 @@ public class PaymentDate
     public Payment getPayment()
     {
         return this.payment;
+    }
+
+    public int getHash()
+    {
+        return this.hash;
     }
 
     //    TODO test

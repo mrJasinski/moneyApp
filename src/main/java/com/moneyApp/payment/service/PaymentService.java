@@ -8,8 +8,9 @@ import com.moneyApp.payment.PaymentStatus;
 import com.moneyApp.payment.dto.PaymentDTO;
 import com.moneyApp.payment.repository.PaymentDateRepository;
 import com.moneyApp.payment.repository.PaymentRepository;
-import com.moneyApp.quartz.bae.SendPaymentReminder;
-import com.moneyApp.quartz.stack.ScheduleService;
+import com.moneyApp.schedule.ScheduleUtils;
+import com.moneyApp.schedule.job.SendPaymentReminder;
+import com.moneyApp.schedule.service.ScheduleService;
 import com.moneyApp.user.service.UserService;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
@@ -23,7 +24,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -118,13 +118,11 @@ public class PaymentService
         return payment;
     }
 
-    public void setPaymentDateAsPaid(Long paymentDateId)
+    public void setPaymentDateAsPaid(PaymentDate paymentDate)
     {
-//        TODO określenie warunku na odnalezienie płatności
+        this.paymentDateRepo.setPaymentAsPaidById(paymentDate.getId());
 
-        this.paymentDateRepo.setPaymentAsPaidById(paymentDateId);
-
-        this.scheduleService.deleteJob();
+        this.scheduleService.deleteJob(String.valueOf(paymentDate.getHash()), ScheduleUtils.GROUP_PAYMENT_NOTIFICATIONS);
     }
 
     void generatePaymentDates(Payment payment)
@@ -174,7 +172,7 @@ public class PaymentService
         {
             var jobDetail = JobBuilder.newJob().ofType(SendPaymentReminder.class)
                     .storeDurably()
-                    .withIdentity(UUID.randomUUID().toString(), "PAYMENT_NOTIFICATIONS")
+                    .withIdentity(String.valueOf(d.getHash()), ScheduleUtils.GROUP_PAYMENT_NOTIFICATIONS)
                     .withDescription("Send email notification for payment")
                     .build();
 
@@ -183,7 +181,7 @@ public class PaymentService
             var cronDateTime = getReminderCronDateTime(d);
 
             var trigger = newTrigger().forJob(jobDetail)
-            .withIdentity(UUID.randomUUID().toString(), "PAYMENT_NOTIFICATIONS")
+            .withIdentity(String.valueOf(d.getHash()), ScheduleUtils.GROUP_PAYMENT_NOTIFICATIONS)
             .withDescription("Trigger description")
             .withSchedule(CronScheduleBuilder.cronSchedule(cronDateTime))
             .build();
@@ -207,7 +205,8 @@ public class PaymentService
 
     LocalDateTime computeReminderDate(PaymentDate date)
     {
-        return LocalDateTime.of(date.getPaymentDate().minusDays(1), LocalTime.of(18, 0));
+//        TODO zmiana z 18:00 testowo
+        return LocalDateTime.of(date.getPaymentDate().minusDays(1), LocalTime.of(10, 50));
     }
 
     PaymentDate createPaymentDateByDate(LocalDate date, Payment payment)
@@ -232,5 +231,11 @@ public class PaymentService
     {
         return this.paymentDateRepo.findById(paymentDateId)
                 .orElseThrow(() -> new IllegalArgumentException("No payment date with given id!"));
+    }
+
+    public PaymentDate getPaymentDateByHash(Integer hash)
+    {
+        return this.paymentDateRepo.findByHash(hash)
+                .orElseThrow(() -> new IllegalArgumentException("No payment date found for given hash!"));
     }
 }

@@ -6,7 +6,6 @@ import com.moneyApp.account.repository.AccountRepository;
 import com.moneyApp.user.User;
 import com.moneyApp.user.service.UserService;
 import org.junit.jupiter.api.Test;
-import org.springframework.cglib.proxy.LazyLoader;
 
 import java.util.Optional;
 
@@ -17,7 +16,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-class AccountServiceTest
+class AccountServiceUnitTest
 {
     @Test
     void getAccountByNameAndUserId_shouldReturnAccountWhenFoundInDb()

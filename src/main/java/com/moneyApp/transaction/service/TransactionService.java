@@ -2,13 +2,11 @@ package com.moneyApp.transaction.service;
 
 import com.moneyApp.bill.Bill;
 import com.moneyApp.budget.BudgetPosition;
-import com.moneyApp.budget.service.BudgetService;
 import com.moneyApp.category.service.CategoryService;
 import com.moneyApp.payee.service.PayeeService;
 import com.moneyApp.transaction.Transaction;
 import com.moneyApp.transaction.dto.TransactionDTO;
 import com.moneyApp.transaction.repository.TransactionRepository;
-import com.moneyApp.user.User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -33,30 +31,33 @@ public class TransactionService
     {
         //        monthYear jako data początkowa ponieważ jest zapisywana jako RRRR-MM-1
 
+        if (monthYear.getDayOfMonth() != 1)
+            monthYear = LocalDate.of(monthYear.getYear(), monthYear.getMonth().getValue(), 1);
+
         return this.transactionRepo.findTransactionsBetweenDatesAndUserId(monthYear, LocalDate.of(monthYear.getYear(),
                 monthYear.getMonth().getValue(), monthYear.lengthOfMonth()), userId);
     }
 
-    public List<Transaction> createTransactionsByBillAndUser(List<TransactionDTO> transactions, Bill bill, User user)
+    public List<Transaction> createTransactionsByBill(List<TransactionDTO> transactions, Bill bill)
     {
         var result = new ArrayList<Transaction>();
 
-        transactions.forEach(dto -> result.add(createTransactionByBillAndUser(dto, bill, user)));
+        transactions.forEach(dto -> result.add(createTransactionByBill(dto, bill)));
 
         return result;
     }
 
-    Transaction createTransactionByBillAndUser(TransactionDTO toSave, Bill bill, User user)
+    Transaction createTransactionByBill(TransactionDTO toSave, Bill bill)
     {
 //        wyciągnięcie z bazy najwyższego numeru transkcji w danym rachunku
 //        i zwiększenie o 1 dla obecnej (aby najniższy wynosił 1)
         var number = getHighestTransactionNumberByBillId(bill.getId()) + 1;
 
 //        odczyt kategorii transakcji po nazwie kategorii
-        var category = this.categoryService.getCategoryByNameAndUserId(toSave.getCategoryName(), user.getId());
-        var gainer = this.payeeService.getPayeeByNameAndUserId(toSave.getGainerName(), user.getId());
+        var category = this.categoryService.getCategoryByNameAndUserId(toSave.getCategoryName(), bill.getUser().getId());
+        var gainer = this.payeeService.getPayeeByNameAndUserId(toSave.getGainerName(), bill.getUser().getId());
 
-        var result = new Transaction(number, toSave.getAmount(), category, gainer, toSave.getDescription(), bill, user);
+        var result = new Transaction(number, toSave.getAmount(), category, gainer, toSave.getDescription(), bill, bill.getUser());
 
        return this.transactionRepo.save(result);
     }
@@ -69,8 +70,19 @@ public class TransactionService
                 .orElse(0L);
     }
 
-    public void updatePositionIdInDb(Long transactionId, BudgetPosition position, long userId)
+    public void updatePositionInTransaction(Transaction transaction, BudgetPosition position, long userId)
     {
-        this.transactionRepo.updatePositionIdInDb(transactionId, position, userId);
+        transaction.setPosition(position);
+        this.transactionRepo.updatePositionIdInDb(transaction.getId(), position, userId);
+    }
+
+    public List<Transaction> getTransactionsWithoutBudgetPositionByDateAndUserId(LocalDate startDate, LocalDate endDate, Long userId)
+    {
+        return this.transactionRepo.findTransactionsBetweenDatesWithoutBudgetPositionByUserId(startDate, endDate, userId);
+    }
+
+    public List<Transaction> getTransactionsWithoutBudgetPositionsByUserId(Long userId)
+    {
+        return this.transactionRepo.findTransactionsWithoutBudgetPositionByUserId(userId);
     }
 }

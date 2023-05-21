@@ -46,13 +46,14 @@ class BillServiceTest
 //
 //        return bill;
 //    }
+
 //TODO naprawić!
     @Test
     void createBill_shouldReturnCreatedBill()
     {
 //    given
         var mockUserService = mock(UserService.class);
-        given(mockUserService.getUserByEmail(anyString())).willReturn(new User());
+        given(mockUserService.getUserByEmail(anyString())).willReturn(new User(1L, "foo@example.com"));
         var mockPayeeService = mock(PayeeService.class);
         given(mockPayeeService.getPayeeByNameAndUserId(anyString(), anyLong())).willReturn(new Payee());
         var mockAccountService = mock(AccountService.class);
@@ -61,19 +62,21 @@ class BillServiceTest
         given(mockBudgetService.getBudgetByDateAndUserId(any(), anyLong())).willReturn(new Budget());
         var mockBillRepo = mock(BillRepository.class);
         given(mockBillRepo.save(any())).willReturn(new Bill());
-        given(mockBillRepo.findHighestBillNumberByMonthYearAndUserId(any(), any(), anyLong())).willReturn(Optional.of(1L));
+        given(mockBillRepo.findHighestBillNumberByMonthYearAndUserId(anyInt(), anyInt(), anyLong())).willReturn(Optional.of(1L));
         var mockTransactionService = mock(TransactionService.class);
-        given(mockTransactionService.createTransactionsByBillAndUser(anyList(), any(), any())).willReturn(List.of(new Transaction(), new Transaction()));
+        given(mockTransactionService.createTransactionsByBill(anyList(), any())).willReturn(List.of(
+                new Transaction(0L, 12D, null, null, null, null, null),
+                new Transaction(0L, 12D, null, null, null, null, null)));
 
 //    system under test
         var toTest = new BillService(mockBillRepo, mockUserService, mockAccountService, mockPayeeService, mockBudgetService,
                 mockTransactionService);
 //    when
 //        TODO
-//        var result = toTest.createBillByUserEmail(new BillDTO(LocalDate.now(), "payee", "account",
-//                "desc", List.of(new TransactionDTO(), new TransactionDTO())));
+        var result = toTest.createBillByUserEmail(new BillDTO(LocalDate.now(), "payee", "account",
+                "desc", List.of(new TransactionDTO(), new TransactionDTO())), "foo@example.com");
 //    then
-//        assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test

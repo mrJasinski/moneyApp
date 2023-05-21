@@ -71,12 +71,8 @@ public class JwtService
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final var username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
-    public Boolean validateToken(String token, User userDetails) {
+    public Boolean validateToken(String token, User userDetails)
+    {
         final var username = extractUsername(token);
         return (username.equals(userDetails.getEmail()) && !isTokenExpired(token));
     }

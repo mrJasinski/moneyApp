@@ -104,7 +104,7 @@ public class BudgetService
         var categories = this.categoryService.getCategoriesByTypeAndUserId(categoryType, userId);
 
         var posCategories = positions.stream().map(BudgetPosition::getCategory).toList();
-
+//TODO czy da się to skrócić do podnie jak w getBudgetForList
         createBudgetPositionsByCategories(categories, posCategories, positions, budgetId);
 
         var transactions = this.transactionService.getTransactionsByMonthYearAndUserId(getBudgetMonthYearById(budgetId), userId);
@@ -140,8 +140,7 @@ public class BudgetService
                 {
                     if ((p.getCategory()).equals(t.getCategory()))
                     {
-                        t.setPosition(p);
-                        this.transactionService.updatePositionIdInDb(t.getId(), p, userId);
+                        this.transactionService.updatePositionInTransaction(t, p, userId);
                         p.getTransactions().add(t);
                     }
                 });
@@ -199,8 +198,6 @@ public class BudgetService
         budget.setUser(this.userService.getUserByEmail(email));
 
         return this.budgetRepo.save(budget);
-
-
     }
 
     public List<Budget> getAllBudgets()
@@ -216,6 +213,71 @@ public class BudgetService
     public List<Budget> getBudgetsByUserId(Long userId)
     {
         return this.budgetRepo.findByUserId(userId);
+    }
+
+    List<BudgetDTO> getBudgetForList(String email, Long userId)
+    {
+
+//        przed wyciągnięciem listy sprawdzenie czy powinny zostać przypisane jakieś pozycje transakcje itd
+//sprawdzenie czy są transakcje z danego miesiąca bez przypisanej pozycji
+
+       var transactions = this.transactionService.getTransactionsWithoutBudgetPositionsByUserId(userId);
+
+       if (transactions.size() != 0)
+          for (Transaction t : transactions)
+          {
+              var position = this.positionRepo.findBudgetPositionByDateAndCategoryAndUserId(t.getBill().getBillDate(), t.getCategory(), userId)
+                      .orElse(createBudgetPosition(t.getCategory(), getBudgetByDateAndUserId(t.getBill().getBillDate(), userId)));
+
+              this.transactionService.updatePositionInTransaction(t, position, userId);
+          }
+
+
+
+        var budgets = getBudgetsByUserId(this.userService.getUserIdByEmail(email));
+        var result = new ArrayList<BudgetDTO>();
+
+        budgets.forEach(b ->
+        {
+            var incomes = new ArrayList<BudgetPosition>();
+            var expenses = new ArrayList<BudgetPosition>();
+
+            for (BudgetPosition p : b.getPositions())
+            {
+                switch (p.getCategory().getType())
+                {
+                    case INCOME -> incomes.add(p);
+                    case EXPENSE -> expenses.add(p);
+                }
+            }
+
+            var dto = b.toDto();
+
+            dto.setPlannedIncomes(incomes.stream().mapToDouble(BudgetPosition::getPlannedAmount).sum());
+            dto.setPlannedExpenses(expenses.stream().mapToDouble(BudgetPosition::getPlannedAmount).sum());
+            dto.setPlannedSum(dto.getPlannedIncomes() - dto.getPlannedExpenses());
+
+            dto.setActualIncomes(sumTransactionsInBudgetPositionsList(incomes));
+            dto.setActualExpenses(sumTransactionsInBudgetPositionsList(expenses));
+            dto.setActualSum(dto.getActualIncomes() - dto.getActualExpenses());
+        });
+
+        return result;
+    }
+
+    BudgetPosition createBudgetPosition(Category category, Budget budget)
+    {
+        return this.positionRepo.save(new BudgetPosition(category, budget));
+    }
+
+    double sumTransactionsInBudgetPositionsList(List<BudgetPosition> positions)
+    {
+        var sum = 0;
+
+        for (BudgetPosition p : positions)
+            sum += p.getTransactions().stream().mapToDouble(Transaction::getAmount).sum();
+
+        return sum;
     }
 
     public List<BudgetDTO> getBudgetsByUserEmailAsDto(String email)

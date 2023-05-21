@@ -56,8 +56,6 @@ public class SecurityConfig
                                  "/payments/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
-//                .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
-//                .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(this.authFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests()
 //                .requestMatchers("/budgets/**", "/user/**").hasRole("USER")
@@ -68,14 +66,6 @@ public class SecurityConfig
                 .and().formLogin()
                 .and().httpBasic();
 
-
         return http.build();
     }
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder()
-//    {
-//        return new BCryptPasswordEncoder();
-//    }
-
 }

@@ -10,10 +10,14 @@ import java.util.Optional;
 public interface TransactionRepository
 {
     List<Transaction> findTransactionsBetweenDatesAndUserId(LocalDate startDate, LocalDate endDate, long userId);
+    List<Transaction> findTransactionsBetweenDatesWithoutBudgetPositionByUserId(LocalDate startDate, LocalDate endDate, Long userId);
+    List<Transaction> findTransactionsWithoutBudgetPositionByUserId(Long userId);
 
     Transaction save(Transaction entity);
 
     Optional<Long> findHighestNumberByBillId(Long billId);
 
     void updatePositionIdInDb(Long transactionId, BudgetPosition position, Long userId);
+
+
 }

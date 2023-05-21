@@ -7,10 +7,7 @@ import com.moneyApp.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -41,5 +38,16 @@ public class PaymentController
     public ResponseEntity<?> getPaymentsByUser(HttpServletRequest request)
     {
         return ResponseEntity.ok(this.paymentService.getPaymentsByUserIdAsDto(this.userService.getUserIdByEmail(this.jwtService.getUserEmail(request))));
+    }
+
+//    TODO test
+    @PostMapping("/pay")
+    public ResponseEntity<?> setPaymentDateAsPaid(@RequestParam Integer hash)
+    {
+        var paymentDate = this.paymentService.getPaymentDateByHash(hash);
+
+        this.paymentService.setPaymentDateAsPaid(paymentDate);
+
+        return ResponseEntity.ok(String.format("Payment #%s marked as paid!", paymentDate.getHash()));
     }
 }

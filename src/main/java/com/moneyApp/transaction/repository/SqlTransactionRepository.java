@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface SqlTransactionRepository extends TransactionRepository, JpaRepository<Transaction, Long>
 {
     @Override
-    @Query(value = "FROM Transaction t WHERE (t.bill.date BETWEEN :startDate AND :endDate) AND t.user.id = :userId")
+    @Query(value = "FROM Transaction t WHERE (t.bill.billDate BETWEEN :startDate AND :endDate) AND t.user.id = :userId")
     List<Transaction> findTransactionsBetweenDatesAndUserId(LocalDate startDate, LocalDate endDate, long userId);
 
     @Override
@@ -28,4 +28,12 @@ public interface SqlTransactionRepository extends TransactionRepository, JpaRepo
     @Override
     @Query(value = "UPDATE Transaction t SET t.position = :position WHERE t.id = :transactionId AND t.user.id = :userId")
     void updatePositionIdInDb(Long transactionId, BudgetPosition position, Long userId);
+
+    @Override
+    @Query(value = "FROM Transaction t WHERE t.bill.billDate BETWEEN :startDate AND :endDate AND t.user.id = :userId AND t.position = null")
+    List<Transaction> findTransactionsBetweenDatesWithoutBudgetPositionByUserId(LocalDate startDate, LocalDate endDate, Long userId);
+
+    @Override
+    @Query(value = "FROM Transaction t WHERE t.user.id = :userId AND t.position = null")
+    List<Transaction> findTransactionsWithoutBudgetPositionByUserId(Long userId);
 }

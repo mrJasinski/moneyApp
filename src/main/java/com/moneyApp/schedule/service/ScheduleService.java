@@ -1,7 +1,6 @@
-package com.moneyApp.quartz.stack;
+package com.moneyApp.schedule.service;
 
 import org.quartz.JobDetail;
-import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 

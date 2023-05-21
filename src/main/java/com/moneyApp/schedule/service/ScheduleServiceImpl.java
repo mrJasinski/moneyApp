@@ -1,4 +1,4 @@
-package com.moneyApp.quartz.stack;
+package com.moneyApp.schedule.service;
 
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;

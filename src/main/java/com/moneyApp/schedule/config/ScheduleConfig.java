@@ -1,22 +1,14 @@
-package com.moneyApp.quartz.stack;
+package com.moneyApp.schedule.config;
 
-import com.moneyApp.quartz.bae.AutowiringSpringBeanJobFactory;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.impl.StdSchedulerFactory;
+import com.moneyApp.schedule.AutowiringSpringBeanJobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.quartz.QuartzDataSource;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 
 @Configuration
 public class ScheduleConfig

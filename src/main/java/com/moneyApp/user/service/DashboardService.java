@@ -35,7 +35,6 @@ public class DashboardService
 
         var accounts = this.accountService.getDashboardAccountsByUserIdAsDto(userId);
 
-//        var payments = this.paymentService.getActualMonthPaymentsByUserIdAsDto(userId);
         var payments = this.paymentService.getPaymentsFromNowTillDateWithPreviousUnpaidByUserIdAsDto(LocalDate.now().plusWeeks(2), userId);
 
         return new DashboardDTO(userName, budget, accounts, payments);

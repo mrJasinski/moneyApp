@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-class CategoryServiceTest
+class CategoryServiceUnitTest
 {
     @Test
     void createCategory_shouldReturnCreatedCategoryIfNotAlreadyInDb()

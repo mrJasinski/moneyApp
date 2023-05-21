@@ -1,9 +1,6 @@
-package com.moneyApp.quartz.bae;
-
-import com.moneyApp.payment.PaymentDate;
+package com.moneyApp.schedule.job;
 
 import com.moneyApp.mail.service.MailService;
-import com.moneyApp.payment.Payment;
 import com.moneyApp.payment.service.PaymentService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

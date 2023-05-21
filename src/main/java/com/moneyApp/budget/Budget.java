@@ -1,10 +1,13 @@
 package com.moneyApp.budget;
 
 import com.moneyApp.budget.dto.BudgetDTO;
+import com.moneyApp.category.CategoryType;
 import com.moneyApp.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "budgets")
@@ -18,6 +21,8 @@ public class Budget
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    @OneToMany
+    private Set<BudgetPosition> positions;
 
     public Budget()
     {
@@ -31,14 +36,13 @@ public class Budget
 
     public Budget(LocalDate monthYear, String description, User user)
     {
-        this.monthYear = monthYear;
-        this.description = description;
+        this(monthYear, description);
         this.user = user;
     }
 
     public BudgetDTO toDto()
     {
-        return new BudgetDTO(monthYear, description);
+        return new BudgetDTO(this.monthYear, this.description);
     }
 
     public Long getId()
@@ -65,4 +69,11 @@ public class Budget
     {
         this.user = user;
     }
+
+    public Set<BudgetPosition> getPositions()
+    {
+        return this.positions;
+    }
+
+
 }
