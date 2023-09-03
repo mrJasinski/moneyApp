@@ -18,6 +18,7 @@ public class SubCategory
     @JoinColumn(name = "user_id")
     private User user;
 
+//    persistence constructor
     public SubCategory()
     {
     }

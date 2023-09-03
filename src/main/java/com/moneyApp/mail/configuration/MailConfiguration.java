@@ -1,4 +1,4 @@
-package com.moneyApp.mail;
+package com.moneyApp.mail.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

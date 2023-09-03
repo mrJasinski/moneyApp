@@ -4,10 +4,12 @@ import com.moneyApp.mail.service.MailService;
 import com.moneyApp.security.JwtRequest;
 import com.moneyApp.security.JwtService;
 import com.moneyApp.user.dto.UserDTO;
+import com.moneyApp.user.event.OnRegistrationCompleteEvent;
 import com.moneyApp.user.service.DashboardService;
 import com.moneyApp.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,9 @@ public class UserController
     @Autowired
     private SimpleMailMessage message;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     public UserController(UserService userService, DashboardService dashboardService, JwtService jwtService, AuthenticationManager authManager)
     {
         this.userService = userService;
@@ -44,10 +49,11 @@ public class UserController
     {
         var userDetails = this.authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 
-        if (userDetails.isAuthenticated())
-            return ResponseEntity.ok(this.jwtService.generateToken(user.getEmail()));
-        else
+        if (!userDetails.isAuthenticated())
             throw new UsernameNotFoundException("User with given credentials not found!");
+
+
+        return ResponseEntity.ok(this.jwtService.generateToken(user.getEmail()));
     }
 
     @GetMapping("/myDashboard")
@@ -66,6 +72,8 @@ public class UserController
     ResponseEntity<?> registerUser(@RequestBody UserDTO toSave)
     {
         var user = this.userService.createUser(toSave);
+
+        this.eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
 
         return ResponseEntity.created(URI.create("/" + user.getEmail())).body(user);
     }

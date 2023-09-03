@@ -3,7 +3,7 @@ package com.moneyApp.account.dto;
 import com.moneyApp.account.Account;
 import com.moneyApp.bill.Bill;
 import com.moneyApp.bill.dto.BillDTO;
-import com.moneyApp.transaction.dto.TransactionDTO;
+import com.moneyApp.bill.dto.BillPositionDTO;
 
 import java.util.List;
 import java.util.Set;
@@ -15,7 +15,7 @@ public class AccountDTO
     private String description;
     private Double actualBalance;   // bieżące saldo konta
     List<BillDTO> bills;
-    List<TransactionDTO> transactions;
+    List<BillPositionDTO> transactions;
 
     public AccountDTO()
     {
@@ -34,15 +34,29 @@ public class AccountDTO
         this.actualBalance = actualBalance;
     }
 
+    public AccountDTO(Account account)
+    {
+        this.name = account.getName();
+        this.description = account.getDescription();
+        this.actualBalance = account.getActualBalance();
+        this.bills = account.getBills()
+                .stream()
+                .map(Bill::toDto)
+                .collect(Collectors.toList());
+    }
+
     public AccountDTO(String name, String description, Double actualBalance, Set<Bill> bills)
     {
         this.name = name;
         this.description = description;
         this.actualBalance = actualBalance;
-        this.bills = bills.stream().map(Bill::toDto).collect(Collectors.toList());
+        this.bills = bills
+                .stream()
+                .map(Bill::toDto)
+                .collect(Collectors.toList());
     }
 
-    public AccountDTO(String name, String description, Double actualBalance, List<TransactionDTO> transactions)
+    public AccountDTO(String name, String description, Double actualBalance, List<BillPositionDTO> transactions)
     {
         this.name = name;
         this.description = description;
@@ -70,7 +84,7 @@ public class AccountDTO
         return this.bills;
     }
 
-    public List<TransactionDTO> getTransactions()
+    public List<BillPositionDTO> getTransactions()
     {
         return this.transactions;
     }

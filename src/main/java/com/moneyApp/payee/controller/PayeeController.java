@@ -26,7 +26,7 @@ public class PayeeController
     @PostMapping
     ResponseEntity<?> createPayee(@RequestBody PayeeDTO toSave, HttpServletRequest request)
     {
-        var result = this.payeeService.creatPayeeByUserEmail(toSave, this.jwtService.getUserEmail(request));
+        var result = this.payeeService.createPayeeByUserEmail(toSave, this.jwtService.getUserEmail(request));
 
         return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
     }

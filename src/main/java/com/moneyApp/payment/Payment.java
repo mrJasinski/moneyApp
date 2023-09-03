@@ -30,6 +30,7 @@ public class Payment
     @OneToMany(mappedBy = "payment", fetch = FetchType.EAGER)
     private Set<PaymentDate> dates;
 
+//    persistence constructor
     public Payment()
     {
     }

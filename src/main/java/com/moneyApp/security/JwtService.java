@@ -48,10 +48,14 @@ public class JwtService
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String userName)
+//    TODO tymczasowe
+//    public String generateToken(String userName)
+    public JwtResponse generateToken(String userName)
     {
         var claims = new HashMap<String, Object>();
-        return createToken(claims, userName);
+//        TODO tymczasowe
+//        return createToken(claims, userName);
+        return new JwtResponse(createToken(claims, userName));
     }
 
     private String createToken(Map<String, Object> claims, String subject)

@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface AccountRepository
 {
-
     Optional<Account> findByNameAndUserId(String name, Long userId);
 
     Account save(Account entity);

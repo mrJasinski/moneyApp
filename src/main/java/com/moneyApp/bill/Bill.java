@@ -5,7 +5,6 @@ import com.moneyApp.account.Account;
 import com.moneyApp.bill.dto.BillDTO;
 import com.moneyApp.budget.Budget;
 import com.moneyApp.payee.Payee;
-import com.moneyApp.transaction.Transaction;
 import com.moneyApp.user.User;
 import jakarta.persistence.*;
 
@@ -14,7 +13,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "bills")
-public class Bill
+public
+class Bill
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,11 +33,12 @@ public class Bill
     private String description;
     @JsonIgnore
     @OneToMany(mappedBy = "bill")
-    private Set<Transaction> transactions;
+    private Set<BillPosition> billPositions;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+//    persistence constructor
     public Bill()
     {
     }
@@ -61,7 +62,7 @@ public class Bill
 
     public BillDTO toDto()
     {
-        return new BillDTO(this.number, this.billDate, this.payee.getName(), this.description, this.transactions);
+        return new BillDTO(this.number, this.billDate, this.payee.getName(), this.description, this.billPositions);
     }
 
     public Long getId()

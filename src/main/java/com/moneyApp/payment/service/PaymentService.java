@@ -39,7 +39,7 @@ public class PaymentService
     @Autowired
     private ScheduleService scheduleService;
 
-    public PaymentService(PaymentRepository paymentRepo, PaymentDateRepository paymentDateRepo, UserService userService)
+    PaymentService(PaymentRepository paymentRepo, PaymentDateRepository paymentDateRepo, UserService userService)
     {
         this.paymentRepo = paymentRepo;
         this.paymentDateRepo = paymentDateRepo;

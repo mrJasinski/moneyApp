@@ -3,7 +3,7 @@ package com.moneyApp.budget;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.moneyApp.budget.dto.BudgetPositionDTO;
 import com.moneyApp.category.Category;
-import com.moneyApp.transaction.Transaction;
+import com.moneyApp.bill.BillPosition;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -26,8 +26,9 @@ public class BudgetPosition
     private String description;
     @JsonIgnore
     @OneToMany(mappedBy = "position")
-    private Set<Transaction> transactions;
+    private Set<BillPosition> billPositions;
 
+//    persistence constructor
     public BudgetPosition()
     {
     }
@@ -37,7 +38,7 @@ public class BudgetPosition
         this.category = category;
         this.budget = budget;
         this.plannedAmount = 0d;
-        this.transactions = new HashSet<>();
+        this.billPositions = new HashSet<>();
     }
 
     public BudgetPositionDTO toDto()
@@ -70,8 +71,8 @@ public class BudgetPosition
         return this.description;
     }
 
-    public Set<Transaction> getTransactions()
+    public Set<BillPosition> getTransactions()
     {
-        return this.transactions;
+        return this.billPositions;
     }
 }

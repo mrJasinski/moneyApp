@@ -5,6 +5,7 @@ import com.moneyApp.account.dto.AccountDTO;
 import com.moneyApp.bill.Bill;
 import com.moneyApp.user.User;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.PersistenceConstructor;
 
 import java.util.Set;
 
@@ -15,9 +16,9 @@ public class Account
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;    // nazwa konta
+    private String name;    // account name - no whitespaces allowed
     private String description;
-    private Double actualBalance;   // bieżące saldo konta
+    private Double actualBalance;   // actual account balance
     @JsonIgnore
     @OneToMany(mappedBy = "account")
     private Set<Bill> bills;
@@ -25,6 +26,7 @@ public class Account
     @JoinColumn(name = "user_id")
     private User user;
 
+//    persistence constructor
     public Account()
     {
     }
@@ -38,6 +40,11 @@ public class Account
     }
 
     public AccountDTO toDto()
+    {
+        return new AccountDTO(this.name, this.description, this.actualBalance);
+    }
+
+    public AccountDTO toDtoWithBills()
     {
         return new AccountDTO(this.name, this.description, this.actualBalance, this.bills);
     }
@@ -76,6 +83,4 @@ public class Account
     {
         return this.user;
     }
-
-
 }

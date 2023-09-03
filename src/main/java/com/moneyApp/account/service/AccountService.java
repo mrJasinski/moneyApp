@@ -16,7 +16,7 @@ public class AccountService
     private final AccountRepository accountRepo;
     private final UserService userService;
 
-    public AccountService(AccountRepository accountRepo, UserService userService)
+    AccountService(AccountRepository accountRepo, UserService userService)
     {
         this.accountRepo = accountRepo;
         this.userService = userService;
@@ -30,12 +30,17 @@ public class AccountService
 
     public Account createAccountByUserEmail(AccountDTO toSave, String email)
     {
-//        sprawdzenie czy konto o danej nazwie już istnieje dla danego użytkownika
-        if (!this.accountRepo.existsByNameAndUserId(toSave.getName(), this.userService.getUserIdByEmail(email)))
-            return this.accountRepo.save(new Account(toSave.getName(), toSave.getDescription(), toSave.getActualBalance(),
-                    this.userService.getUserByEmail(email)));
-        else
+//        check if account with given name already exists for given user
+        if (this.accountRepo.existsByNameAndUserId(toSave.getName(), this.userService.getUserIdByEmail(email)))
             throw new IllegalArgumentException("Account with given name already exists!");
+
+//        check if account name has whitespaces
+        if  (toSave.getName().contains(" "))
+            throw new IllegalArgumentException("Account name cannot contain whitespaces!");
+
+        return this.accountRepo.save(new Account(toSave.getName(), toSave.getDescription(), toSave.getActualBalance(),
+                    this.userService.getUserByEmail(email)));
+
     }
 
     public void updateAccountBalance(long accountId, double sum, CategoryType type)
@@ -49,7 +54,7 @@ public class AccountService
 
     public AccountDTO getAccountByNameAndUserEmailAsDto(String name, String email)
     {
-        return getAccountByNameAndUserId(name, this.userService.getUserIdByEmail(email)).toDto();
+        return new AccountDTO(getAccountByNameAndUserId(name, this.userService.getUserIdByEmail(email)));
     }
 
     List<Account> getAccountsByUserId(Long userId)
@@ -62,6 +67,19 @@ public class AccountService
         return getAccountsByUserId(userId)
                 .stream()
                 .map(Account::toSimpleDto)
+                .collect(Collectors.toList());
+    }
+
+    List<Account> getAccountsByUserMail(String email)
+    {
+        return this.accountRepo.findByUserId(this.userService.getUserIdByEmail(email));
+    }
+
+    public List<AccountDTO> getAccountsByUserMailAsDto(String email)
+    {
+        return getAccountsByUserMail(email)
+                .stream()
+                .map(Account::toDto)
                 .collect(Collectors.toList());
     }
 }

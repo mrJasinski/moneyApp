@@ -17,7 +17,7 @@ public class DashboardService
     private final AccountService accountService;
     private final PaymentService paymentService;
 
-    public DashboardService(UserService userService, BudgetService budgetService, AccountService accountService, PaymentService paymentService)
+    DashboardService(UserService userService, BudgetService budgetService, AccountService accountService, PaymentService paymentService)
     {
         this.userService = userService;
         this.budgetService = budgetService;

@@ -19,6 +19,7 @@ public class PaymentDate
     private Payment payment;
     private int hash;
 
+//    persistence constructor
     public PaymentDate()
     {
     }

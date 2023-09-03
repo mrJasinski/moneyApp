@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,4 +23,12 @@ public interface SqlBudgetRepository extends BudgetRepository, JpaRepository<Bud
     @Override
     @Query(value = "SELECT b.monthYear FROM Budget b WHERE b.id = :budgetId")
     Optional<LocalDate> findMonthYearByBudgetId(long budgetId);
+
+    @Override
+    @Query(value = "SELECT * FROM budgets WHERE user_id = :userId ORDER BY month_year DESC LIMIT :number", nativeQuery = true)
+    List<Budget> findLatestBudgetsByAmountAndUserId(Integer number, Long userId);
+
+    @Override
+    @Query(value = "SELECT COUNT(b) FROm Budget b WHERE b.user.id = :userId")
+    Integer findAmountOfBudgetsByUserId(Long userId);
 }

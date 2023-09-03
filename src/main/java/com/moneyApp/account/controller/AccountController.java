@@ -11,7 +11,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/accounts")
-public class AccountController
+class AccountController
 {
     private final AccountService accountService;
     private final JwtService jwtService;
@@ -30,9 +30,15 @@ public class AccountController
         return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/view/{name}")
     ResponseEntity<?> getAccountByNameAndUserMail(@PathVariable String name, HttpServletRequest request)
     {
         return ResponseEntity.ok(this.accountService.getAccountByNameAndUserEmailAsDto(name, this.jwtService.getUserEmail(request)));
+    }
+
+    @GetMapping
+    ResponseEntity<?> getAccountsByUserMail(HttpServletRequest request)
+    {
+        return ResponseEntity.ok(this.accountService.getAccountsByUserMailAsDto(this.jwtService.getUserEmail(request)));
     }
 }

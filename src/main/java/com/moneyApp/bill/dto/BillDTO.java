@@ -1,8 +1,6 @@
 package com.moneyApp.bill.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.moneyApp.transaction.Transaction;
-import com.moneyApp.transaction.dto.TransactionDTO;
+import com.moneyApp.bill.BillPosition;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,13 +15,13 @@ public class BillDTO
     private String accountName;
     private String description;
     private Double billSum; //suma transakcji w danym rachunku
-    List<TransactionDTO> transactions;
+    List<BillPositionDTO> transactions;
 
     public BillDTO()
     {
     }
 
-    public BillDTO(LocalDate date, String payeeName, String accountName, String description, List<TransactionDTO> transactions)
+    public BillDTO(LocalDate date, String payeeName, String accountName, String description, List<BillPositionDTO> transactions)
     {
         this.date = date;
         this.payeeName = payeeName;
@@ -32,14 +30,14 @@ public class BillDTO
         this.transactions = transactions;
     }
 
-    public BillDTO(Long number, LocalDate date, String payeeName, String description, Set<Transaction> transactions)
+    public BillDTO(Long number, LocalDate date, String payeeName, String description, Set<BillPosition> billPositions)
     {
         this.date = date;
         this.number = String.format("%d_%s%s", number, this.date.getMonth().getValue(), getDate().getYear());
         this.payeeName = payeeName;
         this.description = description;
-        this.billSum = transactions.stream().mapToDouble(Transaction::getAmount).sum();
-        this.transactions = transactions.stream().map(Transaction::toDto).collect(Collectors.toList());
+        this.billSum = billPositions.stream().mapToDouble(BillPosition::getAmount).sum();
+        this.transactions = billPositions.stream().map(BillPosition::toSimpleDto).collect(Collectors.toList());
     }
 
     public String getNumber()
@@ -72,7 +70,7 @@ public class BillDTO
         return this.billSum;
     }
 
-    public List<TransactionDTO> getTransactions()
+    public List<BillPositionDTO> getTransactions()
     {
         return this.transactions;
     }

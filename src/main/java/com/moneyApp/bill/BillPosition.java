@@ -1,16 +1,16 @@
-package com.moneyApp.transaction;
+package com.moneyApp.bill;
 
-import com.moneyApp.bill.Bill;
 import com.moneyApp.budget.BudgetPosition;
 import com.moneyApp.category.Category;
 import com.moneyApp.payee.Payee;
-import com.moneyApp.transaction.dto.TransactionDTO;
+import com.moneyApp.bill.dto.BillPositionDTO;
 import com.moneyApp.user.User;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "transactions")
-public class Transaction
+public
+class BillPosition
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,11 +34,12 @@ public class Transaction
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Transaction()
+//    persistence constructor
+    public BillPosition()
     {
     }
 
-    public Transaction(long number, Double amount, Category category, Payee gainer, String description, Bill bill, User user)
+    public BillPosition(long number, Double amount, Category category, Payee gainer, String description, Bill bill, User user)
     {
         this.number = number;
         this.amount = amount;
@@ -49,9 +50,15 @@ public class Transaction
         this.user = user;
     }
 
-    public TransactionDTO toDto()
+    public BillPositionDTO toSimpleDto()
     {
-        return new TransactionDTO(this.amount, this.category.getCategoryName(), this.gainer.getName(), this.description);
+        return new BillPositionDTO(this.amount, this.category.getCategoryName(), this.gainer.getName(), this.description);
+    }
+
+    public BillPositionDTO toDto()
+    {
+        return new BillPositionDTO(this.bill.getBillDate(), this.bill.getPayee().getName(), this.bill.getAccount().getName(), this.amount, this.category.getCategoryName(),
+                this.gainer.getName(), this.description);
     }
 
     public Long getId()

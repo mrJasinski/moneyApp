@@ -12,6 +12,12 @@ public class BudgetPositionDTO
     private String description;
 
 
+    public BudgetPositionDTO(String category, Double plannedAmount)
+    {
+        this.category = new CategoryDTO(category);
+        this.plannedAmount = plannedAmount;
+    }
+
     public BudgetPositionDTO(Category category, Double plannedAmount, String description)
     {
         this.category = category.toDto();

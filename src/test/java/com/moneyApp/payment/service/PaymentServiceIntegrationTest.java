@@ -9,12 +9,16 @@ import com.moneyApp.payment.repository.PaymentRepository;
 import com.moneyApp.user.User;
 import com.moneyApp.user.dto.UserDTO;
 import com.moneyApp.user.service.UserService;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.parameters.P;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.event.annotation.BeforeTestClass;
 
 import java.time.LocalDate;
 
@@ -36,32 +40,42 @@ public class PaymentServiceIntegrationTest
     @Autowired
     private UserService userService;
 
+    User user;
+
+    @BeforeEach
+    void createUser()
+    {
+        if (this.user == null)
+            this.user = this.userService.createUser(new UserDTO("foo@bar.com", "1a@Z!s7y" +
+                "", "bar"));
+    }
+
     @Test
     void getActualMonthPaymentsByUserId_shouldReturnPaymentsList()
     {
 //        given
-        var user = this.userService.getUserByEmail("foo");
-//        var user = this.userService.createUser(new UserDTO("foo", "12345", "bar"));
+//        var user = this.userService.getUserByEmail("foo");
 
-//        var p1 = this.paymentRepo.save(new Payment(LocalDate.now(), PaymentFrequency.ONCE, 1, "foo",
-//                23, user));
-//        this.paymentDateRepo.save(new PaymentDate(p1.getStartDate(), p1));
-//        var p2 = this.paymentRepo.save(new Payment(LocalDate.now(), PaymentFrequency.ONCE, 1, "bar",
-//                55, user));
-//        this.paymentDateRepo.save(new PaymentDate(p2.getStartDate(), p2));
-//        var p3 = this.paymentRepo.save(new Payment(LocalDate.now().plusMonths(2), PaymentFrequency.ONCE,
-//                1, "foobar", 123, user));
-//        this.paymentDateRepo.save(new PaymentDate(p3.getStartDate(), p3));
-//
-//        var p4 = this.paymentRepo.save(new Payment(LocalDate.now().minusMonths(2), PaymentFrequency.MONTHLY,
-//                2, "foobar", 37, user));
-//        this.paymentDateRepo.save(new PaymentDate(p4.getStartDate(), p4));
-//        this.paymentDateRepo.save(new PaymentDate(p4.getStartDate().plusMonths(1), p4));
-//
-//        var p5 = this.paymentRepo.save(new Payment(LocalDate.now(), PaymentFrequency.WEEKLY,
-//                2, "barfoo", 12, user));
-//        this.paymentDateRepo.save(new PaymentDate(p5.getStartDate(), p5));
-//        this.paymentDateRepo.save(new PaymentDate(p5.getStartDate().plusWeeks(1), p5));
+
+        var p1 = this.paymentRepo.save(new Payment(LocalDate.now(), PaymentFrequency.ONCE, 1, "foo",
+                23, user));
+        this.paymentDateRepo.save(new PaymentDate(p1.getStartDate(), p1));
+        var p2 = this.paymentRepo.save(new Payment(LocalDate.now(), PaymentFrequency.ONCE, 1, "bar",
+                55, user));
+        this.paymentDateRepo.save(new PaymentDate(p2.getStartDate(), p2));
+        var p3 = this.paymentRepo.save(new Payment(LocalDate.now().plusMonths(2), PaymentFrequency.ONCE,
+                1, "foobar", 123, user));
+        this.paymentDateRepo.save(new PaymentDate(p3.getStartDate(), p3));
+
+        var p4 = this.paymentRepo.save(new Payment(LocalDate.now().minusMonths(2), PaymentFrequency.MONTHLY,
+                2, "foobar", 37, user));
+        this.paymentDateRepo.save(new PaymentDate(p4.getStartDate(), p4));
+        this.paymentDateRepo.save(new PaymentDate(p4.getStartDate().plusMonths(1), p4));
+
+        var p5 = this.paymentRepo.save(new Payment(LocalDate.now(), PaymentFrequency.WEEKLY,
+                2, "barfoo", 12, user));
+        this.paymentDateRepo.save(new PaymentDate(p5.getStartDate(), p5));
+        this.paymentDateRepo.save(new PaymentDate(p5.getStartDate().plusWeeks(1), p5));
 
 //        system under test
         var toTest = new PaymentService(this.paymentRepo, null, null);

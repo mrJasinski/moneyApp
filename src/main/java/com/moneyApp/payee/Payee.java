@@ -3,7 +3,7 @@ package com.moneyApp.payee;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.moneyApp.bill.Bill;
 import com.moneyApp.payee.dto.PayeeDTO;
-import com.moneyApp.transaction.Transaction;
+import com.moneyApp.bill.BillPosition;
 import com.moneyApp.user.User;
 import jakarta.persistence.*;
 
@@ -24,11 +24,12 @@ public class Payee
     private Set<Bill> bills;
     @JsonIgnore
     @OneToMany(mappedBy = "gainer")
-    private Set<Transaction> transactions;
+    private Set<BillPosition> billPositions;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+//    persistence constructor
     public Payee()
     {
     }
@@ -65,9 +66,9 @@ public class Payee
         return this.bills;
     }
 
-    public Set<Transaction> getTransactions()
+    public Set<BillPosition> getTransactions()
     {
-        return this.transactions;
+        return this.billPositions;
     }
 
     public User getUser()

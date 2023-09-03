@@ -24,6 +24,7 @@ public class Budget
     @OneToMany
     private Set<BudgetPosition> positions;
 
+//    persistence constructor
     public Budget()
     {
     }

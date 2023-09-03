@@ -1,7 +1,7 @@
 package com.moneyApp.bill.controller;
 
 import com.moneyApp.bill.dto.BillDTO;
-import com.moneyApp.bill.service.BillService;
+import com.moneyApp.bill.service.BillServiceImpl;
 import com.moneyApp.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +13,10 @@ import java.net.URI;
 @RequestMapping("/bills")
 public class BillController
 {
-    private final BillService service;
+    private final BillServiceImpl service;
     private final JwtService jwtService;
 
-    public BillController(BillService service, JwtService jwtService)
+    public BillController(BillServiceImpl service, JwtService jwtService)
     {
         this.service = service;
         this.jwtService = jwtService;

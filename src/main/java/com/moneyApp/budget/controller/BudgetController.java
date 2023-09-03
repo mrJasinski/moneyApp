@@ -1,5 +1,7 @@
 package com.moneyApp.budget.controller;
 
+import com.moneyApp.budget.CalculationType;
+import com.moneyApp.budget.MonthType;
 import com.moneyApp.budget.csv.BudgetCsvFileGenerator;
 import com.moneyApp.budget.dto.BudgetDTO;
 import com.moneyApp.budget.service.BudgetService;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/budgets")
@@ -29,36 +32,41 @@ public class BudgetController
         this.jwtService = jwtService;
     }
 
-    @PostMapping
-    ResponseEntity<?> createBudget(@RequestBody BudgetDTO toSave, HttpServletRequest request)
+    @PostMapping("/addBudget")
+    ResponseEntity<?> createBudget(@RequestBody BudgetDTO toSave, HttpServletRequest request, @RequestParam MonthType monthType,
+                                   @RequestParam CalculationType calculationType, @RequestParam Integer monthsCount)
     {
-        var result = this.budgetService.createBudgetByUserEmail(toSave, this.jwtService.getUserEmail(request));
+        var result = this.budgetService.createBudgetByUserEmail(toSave, monthType, calculationType, monthsCount , this.jwtService.getUserEmail(request));
 
         return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
     }
 
     @GetMapping
-    ResponseEntity<?> getBudgetsByUserEmail(HttpServletRequest request)
+    ResponseEntity<?> getBudgetsByUserEmailAsDto(HttpServletRequest request)
     {
         return ResponseEntity.ok().body(this.budgetService.getBudgetsByUserEmailAsDto(this.jwtService.getUserEmail(request)));
     }
 
-    @GetMapping("/{number}")
-    ResponseEntity<?> getBudgetByMontAndYear(@PathVariable String number, HttpServletRequest request)
+    @GetMapping("/view/{number}")
+    ResponseEntity<?> getBudgetByMonthAndYear(@PathVariable String number, HttpServletRequest request)
     {
         return ResponseEntity.ok().body(this.budgetService.getBudgetByNumberAndUserEmailAsDto(number, this.jwtService.getUserEmail(request)));
+    }
+
+//    kopiowanie budżetu
+    @GetMapping("/plan/copy")
+    ResponseEntity<?> getBudgetPlannedAsCopyOfMonth(@RequestParam LocalDate date, HttpServletRequest request)
+    {
+        return ResponseEntity.ok().body(this.budgetService.getBudgetPlannedAsCopyOfMonth(date, this.jwtService.getUserEmail(request)));
     }
 
 //    TODO test
     @GetMapping("/{number}/export")
     void exportBudgetToCSV(@PathVariable String number, HttpServletRequest request, HttpServletResponse response) throws IOException
-//    ResponseEntity<?> exportBudgetToCSV(@PathVariable String number, HttpServletRequest request, HttpServletResponse response) throws IOException
     {
         response.setContentType("text/csv");
         response.addHeader("Content-Disposition", "attachment; filename=\"budget.csv\"");
         this.csvGenerator.writeBudgetDtoToCsv(this.budgetService.getBudgetByNumberAndUserEmailAsDto(number,
                 this.jwtService.getUserEmail(request)), response.getWriter());
-
-//        return ResponseEntity.ok("Done!");
     }
 }

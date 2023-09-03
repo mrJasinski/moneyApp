@@ -15,7 +15,7 @@ public class UserService
     private final UserRepository userRepo;
     private final PasswordEncoder encoder;
 
-    public UserService(UserRepository userRepo, PasswordEncoder encoder)
+    UserService(UserRepository userRepo, PasswordEncoder encoder)
     {
         this.userRepo = userRepo;
         this.encoder = encoder;
@@ -57,14 +57,14 @@ public class UserService
 
     boolean validatePassword(String password)
     {
-//        wymagania dla hasła
-//        min 8 znaków
-//        max 24 znaki
-//        min jeden mały znak
-//        min jeden duży znak
-//        min jedna cyfra
-//        min jeden znak specjalny (#?!@$%^&*-)
-//        brak spacji
+//        password requirements
+//        min 8 chars
+//        max 24 chars
+//        min 1 lowercase letter
+//        min 1 capital letter
+//        min 1 digit
+//        min 1 special char (#?!@$%^&*-)
+//        no whitespaces
 
         var regex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[#?!@$%^&*-])(?=\\S+$).{8,24}$";
 

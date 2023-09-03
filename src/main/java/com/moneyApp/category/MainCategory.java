@@ -15,6 +15,7 @@ public class MainCategory
     @JoinColumn(name = "user_id")
     private User user;
 
+//    persistence constructor
     public MainCategory()
     {
     }

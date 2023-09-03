@@ -1,6 +1,5 @@
 package com.moneyApp.budget.csv;
 
-import com.moneyApp.budget.Budget;
 import com.moneyApp.budget.dto.BudgetDTO;
 import com.moneyApp.budget.dto.BudgetPositionDTO;
 import org.apache.commons.csv.CSVFormat;

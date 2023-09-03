@@ -23,7 +23,7 @@ public class CategoryService
     private final SubCategoryRepository subCategoryRepo;
     private final UserService userService;
 
-    public CategoryService(CategoryRepository categoryRepo, MainCategoryRepository mainCategoryRepo, SubCategoryRepository subCategoryRepo, UserService userService)
+    CategoryService(CategoryRepository categoryRepo, MainCategoryRepository mainCategoryRepo, SubCategoryRepository subCategoryRepo, UserService userService)
     {
         this.categoryRepo = categoryRepo;
         this.mainCategoryRepo = mainCategoryRepo;
@@ -117,5 +117,4 @@ public class CategoryService
         return this.categoryRepo.findCategoryByMainCategoryNameAndSubcategoryNameAndUserId(mainCategoryName, subCategoryName, userId)
                 .orElseThrow(() -> new IllegalArgumentException("No category found for given data!"));
     }
-
 }

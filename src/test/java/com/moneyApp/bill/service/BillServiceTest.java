@@ -9,9 +9,8 @@ import com.moneyApp.budget.Budget;
 import com.moneyApp.budget.service.BudgetService;
 import com.moneyApp.payee.Payee;
 import com.moneyApp.payee.service.PayeeService;
-import com.moneyApp.transaction.Transaction;
-import com.moneyApp.transaction.dto.TransactionDTO;
-import com.moneyApp.transaction.service.TransactionService;
+import com.moneyApp.bill.BillPosition;
+import com.moneyApp.bill.dto.BillPositionDTO;
 import com.moneyApp.user.User;
 import com.moneyApp.user.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -63,18 +62,18 @@ class BillServiceTest
         var mockBillRepo = mock(BillRepository.class);
         given(mockBillRepo.save(any())).willReturn(new Bill());
         given(mockBillRepo.findHighestBillNumberByMonthYearAndUserId(anyInt(), anyInt(), anyLong())).willReturn(Optional.of(1L));
-        var mockTransactionService = mock(TransactionService.class);
-        given(mockTransactionService.createTransactionsByBill(anyList(), any())).willReturn(List.of(
-                new Transaction(0L, 12D, null, null, null, null, null),
-                new Transaction(0L, 12D, null, null, null, null, null)));
+        var mockBillPositionService = mock(BillPositionService.class);
+        given(mockBillPositionService.createTransactionsByBill(anyList(), any())).willReturn(List.of(
+                new BillPosition(0L, 12D, null, null, null, null, null),
+                new BillPosition(0L, 12D, null, null, null, null, null)));
 
 //    system under test
-        var toTest = new BillService(mockBillRepo, mockUserService, mockAccountService, mockPayeeService, mockBudgetService,
-                mockTransactionService);
+        var toTest = new BillServiceImpl(null, null, mockPayeeService, mockUserService, mockAccountService, mockBudgetService,
+                 mockBillRepo);
 //    when
 //        TODO
         var result = toTest.createBillByUserEmail(new BillDTO(LocalDate.now(), "payee", "account",
-                "desc", List.of(new TransactionDTO(), new TransactionDTO())), "foo@example.com");
+                "desc", List.of(new BillPositionDTO(), new BillPositionDTO())), "foo@example.com");
 //    then
         assertNotNull(result);
     }
@@ -87,8 +86,8 @@ class BillServiceTest
         given(mockBillRepo.findHighestBillNumberByMonthYearAndUserId(anyInt(), anyInt(), anyLong())).willReturn(Optional.of(1L));
 
 //    system under test
-        var toTest = new BillService(mockBillRepo, null, null, null, null,
-                null);
+        var toTest = new BillServiceImpl(null, null, null, null, null,
+                null, mockBillRepo);
 
 //    when
         var result = toTest.getHighestBillNumberByMonthYearAndUserId(LocalDate.now(), 5L);
@@ -106,8 +105,8 @@ class BillServiceTest
         given(mockBillRepo.findHighestBillNumberByMonthYearAndUserId(anyInt(), anyInt(), anyLong())).willReturn(Optional.empty());
 
 //    system under test
-        var toTest = new BillService(mockBillRepo, null, null, null, null,
-                null);
+        var toTest = new BillServiceImpl(null, null, null, null, null,
+                null, mockBillRepo);
 
 //    when
         var result = toTest.getHighestBillNumberByMonthYearAndUserId(LocalDate.now(), 5L);
@@ -128,8 +127,8 @@ class BillServiceTest
         var mockBillRepo = mock(BillRepository.class);
         given(mockBillRepo.findByUserId(anyLong())).willReturn(List.of(new Bill(), new Bill()));
 //    system under test
-        var toTest = new BillService(mockBillRepo, null, null, null, null,
-                null);
+        var toTest = new BillServiceImpl(null, null, null, null, null,
+                null, mockBillRepo);
 //    when
         var result = toTest.getBillsByUserId(5L);
 
@@ -145,8 +144,8 @@ class BillServiceTest
         var mockBillRepo = mock(BillRepository.class);
         given(mockBillRepo.findByUserId(anyLong())).willReturn(List.of());
 //    system under test
-        var toTest = new BillService(mockBillRepo, null, null, null, null,
-                null);
+        var toTest = new BillServiceImpl(null, null, null, null, null,
+                null, mockBillRepo);
 //    when
         var result = toTest.getBillsByUserId(5L);
 

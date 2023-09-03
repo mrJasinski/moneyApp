@@ -13,6 +13,7 @@ public interface BudgetRepository
 
     List<Budget> findAll();
     List<Budget> findByUserId(Long userId);
+    List<Budget> findLatestBudgetsByAmountAndUserId(Integer number, Long userId);
 
     Optional<Budget> findByMonthYear(LocalDate date);
     Optional<Budget> findByMonthYearAndUserId(LocalDate date, Long userId);
@@ -26,5 +27,5 @@ public interface BudgetRepository
 
     Optional<LocalDate> findMonthYearByBudgetId(long budgetId);
 
-
+    Integer findAmountOfBudgetsByUserId(Long userId);
 }

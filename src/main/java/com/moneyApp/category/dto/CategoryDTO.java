@@ -1,6 +1,7 @@
 package com.moneyApp.category.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.moneyApp.category.Category;
 import com.moneyApp.category.CategoryType;
 
 public class CategoryDTO
@@ -13,12 +14,22 @@ public class CategoryDTO
     private CategoryType type;
     private String description;
 
-    public CategoryDTO(String mainCategory, String subCategory, CategoryType type, String description)
+    public CategoryDTO(String category)
+    {
+        this.name = category;
+    }
+
+    public CategoryDTO(String mainCategory, String subCategory, CategoryType type)
     {
         this.mainCategory = mainCategory;
         this.subCategory = subCategory;
-        this.name = setName(mainCategory, subCategory);
         this.type = type;
+    }
+
+    public CategoryDTO(String mainCategory, String subCategory, CategoryType type, String description)
+    {
+        this(mainCategory, subCategory, type);
+        this.name = setName(mainCategory, subCategory);
         this.description = description;
     }
 
