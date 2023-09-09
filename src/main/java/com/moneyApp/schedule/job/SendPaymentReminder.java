@@ -11,11 +11,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class SendPaymentReminder implements Job
 {
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
+    private final PaymentService paymentService;
 
-    @Autowired
-    private PaymentService paymentService;
+    SendPaymentReminder(final MailService mailService, final PaymentService paymentService)
+    {
+        this.mailService = mailService;
+        this.paymentService = paymentService;
+    }
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException

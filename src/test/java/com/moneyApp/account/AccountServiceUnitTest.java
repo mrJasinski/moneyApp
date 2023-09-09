@@ -1,8 +1,9 @@
-package com.moneyApp.account.service;
+package com.moneyApp.account;
 
 import com.moneyApp.account.Account;
+import com.moneyApp.account.AccountService;
 import com.moneyApp.account.dto.AccountDTO;
-import com.moneyApp.account.repository.AccountRepository;
+import com.moneyApp.account.AccountRepository;
 import com.moneyApp.user.User;
 import com.moneyApp.user.service.UserService;
 import org.junit.jupiter.api.Test;

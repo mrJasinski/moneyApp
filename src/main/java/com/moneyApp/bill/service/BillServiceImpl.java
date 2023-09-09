@@ -1,6 +1,6 @@
 package com.moneyApp.bill.service;
 
-import com.moneyApp.account.service.AccountService;
+import com.moneyApp.account.AccountService;
 import com.moneyApp.bill.Bill;
 import com.moneyApp.bill.BillPosition;
 import com.moneyApp.bill.dto.BillDTO;
@@ -8,7 +8,6 @@ import com.moneyApp.bill.dto.BillPositionDTO;
 import com.moneyApp.bill.repository.BillPositionRepository;
 import com.moneyApp.bill.repository.BillRepository;
 import com.moneyApp.budget.BudgetPosition;
-import com.moneyApp.budget.service.BudgetService;
 import com.moneyApp.budget.service.BudgetServiceImpl;
 import com.moneyApp.category.service.CategoryService;
 import com.moneyApp.payee.service.PayeeService;

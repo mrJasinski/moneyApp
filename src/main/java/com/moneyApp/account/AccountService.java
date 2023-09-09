@@ -1,8 +1,8 @@
-package com.moneyApp.account.service;
+package com.moneyApp.account;
 
 import com.moneyApp.account.Account;
 import com.moneyApp.account.dto.AccountDTO;
-import com.moneyApp.account.repository.AccountRepository;
+import com.moneyApp.account.AccountRepository;
 import com.moneyApp.category.CategoryType;
 import com.moneyApp.user.service.UserService;
 import org.springframework.stereotype.Service;
@@ -46,15 +46,14 @@ public class AccountService
     public void updateAccountBalance(long accountId, double sum, CategoryType type)
     {
         if (type.equals(CategoryType.EXPENSE))
-            this.accountRepo.updateActualBalanceById(-sum, accountId);
+            sum = -sum;
 
-        if (type.equals(CategoryType.INCOME))
-            this.accountRepo.updateActualBalanceById(sum, accountId);
+        this.accountRepo.updateActualBalanceById(sum, accountId);
     }
 
     public AccountDTO getAccountByNameAndUserEmailAsDto(String name, String email)
     {
-        return new AccountDTO(getAccountByNameAndUserId(name, this.userService.getUserIdByEmail(email)));
+        return  getAccountByNameAndUserId(name, this.userService.getUserIdByEmail(email)).toDtoWithBills();
     }
 
     List<Account> getAccountsByUserId(Long userId)

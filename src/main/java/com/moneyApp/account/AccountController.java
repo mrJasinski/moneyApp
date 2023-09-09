@@ -1,7 +1,7 @@
-package com.moneyApp.account.controller;
+package com.moneyApp.account;
 
 import com.moneyApp.account.dto.AccountDTO;
-import com.moneyApp.account.service.AccountService;
+import com.moneyApp.account.AccountService;
 import com.moneyApp.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;

@@ -4,7 +4,6 @@ import com.moneyApp.mail.service.MailService;
 import com.moneyApp.security.JwtRequest;
 import com.moneyApp.security.JwtService;
 import com.moneyApp.user.dto.UserDTO;
-import com.moneyApp.user.event.OnRegistrationCompleteEvent;
 import com.moneyApp.user.service.DashboardService;
 import com.moneyApp.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -73,7 +72,8 @@ public class UserController
     {
         var user = this.userService.createUser(toSave);
 
-        this.eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
+//        event usunięty - czy powrócić?
+//        this.eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
 
         return ResponseEntity.created(URI.create("/" + user.getEmail())).body(user);
     }

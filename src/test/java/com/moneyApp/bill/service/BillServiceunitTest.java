@@ -1,7 +1,7 @@
 package com.moneyApp.bill.service;
 
 import com.moneyApp.account.Account;
-import com.moneyApp.account.service.AccountService;
+import com.moneyApp.account.AccountService;
 import com.moneyApp.bill.Bill;
 import com.moneyApp.bill.dto.BillDTO;
 import com.moneyApp.bill.repository.BillRepository;
@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-class BillServiceTest
+class BillServiceunitTest
 {
 //    public Bill createBill(BillDTO toSave)
 //    {

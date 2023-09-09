@@ -43,7 +43,7 @@ class BudgetServiceUnitTest
                 "budget", new User())));
 
 //        system under test
-        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null, null);
+        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null);
 
 //        when
         var result = toTest.getBudgetByMonthYearAndUserId(LocalDate.now(), 5L);
@@ -64,7 +64,7 @@ class BudgetServiceUnitTest
         given(mockBudgetRepo.findByMonthYearAndUserId(any(), anyLong())).willReturn(Optional.empty());
 
 //        system under test
-        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null, null);
+        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null);
 
 //        when
         var result = catchThrowable(() -> toTest.getBudgetByMonthYearAndUserId(LocalDate.now(), 3L));
@@ -112,7 +112,7 @@ class BudgetServiceUnitTest
         var budget = new BudgetDTO(LocalDate.now(), "foo");
 
 //        system under test
-        var toTest = new BudgetServiceImpl(mockBudgetRepo, mockBudgetPositionRepo, null, null, null);
+        var toTest = new BudgetServiceImpl(mockBudgetRepo, mockBudgetPositionRepo, null, null);
 
 //        when
         toTest.getBudgetDtoAmounts(budget, 7L);
@@ -131,7 +131,7 @@ class BudgetServiceUnitTest
         given(mockBudgetRepo.findIdByMonthYearAndUserId(any(), anyLong())).willReturn(Optional.of(2L));
 
 //        system under test
-        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null, null);
+        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null);
 
 //        when
         var result = toTest.getBudgetIdByNumberAndUserId("052023", 6L);
@@ -148,7 +148,7 @@ class BudgetServiceUnitTest
         given(mockBudgetRepo.findIdByMonthYearAndUserId(any(), anyLong())).willReturn(Optional.empty());
 
 //        system under test
-        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null, null);
+        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null);
 
 //        when
         var result = catchThrowable(() -> toTest.getBudgetIdByNumberAndUserId("042023", 1L));
@@ -166,7 +166,7 @@ class BudgetServiceUnitTest
         var number = "022023";
 
 //        system under test
-        var toTest = new BudgetServiceImpl(null, null, null, null, null);
+        var toTest = new BudgetServiceImpl(null, null, null, null);
 
 //        when
         var result = toTest.getBudgetMonthYearByNumber(number);
@@ -185,7 +185,7 @@ class BudgetServiceUnitTest
         var number3 = "22023";
 
 //        system under test
-        var toTest = new BudgetServiceImpl(null, null, null, null, null);
+        var toTest = new BudgetServiceImpl(null, null, null, null);
 
 //        when
         var result1 = catchThrowable(() -> toTest.getBudgetMonthYearByNumber(number1));
@@ -213,7 +213,7 @@ class BudgetServiceUnitTest
                 new BudgetPosition(), new BudgetPosition()));
 
 //        system under test
-        var toTest = new BudgetServiceImpl(null, mockBudgetPositionRepo, null, null, null);
+        var toTest = new BudgetServiceImpl(null, mockBudgetPositionRepo, null, null);
 
 //        when
         var result = toTest.getBudgetPositionsByBudgetIdAndCategoryType(4L, CategoryType.EXPENSE);
@@ -350,7 +350,7 @@ class BudgetServiceUnitTest
         given(mockBudgetRepo.findByUserId(anyLong())).willReturn(List.of(new Budget(), new Budget(), new Budget()));
 
 //        system under test
-        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null, null);
+        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null);
 
 //        when
         var result = toTest.getBudgetsByUserId(2L);
@@ -386,7 +386,7 @@ class BudgetServiceUnitTest
         given(mockBudgetRepo.findByMonthYearAndUserId(any(), anyLong())).willReturn(Optional.of(new Budget(LocalDate.now(), "foo")));
 
 //        system under test
-        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null, null);
+        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null);
 
 //        when
         var result = toTest.getBudgetByNumberAndUserId("052023", 9L);
@@ -405,7 +405,7 @@ class BudgetServiceUnitTest
         given(mockBudgetRepo.findByMonthYearAndUserId(any(), anyLong())).willReturn(Optional.empty());
 
 //        system under test
-        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null, null);
+        var toTest = new BudgetServiceImpl(mockBudgetRepo, null, null, null);
 
 //        when
         var result = catchThrowable(() -> toTest.getBudgetByNumberAndUserId("052023", 9L));

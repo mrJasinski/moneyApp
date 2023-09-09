@@ -1,9 +1,11 @@
 package com.moneyApp.user.service;
 
+import com.moneyApp.mail.service.MailService;
 import com.moneyApp.user.User;
 import com.moneyApp.user.dto.DashboardDTO;
 import com.moneyApp.user.dto.UserDTO;
 import com.moneyApp.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,9 @@ public class UserService
 {
     private final UserRepository userRepo;
     private final PasswordEncoder encoder;
+
+    @Autowired
+    private MailService mailService;
 
     UserService(UserRepository userRepo, PasswordEncoder encoder)
     {
@@ -45,7 +50,11 @@ public class UserService
 
         toSave.setPassword(hashPassword(toSave.getPassword()));
 
-        return this.userRepo.save(toSave.toUser());
+        var user = this.userRepo.save(toSave.toUser());
+
+        this.mailService.sendAfterRegistrationMail(user);
+
+        return user;
     }
 
     boolean validateEmail(String email)

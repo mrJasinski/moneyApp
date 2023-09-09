@@ -8,10 +8,11 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.PersistenceConstructor;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "accounts")
-public class Account
+class Account
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,17 +42,29 @@ public class Account
 
     public AccountDTO toDto()
     {
-        return new AccountDTO(this.name, this.description, this.actualBalance);
+        return AccountDTO.builder()
+                .withName(this.name)
+                .withDescription(this.description)
+                .withActualBalance(this.actualBalance)
+                .build();
     }
 
     public AccountDTO toDtoWithBills()
     {
-        return new AccountDTO(this.name, this.description, this.actualBalance, this.bills);
+        return AccountDTO.builder()
+                .withName(this.name)
+                .withDescription(this.description)
+                .withActualBalance(this.actualBalance)
+                .withBills(this.bills.stream().map(Bill::toDto).collect(Collectors.toList()))
+                .build();
     }
 
     public AccountDTO toSimpleDto()
     {
-        return new AccountDTO(this.name, this.actualBalance);
+        return AccountDTO.builder()
+            .withName(this.name)
+            .withActualBalance(this.actualBalance)
+            .build();
     }
 
     public Long getId()

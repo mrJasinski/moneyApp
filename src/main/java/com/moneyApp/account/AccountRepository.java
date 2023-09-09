@@ -1,4 +1,4 @@
-package com.moneyApp.account.repository;
+package com.moneyApp.account;
 
 import com.moneyApp.account.Account;
 
@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface AccountRepository
 {
     Optional<Account> findByNameAndUserId(String name, Long userId);
+    Optional<Account> findById(Long accountId);
 
     Account save(Account entity);
 

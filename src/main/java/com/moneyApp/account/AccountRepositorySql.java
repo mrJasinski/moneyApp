@@ -1,6 +1,5 @@
-package com.moneyApp.account.repository;
+package com.moneyApp.account;
 
-import com.moneyApp.account.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-interface SqlAccountRepository extends AccountRepository, JpaRepository<Account, Long>
+interface AccountRepositorySql extends AccountRepository, JpaRepository<Account, Long>
 {
     @Transactional
     @Modifying

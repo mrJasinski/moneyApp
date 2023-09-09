@@ -1,8 +1,7 @@
 package com.moneyApp.user.service;
 
-import com.moneyApp.account.service.AccountService;
+import com.moneyApp.account.AccountService;
 import com.moneyApp.budget.service.BudgetService;
-import com.moneyApp.payment.dto.PaymentDTO;
 import com.moneyApp.payment.service.PaymentService;
 import com.moneyApp.user.dto.DashboardDTO;
 import org.springframework.stereotype.Service;
