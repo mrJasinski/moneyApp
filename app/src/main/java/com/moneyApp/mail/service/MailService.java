@@ -1,8 +1,7 @@
 package com.moneyApp.mail.service;
 
-import com.moneyApp.Utils;
-import com.moneyApp.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.moneyApp.user.dto.UserDTO;
+import com.moneyApp.utils.Utils;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
@@ -10,8 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class MailService
 {
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+
+    MailService(final JavaMailSender mailSender)
+    {
+        this.mailSender = mailSender;
+    }
 
     public void sendSimpleMessage(String mailTo, String subject, String text)
     {
@@ -24,7 +27,7 @@ public class MailService
         this.mailSender.send(message);
     }
 
-    public void sendAfterRegistrationMail(User user)
+    public void sendAfterRegistrationMail(UserDTO user)
     {
         var mail = user.getEmail();
         var subject = "Dziękujemy za rejestrację w serwisie!";

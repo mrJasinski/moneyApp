@@ -1,7 +1,6 @@
 package com.moneyApp.budget.dto;
 
-import com.moneyApp.budget.Budget;
-import com.moneyApp.budget.BudgetPosition;
+//import com.moneyApp.budget.Budget.Position;
 import com.moneyApp.category.CategoryType;
 
 import java.util.ArrayList;
@@ -15,24 +14,24 @@ public class BudgetPlanDTO
     private final List<BudgetPositionDTO> incomes;
     private final List<BudgetPositionDTO> expenses;
 
-    public BudgetPlanDTO(Budget budget)
-    {
-        this.incomes = new ArrayList<>();
-        this.expenses = new ArrayList<>();
-
-        for (BudgetPosition bp : budget.getPositions())
-        {
-            if ((bp.getCategory().getType()).equals(CategoryType.INCOME))
-                this.incomes.add(new BudgetPositionDTO(bp.getCategory().getCategoryName(), bp.getPlannedAmount()));
-
-            if ((bp.getCategory().getType()).equals(CategoryType.EXPENSE))
-                this.expenses.add(new BudgetPositionDTO(bp.getCategory().getCategoryName(), bp.getPlannedAmount()));
-        }
-
-        this.plannedIncomes = this.incomes.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum();
-        this.plannedExpenses = this.expenses.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum();
-        this.plannedSum = this.plannedIncomes - this.plannedExpenses;
-    }
+//    public BudgetPlanDTO(Budget budget)
+//    {
+//        this.incomes = new ArrayList<>();
+//        this.expenses = new ArrayList<>();
+//
+////        for (BudgetPosition bp : budget.getPositions())
+////        {
+////            if ((bp.getCategory().getType()).equals(CategoryType.INCOME))
+////                this.incomes.add(new BudgetPositionDTO(bp.getCategory().getCategoryName(), bp.getPlannedAmount()));
+////
+////            if ((bp.getCategory().getType()).equals(CategoryType.EXPENSE))
+////                this.expenses.add(new BudgetPositionDTO(bp.getCategory().getCategoryName(), bp.getPlannedAmount()));
+////        }
+//
+//        this.plannedIncomes = this.incomes.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum();
+//        this.plannedExpenses = this.expenses.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum();
+//        this.plannedSum = this.plannedIncomes - this.plannedExpenses;
+//    }
 
     public BudgetPlanDTO(List<BudgetPositionDTO> positions)
     {

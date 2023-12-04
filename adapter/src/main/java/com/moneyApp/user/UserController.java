@@ -4,11 +4,7 @@ import com.moneyApp.mail.service.MailService;
 import com.moneyApp.security.JwtRequest;
 import com.moneyApp.security.JwtService;
 import com.moneyApp.user.dto.UserDTO;
-import com.moneyApp.user.service.DashboardService;
-import com.moneyApp.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,22 +21,23 @@ public class UserController
     private final DashboardService dashboardService;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
+    private final MailService mailService;
+    private final SimpleMailMessage message;
 
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private SimpleMailMessage message;
-
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-
-    public UserController(UserService userService, DashboardService dashboardService, JwtService jwtService, AuthenticationManager authManager)
+    public UserController(
+            final UserService userService
+            , final DashboardService dashboardService
+            , final JwtService jwtService
+            , final AuthenticationManager authManager
+            , final MailService mailService
+            , final SimpleMailMessage message)
     {
         this.userService = userService;
         this.dashboardService = dashboardService;
         this.jwtService = jwtService;
         this.authManager = authManager;
+        this.mailService = mailService;
+        this.message = message;
     }
 
     @PostMapping("/authenticate")
@@ -51,14 +48,13 @@ public class UserController
         if (!userDetails.isAuthenticated())
             throw new UsernameNotFoundException("User with given credentials not found!");
 
-
         return ResponseEntity.ok(this.jwtService.generateToken(user.getEmail()));
     }
 
     @GetMapping("/myDashboard")
-    public ResponseEntity<?> getUserDataAfterLogin(HttpServletRequest request)
+    public ResponseEntity<?> getDashboard(HttpServletRequest request)
     {
-        return ResponseEntity.ok(this.dashboardService.getDashboardByUserEmailAsDto(this.jwtService.getUserEmail(request)));
+        return ResponseEntity.ok(this.dashboardService.getDashboardByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
     }
 
     @GetMapping("/user")
@@ -87,4 +83,6 @@ public class UserController
 
         return ResponseEntity.ok("Sent!");
     }
+
+
 }

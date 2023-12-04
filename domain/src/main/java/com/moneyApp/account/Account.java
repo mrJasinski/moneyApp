@@ -1,100 +1,55 @@
 package com.moneyApp.account;
 
-import com.moneyApp.account.dto.AccountDTO;
-import com.moneyApp.user.User;
-import jakarta.persistence.*;
+import com.moneyApp.vo.BillSource;
+import com.moneyApp.vo.UserSource;
 
-@Entity
-@Table(name = "accounts")
+import java.util.Set;
+
 class Account
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;    // account name - no whitespaces allowed
-    private String description;
-    private Double actualBalance;   // actual account balance
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "account")
-//    private Set<BillSourceId> bills;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-//    persistence constructor
-    public Account()
+    static Account restore(AccountSnapshot snapshot)
     {
+        return new Account(
+                snapshot.getId()
+                , snapshot.getName()
+                , snapshot.getDescription()
+                , snapshot.getActualBalance()
+//                , snapshot.getBills()
+                , snapshot.getUser());
     }
 
-    public Account(String name, String description, Double actualBalance, User user)
+    private final Long id;
+    private final String name;    // account name - no whitespaces allowed
+    private final String description;
+    private final Double actualBalance;   // actual account balance
+//    private final Set<BillSource> bills;
+    private final UserSource user;
+
+
+    private Account(
+            final Long id
+            , final String name
+            , final String description
+            , final Double actualBalance
+//            , final Set<BillSource> bills
+            , final UserSource user)
     {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.actualBalance = actualBalance;
+//        this.bills = bills;
         this.user = user;
     }
 
-    public AccountDTO toDto()
+    AccountSnapshot getSnapshot()
     {
-        return AccountDTO.builder()
-                .withName(this.name)
-                .withDescription(this.description)
-                .withActualBalance(this.actualBalance)
-                .build();
-    }
-
-    public AccountDTO toDtoWithBills()
-    {
-        return AccountDTO.builder()
-                .withName(this.name)
-                .withDescription(this.description)
-                .withActualBalance(this.actualBalance)
-//                .withBills(this.bills.stream().map(Bill::toDto).collect(Collectors.toList()))
-                .build();
-    }
-
-    public Long getId()
-    {
-        return this.id;
-    }
-
-    public String getName()
-    {
-        return this.name;
-    }
-
-    public String getDescription()
-    {
-        return this.description;
-    }
-
-    public Double getActualBalance()
-    {
-        return this.actualBalance;
-    }
-
-//    public Set<Bill> getBills()
-//    {
-//        return this.bills;
-//    }
-
-    public User getUser()
-    {
-        return this.user;
-    }
-
-    void setName(final String name)
-    {
-        this.name = name;
-    }
-
-    void setDescription(final String description)
-    {
-        this.description = description;
-    }
-
-    void setActualBalance(final Double actualBalance)
-    {
-        this.actualBalance = actualBalance;
+        return new AccountSnapshot(
+                this.id
+                , this.name
+                , this.description
+                , this.actualBalance
+//                , this.bills
+                , this.user);
     }
 }

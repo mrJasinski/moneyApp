@@ -1,149 +1,106 @@
 package com.moneyApp.budget;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.moneyApp.budget.dto.BudgetDTO;
-import com.moneyApp.budget.dto.BudgetPositionDTO;
-import com.moneyApp.category.Category;
-import com.moneyApp.user.User;
-import com.moneyApp.vo.SimpleBillPosition;
-import jakarta.persistence.*;
+import com.moneyApp.vo.BillPositionSource;
+import com.moneyApp.vo.CategorySource;
+import com.moneyApp.vo.UserSource;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-@Entity
-@Table(name = "budgets")
-public class Budget
+class Budget
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private LocalDate monthYear;    //  day always set to 1 because is ignored
-    private String description;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-    @OneToMany
-    private Set<Budget.Position> positions;
-
-//    persistence constructor
-    public Budget()
+    static Budget restore(BudgetSnapshot snapshot)
     {
+        return new Budget(
+                snapshot.getId()
+                , snapshot.getMonthYear()
+                , snapshot.getDescription()
+                , snapshot.getUser()
+                , snapshot.getPositions()
+                    .stream()
+                    .map(Position::restore)
+                    .collect(Collectors.toSet())
+        );
     }
 
-    public Budget(LocalDate monthYear, String description)
+    private final Long id;
+    private final LocalDate monthYear;    //  day always set to 1 because is ignored
+    private final String description;
+    private final UserSource user;
+    private final Set<Budget.Position> positions;
+
+    Budget(
+            final Long id
+            , final LocalDate monthYear
+            , final String description
+            , final UserSource user
+            , final Set<Position> positions)
     {
+        this.id = id;
         this.monthYear = monthYear;
         this.description = description;
-    }
-
-    public Budget(LocalDate monthYear, String description, User user)
-    {
-        this(monthYear, description);
         this.user = user;
+        this.positions = positions;
     }
 
-    public BudgetDTO toDto()
+    BudgetSnapshot getSnapshot()
     {
-        return new BudgetDTO(this.monthYear, this.description);
+        return new BudgetSnapshot(
+                this.id
+                , this.monthYear
+                , this.description
+                , this.user
+                , this.positions
+                    .stream()
+                    .map(Position::getSnapshot)
+                    .collect(Collectors.toSet())
+
+        );
     }
 
-    public Long getId()
-    {
-        return this.id;
-    }
-
-    public LocalDate getMonthYear()
-    {
-        return this.monthYear;
-    }
-
-    public String getDescription()
-    {
-        return this.description;
-    }
-
-    public User getUser()
-    {
-        return this.user;
-    }
-
-    public void setUser(User user)
-    {
-        this.user = user;
-    }
-
-    public Set<Budget.Position> getPositions()
-    {
-        return this.positions;
-    }
-
-    @Entity
-    @Table(name = "budget_positions")
     static class Position
     {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
-        @ManyToOne
-        @JoinColumn(name = "category_id")
-        private Category category;
-        @ManyToOne
-        @JoinColumn(name = "budget_id")
-        private Budget budget;
-        private Double plannedAmount;
-        private String description;
-        @JsonIgnore
-        @OneToMany(mappedBy = "position")
-        private Set<SimpleBillPosition> billPositions;
-
-        //    persistence constructor
-        protected Position()
+        static Position restore(BudgetPositionSnapshot snapshot)
         {
+            return new Position(
+                    snapshot.getId()
+                    , snapshot.getCategory()
+                    , snapshot.getPlannedAmount()
+                    , snapshot.getDescription()
+                    , snapshot.getBillPositions()
+            );
         }
 
-        Position(Category category, Budget budget)
+        private final Long id;
+        private final CategorySource category;
+        private final Double plannedAmount;
+        private final String description;
+        private final Set<BillPositionSource> billPositions;
+
+        Position(
+                final Long id
+                , final CategorySource category
+                , final Double plannedAmount
+                , final String description
+                , final Set<BillPositionSource> billPositions)
         {
+            this.id = id;
             this.category = category;
-            this.budget = budget;
-            this.plannedAmount = 0d;
-            this.billPositions = new HashSet<SimpleBillPosition>();
+            this.plannedAmount = plannedAmount;
+            this.description = description;
+            this.billPositions = billPositions;
         }
 
-        public BudgetPositionDTO toDto()
+        BudgetPositionSnapshot getSnapshot()
         {
-            return new BudgetPositionDTO(this.category.toDto(), this.plannedAmount, this.description);
-        }
-
-        public Long getId()
-        {
-            return this.id;
-        }
-
-        public Category getCategory()
-        {
-            return this.category;
-        }
-
-        public Budget getBudget()
-        {
-            return this.budget;
-        }
-
-        public Double getPlannedAmount()
-        {
-            return this.plannedAmount;
-        }
-
-        public String getDescription()
-        {
-            return this.description;
-        }
-
-        public Set<SimpleBillPosition> getTransactions()
-        {
-            return this.billPositions;
+            return new BudgetPositionSnapshot(
+                    this.id
+                    , this.category
+                    , this.plannedAmount
+                    , this.description
+                    , this.billPositions
+            );
         }
     }
 }

@@ -1,19 +1,16 @@
 package com.moneyApp.payee;
 
-import com.moneyApp.payee.Payee;
-import com.moneyApp.payee.PayeeRole;
-
 import java.util.List;
 import java.util.Optional;
 
-public interface PayeeRepository
+interface PayeeRepository
 {
-    Optional<Payee> findByNameAndUserId(String name, Long userId);
+    Optional<PayeeSnapshot> findByNameAndUserId(String name, Long userId);
 
-    Payee save(Payee entity);
+    PayeeSnapshot save(PayeeSnapshot entity);
 
     Boolean existsByNameAndUserId(String name, Long userId);
 
-    List<Payee> findByUserId(Long userId);
-    List<Payee> findByRoleAndUserId(PayeeRole role, Long userId);
+    List<PayeeSnapshot> findByUserId(Long userId);
+    List<PayeeSnapshot> findByRoleAndUserId(PayeeRole role, Long userId);
 }

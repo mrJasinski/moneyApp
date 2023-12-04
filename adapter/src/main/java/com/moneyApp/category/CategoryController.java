@@ -25,15 +25,15 @@ public class CategoryController
     ResponseEntity<?> createCategory(@RequestBody CategoryDTO toSave, HttpServletRequest request)
     {
 //        no specific endpoints for creating sub and main categories because if they not exist they will be created during this process
-        var result = this.service.createCategoryByUserEmail(toSave, this.jwtService.getUserEmail(request));
+        var result = this.service.createCategoryByUserId(toSave, this.jwtService.getUserIdFromToken(request));
 
-        return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
+        return ResponseEntity.created(URI.create("/" + result.getName())).body(result);
     }
 
     @GetMapping("/{main}/subcategories")
     ResponseEntity<?> getSubcategoriesByMainCategoryAndUser(@PathVariable String main, HttpServletRequest request)
     {
-        var result = this.service.getSubcategoriesByMainCategoryNameAndUSerId(main, this.jwtService.getUserIdFromToken(request));
+        var result = this.service.getSubcategoriesByMainCategoryNameAndUserId(main, this.jwtService.getUserIdFromToken(request));
 
         return ResponseEntity.ok(request);
     }
@@ -41,6 +41,10 @@ public class CategoryController
     @GetMapping
     ResponseEntity<?> getCategoriesByUser(HttpServletRequest request)
     {
-        return ResponseEntity.ok(this.service.getAllCategoriesByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
+        return ResponseEntity.ok(this.service.getCategoriesByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
     }
+
+//    view/name
+//    edit
+//    delete
 }

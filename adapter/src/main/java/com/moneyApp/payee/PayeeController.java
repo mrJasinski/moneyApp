@@ -1,8 +1,6 @@
 package com.moneyApp.payee;
 
-import com.moneyApp.payee.PayeeRole;
 import com.moneyApp.payee.dto.PayeeDTO;
-import com.moneyApp.payee.PayeeService;
 import com.moneyApp.security.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -23,23 +21,32 @@ public class PayeeController
         this.jwtService = jwtService;
     }
 
-    @PostMapping
+    @PostMapping("/addPayee")
     ResponseEntity<?> createPayee(@RequestBody PayeeDTO toSave, HttpServletRequest request)
     {
-        var result = this.payeeService.createPayeeByUserEmail(toSave, this.jwtService.getUserEmail(request));
+        var result = this.payeeService.createPayeeByUserIdAsDto(toSave, this.jwtService.getUserIdFromToken(request));
 
-        return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
+        return ResponseEntity.created(URI.create("/" + result.getName())).body(result);
     }
 
     @GetMapping
-    ResponseEntity<?> getPayeesByUserEmail(HttpServletRequest request)
+    ResponseEntity<?> getPayeesByUser(HttpServletRequest request)
     {
-        return ResponseEntity.ok(this.payeeService.gePayeesByUserEmailAsDto(this.jwtService.getUserEmail(request)));
+        return ResponseEntity.ok(this.payeeService.gePayeesByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
     }
 
-    @GetMapping("/role")
-    ResponseEntity<?> getPayeesByRoleAndUserMail(@RequestParam PayeeRole role, HttpServletRequest request)
+    @GetMapping("/view/{name}")
+    ResponseEntity<?> getPayeeByNameAndUser(@PathVariable String name, HttpServletRequest request)
     {
-        return ResponseEntity.ok(this.payeeService.getPayeesByRoleAndUserEmailAsDto(role, this.jwtService.getUserEmail(request)));
+        return ResponseEntity.ok(this.payeeService.getPayeeByNameAndUserIdAsDto(name, this.jwtService.getUserIdFromToken(request)));
     }
+
+//    edit
+//    delete
+//
+//    @GetMapping("/role")
+//    ResponseEntity<?> getPayeesByRoleAndUser(@RequestParam PayeeRole role, HttpServletRequest request)
+//    {
+//        return ResponseEntity.ok(this.payeeService.getPayeesByRoleAndUserIdAsDto(role, this.jwtService.getUserIdFromToken(request)));
+//    }
 }

@@ -307,7 +307,7 @@ class PaymentServiceUnitTest
         toTest.generatePaymentDates(payment);
 
 //    then
-        assertEquals(1, payment.getDates().size());
+        assertEquals(1, payment.getPositions().size());
     }
 
     @Test
@@ -332,10 +332,10 @@ class PaymentServiceUnitTest
         toTest.generatePaymentDates(p4);
 
 //    then
-        assertEquals(1, p1.getDates().size());
-        assertEquals(1, p2.getDates().size());
-        assertEquals(1, p3.getDates().size());
-        assertEquals(1, p4.getDates().size());
+        assertEquals(1, p1.getPositions().size());
+        assertEquals(1, p2.getPositions().size());
+        assertEquals(1, p3.getPositions().size());
+        assertEquals(1, p4.getPositions().size());
 
     }
 
@@ -366,8 +366,8 @@ class PaymentServiceUnitTest
         toTest.generatePaymentDates(p2);
 
 //    then
-        assertEquals(2, p1.getDates().size());
-        assertEquals(5, p2.getDates().size());
+        assertEquals(2, p1.getPositions().size());
+        assertEquals(5, p2.getPositions().size());
     }
 
     @Test
@@ -397,8 +397,8 @@ class PaymentServiceUnitTest
         toTest.generatePaymentDates(p2);
 
 //    then
-        assertEquals(2, p1.getDates().size());
-        assertEquals(5, p2.getDates().size());
+        assertEquals(2, p1.getPositions().size());
+        assertEquals(5, p2.getPositions().size());
     }
 
     @Test
@@ -428,8 +428,8 @@ class PaymentServiceUnitTest
         toTest.generatePaymentDates(p2);
 
 //    then
-        assertEquals(2, p1.getDates().size());
-        assertEquals(5, p2.getDates().size());
+        assertEquals(2, p1.getPositions().size());
+        assertEquals(5, p2.getPositions().size());
     }
 
     @Test
@@ -459,8 +459,8 @@ class PaymentServiceUnitTest
         toTest.generatePaymentDates(p2);
 
 //    then
-        assertEquals(2, p1.getDates().size());
-        assertEquals(5, p2.getDates().size());
+        assertEquals(2, p1.getPositions().size());
+        assertEquals(5, p2.getPositions().size());
     }
 
     @Test

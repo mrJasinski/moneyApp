@@ -1,7 +1,7 @@
 package com.moneyApp.security.filter;
 
 import com.moneyApp.security.JwtService;
-import com.moneyApp.user.service.UserService;
+import com.moneyApp.user.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,9 @@ public class JwtAuthFilter extends OncePerRequestFilter
     private final JwtService jwtService;
     private final UserService userService;
 
-    public JwtAuthFilter(JwtService jwtService, UserService userService)
+    public JwtAuthFilter(
+            final JwtService jwtService
+            , final UserService userService)
     {
         this.jwtService = jwtService;
         this.userService = userService;
@@ -43,7 +45,8 @@ public class JwtAuthFilter extends OncePerRequestFilter
 
         if (!email.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null)
         {
-            var user = this.userService.getUserByEmail(email);
+
+            var user = this.userService.getUserByEmailAsDto(email);
 
             if (this.jwtService.validateToken(token, user))
             {

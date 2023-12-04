@@ -18,7 +18,18 @@ public class AccountDTO
     List<BillDTO> bills;
     List<BillPositionDTO> billPositions;
 
-    AccountDTO(final String name, final String description, final Double actualBalance, final List<BillDTO> bills, final List<BillPositionDTO> billPositions)
+    AccountDTO()
+    {
+    }
+
+    public AccountDTO(final String name, final String description, final Double actualBalance)
+    {
+        this.name = name;
+        this.description = description;
+        this.actualBalance = actualBalance;
+    }
+
+    public AccountDTO(final String name, final String description, final Double actualBalance, final List<BillDTO> bills, final List<BillPositionDTO> billPositions)
     {
         this.name = name;
         this.description = description;

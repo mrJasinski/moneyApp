@@ -1,75 +1,34 @@
 package com.moneyApp.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.moneyApp.budget.Budget;
-import com.moneyApp.user.dto.UserDTO;
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "users")
-public class User
+class User
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String email;   // also used as username
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String password;
-    @Enumerated(EnumType.STRING)
-    private UserRole role;  // access level (eg user, admin, etc)
-    private String name;    // name used for communication (eg "Good morning Wiesław!")
-
-//    persistence constructor
-    protected User()
+    static User restore(UserSnapshot snapshot)
     {
+        return new User(snapshot.getId(), snapshot.getEmail(), snapshot.getPassword(), snapshot.getRole(), snapshot.getName());
     }
 
-    public User(String email, String password)
-    {
-        this.email = email;
-        this.password = password;
-    }
+    private final Long id;
+    private final String email;   // also used as username
+    private final String password;
+    private final UserRole role;  // access level (eg user, admin, etc)
+    private final String name;    // name used for communication (eg "Good morning Wiesław!")
 
-    public User(String email, String password, UserRole role, String name)
-    {
-        this(email, password);
-        this.role = role;
-        this.name = name;
-    }
-// tylko na potrzeby testów
-    public User(Long id, String email)
+    User(final Long id, final String email, final String password, final UserRole role, final String name)
     {
         this.id = id;
         this.email = email;
+        this.password = password;
+        this.role = role;
+        this.name = name;
     }
 
-    public UserDTO toDto()
+    UserSnapshot getSnapshot()
     {
-        return new UserDTO(this.email, this.name);
-    }
-
-    public Long getId()
-    {
-        return this.id;
-    }
-
-    public String getEmail()
-    {
-        return this.email;
-    }
-
-    public String getPassword()
-    {
-        return this.password;
-    }
-
-    public UserRole getRole()
-    {
-        return this.role;
-    }
-
-    public String getName()
-    {
-        return this.name;
+        return new UserSnapshot(
+                this.id
+                , this.email
+                , this.password
+                , this.role
+                , this.name);
     }
 }

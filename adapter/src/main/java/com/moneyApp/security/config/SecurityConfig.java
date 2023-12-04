@@ -5,9 +5,14 @@ import com.moneyApp.security.filter.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -18,10 +23,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import java.util.Collections;
 import java.util.List;
 
+@EnableWebSecurity
 @Configuration
 public class SecurityConfig
 {
-
     private final JwtAuthFilter authFilter;
 
     public SecurityConfig(JwtAuthFilter authFilter)
@@ -35,7 +40,8 @@ public class SecurityConfig
         var requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName("_csrf");
 
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .cors().configurationSource(new CorsConfigurationSource()
                 {
                     @Override
@@ -52,19 +58,17 @@ public class SecurityConfig
                 })
                 .and()
                 .csrf((csrf) -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers( "/register",
-                                "/budgets", "/categories/**", "/bills/**", "/accounts/**", "/payees", "/user/**", "/authenticate",
-                                 "/payments/**")
+                                "/budgets/**", "/categories/**", "/bills/**", "/accounts/**", "/payees/**", "/user/**", "/authenticate",
+                                 "/payments/**", "/signup", "/index")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(this.authFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests()
-//                .requestMatchers("/budgets/**", "/user/**").hasRole("USER")
-                .requestMatchers("/budgets/**", "/user/**", "/categories/**", "/bills/**", "/accounts/**", "/payees/**", "/payments/**",
-                        "/myDashboard").authenticated()
-//                TODO sendMail tylko dla testu - usunąć po!
-                .requestMatchers("/register", "/authenticate", "/sendMail").permitAll()
-                .and().formLogin()
-                .and().httpBasic();
+                .requestMatchers("/register", "/authenticate", "/login", "/signup", "/index").permitAll()
+                .requestMatchers("/budgets/**", "/user/**", "/categories/**", "/bills/**", "/accounts/**"
+                        , "/payees/**", "/payments/**", "/myDashboard").authenticated()
+                .and()
+                .httpBasic();
 
         return http.build();
     }

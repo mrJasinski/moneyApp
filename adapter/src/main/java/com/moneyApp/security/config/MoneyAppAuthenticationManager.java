@@ -32,12 +32,17 @@ public class MoneyAppAuthenticationManager implements AuthenticationManager
     {
         var username = authentication.getName();
         var pwd = authentication.getCredentials().toString();
-        var user = this.service.getUserByEmail(username);
+//        TODO test
+        System.out.println("username auth mgr");
+        System.out.println(username);
 
-        if (this.encoder.matches(pwd, user.getPassword()))
-            return new UsernamePasswordAuthenticationToken(username, pwd, getGrantedAuthorities(user.getRole()));
-        else
+
+        var user = this.service.getUserByEmailAsDto(username);
+
+        if (!this.encoder.matches(pwd, user.getPassword()))
             throw new BadCredentialsException("Invalid password!");
+
+        return new UsernamePasswordAuthenticationToken(username, pwd, getGrantedAuthorities(user.getRole()));
     }
 
     private List<GrantedAuthority> getGrantedAuthorities(UserRole role)

@@ -1,7 +1,7 @@
 package com.moneyApp.security;
 
-import com.moneyApp.user.User;
 import com.moneyApp.user.UserService;
+import com.moneyApp.user.dto.UserDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -55,13 +55,10 @@ public class JwtService
         return extractExpiration(token).before(new Date());
     }
 
-//    TODO tymczasowe
-//    public String generateToken(String userName)
     public JwtResponse generateToken(String userName)
     {
         var claims = new HashMap<String, Object>();
-//        TODO tymczasowe
-//        return createToken(claims, userName);
+
         return new JwtResponse(createToken(claims, userName));
     }
 
@@ -82,9 +79,10 @@ public class JwtService
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public Boolean validateToken(String token, User userDetails)
+    public Boolean validateToken(String token, UserDTO userDetails)
     {
         final var username = extractUsername(token);
+
         return (username.equals(userDetails.getEmail()) && !isTokenExpired(token));
     }
 
@@ -92,10 +90,10 @@ public class JwtService
     {
         var authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer "))
-            return authHeader.substring(7);
-        else
+        if (authHeader == null || !authHeader.startsWith("Bearer "))
             throw new IllegalArgumentException("Invalid token!");
+
+        return authHeader.substring(7);
     }
 
     public String getUserEmail(HttpServletRequest request)

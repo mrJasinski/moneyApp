@@ -1,78 +1,59 @@
 package com.moneyApp.payee;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.moneyApp.payee.dto.PayeeDTO;
-import com.moneyApp.user.User;
-import com.moneyApp.vo.SimpleBill;
-import com.moneyApp.vo.SimpleBillPosition;
-import jakarta.persistence.*;
+import com.moneyApp.vo.BillPositionSource;
+import com.moneyApp.vo.BillSource;
+import com.moneyApp.vo.UserSource;
 
 import java.util.Set;
 
-@Entity
-@Table(name = "payees")
-public class Payee
+class Payee
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    @Enumerated(EnumType.STRING)
-    private PayeeRole role;
-    @JsonIgnore
-    @OneToMany(mappedBy = "payee")
-    private Set<SimpleBill> bills;
-    @JsonIgnore
-    @OneToMany(mappedBy = "gainer")
-    private Set<SimpleBillPosition> billPositions;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+//    TODO bills i billPositions zakomentowane do testu
 
-//    persistence constructor
-    protected Payee()
+    static Payee restore(PayeeSnapshot snapshot)
     {
+        return new Payee(
+                snapshot.getId()
+                , snapshot.getName()
+                , snapshot.getRole()
+//                , snapshot.getBills()
+//                , snapshot.getBillPositions()
+                , snapshot.getUser()
+        );
     }
 
-    public Payee(String name, PayeeRole role, User user)
+    private final Long id;
+    private final String name;
+    private final PayeeRole role;
+//    private final Set<BillSource> bills;
+//    private final Set<BillPositionSource> billPositions;
+    private final UserSource user;
+
+    private Payee(
+            final Long id
+            , final String name
+            , final PayeeRole role
+//            , final Set<BillSource> bills
+//            , final Set<BillPositionSource> billPositions
+            , final UserSource user)
     {
+        this.id = id;
         this.name = name;
         this.role = role;
+//        this.bills = bills;
+//        this.billPositions = billPositions;
         this.user = user;
     }
 
-    public PayeeDTO toDto()
+    PayeeSnapshot getSnapshot()
     {
-        return new PayeeDTO(this.name, this.role);
-    }
-
-    public Long getId()
-    {
-        return this.id;
-    }
-
-    public String getName()
-    {
-        return this.name;
-    }
-
-    public PayeeRole getRole()
-    {
-        return this.role;
-    }
-
-    public Set<SimpleBill> getBills()
-    {
-        return this.bills;
-    }
-
-    public Set<SimpleBillPosition> getTransactions()
-    {
-        return this.billPositions;
-    }
-
-    public User getUser()
-    {
-        return this.user;
+        return new PayeeSnapshot(
+                this.id
+                , this.name
+                , this.role
+//                , this.bills
+//                ,this.billPositions
+                , this.user
+        );
     }
 }

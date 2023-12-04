@@ -1,5 +1,7 @@
 package com.moneyApp.bill.dto;
 
+import com.moneyApp.vo.BillPositionSource;
+
 import java.time.LocalDate;
 
 public class BillPositionDTO
@@ -9,6 +11,7 @@ public class BillPositionDTO
         return new Builder();
     }
 
+    private final Long id;
     private final Double amount;
     private final String categoryName;
     private final String gainerName;
@@ -17,8 +20,17 @@ public class BillPositionDTO
     private final String payeeName;
     private final String accountName;
 
-    BillPositionDTO(LocalDate date, String payeeName, String accountName, Double amount, String categoryName, String gainerName, String description)
+    BillPositionDTO(
+            Long id
+            , LocalDate date
+            , String payeeName
+            , String accountName
+            , Double amount
+            , String categoryName
+            , String gainerName
+            , String description)
     {
+        this.id = id;
         this.amount = amount;
         this.categoryName = categoryName;
         this.gainerName = gainerName;
@@ -26,6 +38,16 @@ public class BillPositionDTO
         this.date = date;
         this.payeeName = payeeName;
         this.accountName = accountName;
+    }
+
+    public BillPositionSource toSource()
+    {
+        return new BillPositionSource(this.id);
+    }
+
+    public Long getId()
+    {
+        return this.id;
     }
 
     public Double getAmount()
@@ -65,6 +87,7 @@ public class BillPositionDTO
 
     public static class Builder
     {
+        private Long id;
         private Double amount;
         private String categoryName;
         private String gainerName;
@@ -72,6 +95,12 @@ public class BillPositionDTO
         private LocalDate date;
         private String payeeName;
         private String accountName;
+
+        public Builder withId(Long id)
+        {
+            this.id = id;
+            return this;
+        }
 
         public Builder withAmount(Double amount)
         {
@@ -117,7 +146,7 @@ public class BillPositionDTO
 
         public BillPositionDTO build()
         {
-            return new BillPositionDTO(this.date, this.payeeName, this.accountName, this.amount, this.categoryName, this.gainerName, this.description);
+            return new BillPositionDTO(this.id, this.date, this.payeeName, this.accountName, this.amount, this.categoryName, this.gainerName, this.description);
         }
     }
 }

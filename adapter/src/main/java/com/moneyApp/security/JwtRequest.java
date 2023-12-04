@@ -5,7 +5,17 @@ public class JwtRequest
     private String email;
     private String password;
 
-     public String getEmail()
+    public JwtRequest()
+    {
+    }
+
+    JwtRequest(final String email, final String password)
+    {
+        this.email = email;
+        this.password = password;
+    }
+
+    public String getEmail()
     {
         return this.email;
     }

@@ -1,9 +1,12 @@
 package com.moneyApp.budget.dto;
 
-import com.moneyApp.budget.Budget;
+import com.moneyApp.category.CategoryType;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BudgetDTO
 {
@@ -20,6 +23,7 @@ public class BudgetDTO
     private List<BudgetPositionDTO> incomes;
     private List<BudgetPositionDTO> expenses;
     private String description;
+    private List<BudgetPositionDTO> positions;
 
     public BudgetDTO()
     {
@@ -28,16 +32,53 @@ public class BudgetDTO
     public BudgetDTO(LocalDate monthYear, String description)
     {
         this.monthYear = monthYear;
-        this.number = String.format("%s%s", this.monthYear.getMonth().getValue(), this.monthYear.getYear());
-        if (this.monthYear.getMonth().getValue() < 10)
-            this.number = "0" + this.number;
-
+        this.number = generateBudgetNumber(monthYear);
         this.description = description;
     }
 
-    public Budget toBudget()
+    public BudgetDTO(
+            LocalDate monthYear
+            , double plannedIncomes
+            , double actualIncomes
+            , double plannedExpenses
+            , double actualExpenses)
     {
-        return new Budget(this.monthYear, this.description);
+        this.monthYear = monthYear;
+        this.plannedIncomes = plannedIncomes;
+        this.actualIncomes = actualIncomes;
+        this.plannedExpenses = plannedExpenses;
+        this.actualExpenses = actualExpenses;
+        this.actualSum = this.plannedIncomes - this.plannedExpenses;
+    }
+
+//    private Long id;
+//    private LocalDate monthYear;    //  day always set to 1 because is ignored
+//    private String description;
+//    private UserSource user;
+//    private Set<BudgetPositionSnapshot> positions;
+
+    public BudgetDTO(LocalDate monthYear, String description, List<BudgetPositionDTO> positions)
+    {
+        this(monthYear, description);
+        this.expenses = positions
+                .stream()
+                .filter(p -> p.getCategory().getType().equals(CategoryType.INCOME))
+                .collect(Collectors.toList());
+        this.incomes = positions
+                .stream()
+                .filter(p -> p.getCategory().getType().equals(CategoryType.EXPENSE))
+                .collect(Collectors.toList());
+    }
+
+
+
+    private String generateBudgetNumber(final LocalDate monthYear)
+    {
+        var number = String.format("%s%s", monthYear.getMonth().getValue(), monthYear.getYear());
+        if (monthYear.getMonth().getValue() < 10)
+            number = "0" + number;
+
+        return number;
     }
 
     public String getNumber()
@@ -158,5 +199,10 @@ public class BudgetDTO
     public void setMonthYear(LocalDate monthYear)
     {
         this.monthYear = monthYear;
+    }
+
+    public List<BudgetPositionDTO> getPositions()
+    {
+        return this.positions;
     }
 }

@@ -4,7 +4,6 @@ public interface BillRepository
 {
     Bill save(Bill entity);
 
-    Bill.Position save(Bill.Position entity);
-
-    void updatePositionIdInDb(Long transactionId, Long budgetPositionId, Long userId);
+    void deleteByNumberAndUserId(String number, Long userId);
+//    void updatePositionIdInDb(Long transactionId, Long budgetPositionId, Long userId);
 }

@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm
+   http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
+                 version="1.0">
+
+    <description>XML Mapping file</description>
+
+    <entity class="com.moneyApp.account.AccountSnapshot" access="FIELD">
+        <table name="accounts" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY" />
+            </id>
+            <basic name="name" />
+            <basic name="description" />
+            <basic name="actualBalance" />
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.bill.BillSnapshot" access="FIELD">
+            <table name="bills" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="number" />
+            <basic name="billDate" />
+            <basic name="description" />
+            <one-to-many name="positions" fetch="EAGER">
+                <join-column name="bill_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+            <embedded name="payee">
+                <attribute-override name="id" >
+                    <column name="payee_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="account">
+                <attribute-override name="id" >
+                    <column name="account_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="budget">
+                <attribute-override name="id" >
+                    <column name="budget_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.bill.BillPositionSnapshot" access="FIELD">
+        <table name="bill_positions" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="number" />
+            <basic name="amount" />
+            <basic name="description" />
+            <embedded name="category">
+                <attribute-override name="id" >
+                    <column name="category_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="gainer">
+                <attribute-override name="id" >
+                    <column name="gainer_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="budgetPosition">
+                <attribute-override name="id" >
+                    <column name="budget_position_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.budget.BudgetSnapshot" access="FIELD">
+        <table name="budgets" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="monthYear" />
+            <basic name="description" />
+            <one-to-many name="positions" fetch="EAGER">
+                <join-column name="budget_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.budget.BudgetPositionSnapshot" access="FIELD">
+        <table name="budget_positions" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="plannedAmount" />
+            <basic name="description" />
+            <embedded name="category">
+                <attribute-override name="id" >
+                    <column name="category_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="billPositions">
+                <attribute-override name="id" >
+                    <column name="bill_position_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.category.CategorySnapshot" access="FIELD">
+        <table name="categories" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="type" >
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="description" />
+            <many-to-one name="mainCategory">
+                <join-column name="main_category_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </many-to-one>
+            <many-to-one name="subCategory">
+                <join-column name="sub_category_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </many-to-one>
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.category.MainCategorySnapshot" access="FIELD">
+        <table name="main_categories" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="name" />
+            <one-to-many name="subCategories" fetch="EAGER"/>
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.category.SubCategorySnapshot" access="FIELD">
+        <table name="sub_categories" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="name" />
+            <many-to-one name="mainCategory" >
+                <join-column name="main_category_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </many-to-one>
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.payee.PayeeSnapshot" access="FIELD">
+        <table name="payees" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="name" />
+            <basic name="role" >
+                <enumerated>STRING</enumerated>
+            </basic>
+            <embedded name="bills">
+                <attribute-override name="id" >
+                    <column name="bill_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="billPositions">
+                <attribute-override name="id" >
+                    <column name="bill_position_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>>
+
+    <entity class="com.moneyApp.payment.PaymentSnapshot" access="FIELD">
+        <table name="payments" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="startDate"/>
+            <basic name="frequencyType">
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="frequency"/>
+            <basic name="description"/>
+            <basic name="amount"/>
+            <one-to-many name="positions" fetch="EAGER">
+                <join-column name="payment_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.payment.PaymentPositionSnapshot" access="FIELD">
+        <table name="payments" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="paymentDate"/>
+            <basic name="isPaid"/>
+            <basic name="hash"/>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.user.UserSnapshot" access="FIELD">
+        <table name="users" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="email"/>
+            <basic name="password"/>
+            <basic name="role" >
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="name"/>
+        </attributes>
+    </entity>
+
+    <embeddable class="com.moneyApp.vo.AccountSource" access="FIELD" >
+        <attributes>
+            <basic name="id" />
+            <basic name="name" />
+        </attributes>
+    </embeddable>
+    <embeddable class="com.moneyApp.vo.BillSource" access="FIELD" >
+        <attributes>
+            <basic name="id" />
+        </attributes>
+    </embeddable>
+    <embeddable class="com.moneyApp.vo.BillPositionSource" access="FIELD" >
+        <attributes>
+            <basic name="id" />
+        </attributes>
+    </embeddable>
+    <embeddable class="com.moneyApp.vo.BudgetSource" access="FIELD" >
+        <attributes>
+            <basic name="id" />
+        </attributes>
+    </embeddable>
+    <embeddable class="com.moneyApp.vo.BudgetPositionSource" access="FIELD" >
+        <attributes>
+            <basic name="id" />
+        </attributes>
+    </embeddable>
+    <embeddable class="com.moneyApp.vo.CategorySource" access="FIELD" >
+        <attributes>
+            <basic name="id" />
+            <basic name="name" />
+        </attributes>
+    </embeddable>
+    <embeddable class="com.moneyApp.vo.PayeeSource" access="FIELD" >
+        <attributes>
+            <basic name="id" />
+            <basic name="name" />
+        </attributes>
+    </embeddable>
+    <embeddable class="com.moneyApp.vo.UserSource" access="FIELD" >
+        <attributes>
+            <basic name="id" />
+        </attributes>
+    </embeddable>
+</entity-mappings>

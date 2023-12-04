@@ -2,8 +2,13 @@ package com.moneyApp.user;
 
 import com.moneyApp.mail.service.MailService;
 import com.moneyApp.user.dto.UserDTO;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -26,18 +31,42 @@ public class UserService
         this.mailService = mailService;
     }
 
+    public boolean isAuthenticated()
+    {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || AnonymousAuthenticationToken.class.isAssignableFrom(auth.getClass()))
+            return false;
+
+        return auth.isAuthenticated();
+    }
+
     public User getUserByEmail(String email)
     {
-        return this.userQueryRepo.findByEmail(email)
+        var snap = this.userQueryRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User with given email not found!"));
+
+        return User.restore(snap);
     }
 
     public UserDTO getUserByEmailAsDto(String email)
     {
-        return getUserByEmail(email).toDto();
+        return toDto(getUserByEmail(email));
     }
 
-    public User createUser(UserDTO toSave)
+    UserDTO toDto(User user)
+    {
+        var snap = user.getSnapshot();
+
+        return new UserDTO(
+                snap.getEmail()
+                , snap.getPassword()
+                , snap.getName()
+                , snap.getRole()
+        );
+    }
+
+    public UserDTO createUser(UserDTO toSave)
     {
         if (!validateEmail(toSave.getEmail()))
             throw new IllegalArgumentException("Provided email address is invalid!");
@@ -50,11 +79,11 @@ public class UserService
 
         toSave.setPassword(hashPassword(toSave.getPassword()));
 
-        var user = this.userRepo.save(toSave.toUser());
+        var user = this.userRepo.save(new User(toSave.getId(), toSave.getEmail(), toSave.getPassword(), toSave.getRole(), toSave.getName()));
 
-        this.mailService.sendAfterRegistrationMail(user);
+        this.mailService.sendAfterRegistrationMail(toSave);
 
-        return user;
+        return toSave;
     }
 
     boolean validateEmail(String email)
@@ -93,7 +122,7 @@ public class UserService
                 .orElseThrow(() -> new IllegalArgumentException("User id with given email not found!"));
     }
 
-    public User getUserById(long userId)
+    public UserSnapshot getUserById(long userId)
     {
         return this.userQueryRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with given id not found!"));

@@ -8,11 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SqlCategoryRepository extends CategoryRepository, JpaRepository<Category, Long>
+interface SqlCategoryRepository extends CategoryRepository, JpaRepository<CategorySnapshot, Long>
 {
-    @Override
-    @Query(value = "FROM Category c WHERE c.mainCategory.name = :mainCategoryName AND c.subCategory.name = :subCategoryName " +
-            "AND c.user.id = :userId")
-    Optional<Category> findCategoryByMainCategoryNameAndSubcategoryNameAndUserId(String mainCategoryName,
-                                                                                 String subCategoryName, Long userId);
+
 }

@@ -1,36 +1,37 @@
 package com.moneyApp.category;
 
-import com.moneyApp.category.dto.CategoryDTO;
-import com.moneyApp.user.User;
-import jakarta.persistence.*;
+import com.moneyApp.vo.UserSource;
 
-@Entity
-@Table(name = "categories")
-public class Category
+class Category
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @ManyToOne
-    @JoinColumn(name = "main_category_id")
-    private MainCategory mainCategory;
-    @ManyToOne
-    @JoinColumn(name = "sub_category_id")
-    private SubCategory subCategory;
-    @Enumerated(EnumType.STRING)
-    private CategoryType type;
-    private String description;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-//    persistence constructor
-    protected Category()
+    static Category restore(CategorySnapshot snapshot)
     {
+        return new Category(
+                snapshot.getId()
+                , MainCategory.restore(snapshot.getMainCategory())
+                , SubCategory.restore(snapshot.getSubCategory())
+                , snapshot.getType()
+                , snapshot.getDescription()
+                , snapshot.getUser()
+        );
     }
 
-    public Category(MainCategory mainCategory, SubCategory subCategory, CategoryType type, String description, User user)
+    private final Long id;
+    private final MainCategory mainCategory;
+    private final SubCategory subCategory;
+    private final CategoryType type;
+    private final String description;
+    private final UserSource user;
+
+    private Category(
+            final Long id
+            , final MainCategory mainCategory
+            , final SubCategory subCategory
+            , final CategoryType type
+            , final String description
+            , final UserSource user)
     {
+        this.id = id;
         this.mainCategory = mainCategory;
         this.subCategory = subCategory;
         this.type = type;
@@ -38,43 +39,15 @@ public class Category
         this.user = user;
     }
 
-    public CategoryDTO toDto()
+    CategorySnapshot getSnapshot()
     {
-        return new CategoryDTO(this.mainCategory.getName(), this.subCategory.getName(), this.type, this.description);
-    }
-
-    public Long getId()
-    {
-        return this.id;
-    }
-
-    public MainCategory getMainCategory()
-    {
-        return this.mainCategory;
-    }
-
-    public SubCategory getSubCategory()
-    {
-        return this.subCategory;
-    }
-
-    public String getCategoryName()
-    {
-        return String.format("%s : %s", this.mainCategory.getName(), this.subCategory.getName());
-    }
-
-    public CategoryType getType()
-    {
-        return this.type;
-    }
-
-    public String getDescription()
-    {
-        return this.description;
-    }
-
-    public User getUser()
-    {
-        return this.user;
+        return new CategorySnapshot(
+                this.id
+                , this.mainCategory.getSnapshot()
+                , this.subCategory.getSnapshot()
+                , this.type
+                , this.description
+                , this.user
+        );
     }
 }

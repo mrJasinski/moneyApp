@@ -13,22 +13,22 @@ import java.net.URI;
 class AccountController
 {
     private final AccountService accountService;
-    private final AccountQueryService accountQueryService;
     private final JwtService jwtService;
 
-    public AccountController(AccountService accountService, final AccountQueryService accountQueryService, JwtService jwtService)
+    public AccountController(
+            AccountService accountService
+            , JwtService jwtService)
     {
         this.accountService = accountService;
-        this.accountQueryService = accountQueryService;
         this.jwtService = jwtService;
     }
 
     @PostMapping("/addAccount")
     ResponseEntity<?> createAccount(@RequestBody AccountDTO toSave, HttpServletRequest request)
     {
-        var result = this.accountService.createAccountByUserId(toSave, this.jwtService.getUserIdFromToken(request));
+        var result = this.accountService.createAccountByUserIdAsDto(toSave, this.jwtService.getUserIdFromToken(request));
 
-        return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
+        return ResponseEntity.created(URI.create("/" + result.getName())).body(result);
     }
 
     @DeleteMapping("/deleteAccount")
@@ -38,9 +38,10 @@ class AccountController
         return ResponseEntity.ok("Account successfully deleted");
     }
 
-    @PutMapping("/{name}/update")
+    @PutMapping("/update/{name}")
     ResponseEntity<?> updateAccount(@RequestBody AccountDTO toUpdate, HttpServletRequest request)
     {
+//        TODO
         this.accountService.updateAccountDataByUserId(toUpdate, this.jwtService.getUserIdFromToken(request));
 
         return ResponseEntity.ok("Account data successfully updated!");
@@ -49,12 +50,12 @@ class AccountController
     @GetMapping("/view/{name}")
     ResponseEntity<?> getAccountByNameAndUser(@PathVariable String name, HttpServletRequest request)
     {
-        return ResponseEntity.ok(this.accountQueryService.getAccountByNameAndUserIdAsDto(name, this.jwtService.getUserIdFromToken(request)));
+        return ResponseEntity.ok(this.accountService.getAccountByNameAndUserIdAsDto(name, this.jwtService.getUserIdFromToken(request)));
     }
 
     @GetMapping
     ResponseEntity<?> getAccountsByUser(HttpServletRequest request)
     {
-        return ResponseEntity.ok(this.accountQueryService.getAccountsByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
+        return ResponseEntity.ok(this.accountService.getAccountsByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
     }
 }

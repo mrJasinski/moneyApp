@@ -1,10 +1,12 @@
 package com.moneyApp.payee;
 
-import com.moneyApp.payee.Payee;
-import com.moneyApp.payee.PayeeRole;
+import com.moneyApp.bill.dto.BillDTO;
+import com.moneyApp.bill.dto.BillPositionDTO;
 import com.moneyApp.payee.dto.PayeeDTO;
-import com.moneyApp.payee.repository.PayeeRepository;
-import com.moneyApp.user.service.UserService;
+import com.moneyApp.user.UserService;
+import com.moneyApp.vo.BillSource;
+import com.moneyApp.vo.PayeeSource;
+import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,52 +16,92 @@ import java.util.stream.Collectors;
 public class PayeeService
 {
     private final PayeeRepository payeeRepo;
+    private final PayeeQueryRepository payeeQueryRepo;
     private final UserService userService;
 
-    PayeeService(PayeeRepository payeeRepo, UserService userService)
+    PayeeService(
+            final PayeeRepository payeeRepo
+            , final PayeeQueryRepository payeeQueryRepo
+            , final UserService userService)
     {
         this.payeeRepo = payeeRepo;
+        this.payeeQueryRepo = payeeQueryRepo;
         this.userService = userService;
     }
 
-    public Payee getPayeeByNameAndUserId(String name, long userId)
+    PayeeSnapshot getPayeeByNameAndUserId(String name, long userId)
     {
         return this.payeeRepo.findByNameAndUserId(name, userId)
-                .orElseThrow(() -> new IllegalArgumentException("No payee found for given name!"));
+                .orElseThrow(() -> new IllegalArgumentException("Payee with given name not found!"));
     }
 
-    public Payee createPayeeByUserEmail(PayeeDTO toSave, String email)
+    PayeeDTO createPayeeByUserIdAsDto(PayeeDTO toSave, Long userId)
     {
-//        sprawdzenie czy kontrahent o danej nazwie już istnieje dla danego użytkownika
-        if (this.payeeRepo.existsByNameAndUserId(toSave.getName(), this.userService.getUserIdByEmail(email)))
+//        check if payee with given name already exists for given user
+        if (this.payeeRepo.existsByNameAndUserId(toSave.getName(), userId))
             throw new IllegalArgumentException("Payee with given name already exists!");
 
-        return this.payeeRepo.save(new Payee(toSave.getName(), toSave.getRole(), this.userService.getUserByEmail(email)));
+        return toDto(this.payeeRepo.save(new PayeeSnapshot(
+                null
+                , toSave.getName()
+                , toSave.getRole()
+//                , toSave.getBills().stream().map(BillDTO::toSource).collect(Collectors.toSet())
+//                , toSave.getBillPositions().stream().map(BillPositionDTO::toSource).collect(Collectors.toSet())
+                , new UserSource(userId)
+        )));
     }
 
-    List<Payee> gePayeesByUserEmail(String email)
+    PayeeDTO toDto(PayeeSnapshot snap)
     {
-        return this.payeeRepo.findByUserId(this.userService.getUserIdByEmail(email));
+        return new PayeeDTO(
+                snap.getName()
+                , snap.getRole()
+        );
     }
 
-    public List<PayeeDTO> gePayeesByUserEmailAsDto(String email)
+    List<PayeeSnapshot> gePayeesByUserId(Long userId)
     {
-        return gePayeesByUserEmail(email)
+        return this.payeeRepo.findByUserId(userId);
+    }
+
+    public List<PayeeDTO> gePayeesByUserIdAsDto(Long userId)
+    {
+        return gePayeesByUserId(userId)
                 .stream()
-                .map(Payee::toDto)
+                .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
-    List<Payee> getPayeesByRoleAndUserEmail(PayeeRole role, String email)
+    List<PayeeSnapshot> getPayeesByRoleAndUserId(PayeeRole role, Long userId)
     {
-        return this.payeeRepo.findByRoleAndUserId(role, this.userService.getUserIdByEmail(email));
+        return this.payeeRepo.findByRoleAndUserId(role, userId);
     }
 
-    public List<PayeeDTO> getPayeesByRoleAndUserEmailAsDto(PayeeRole role, String email)
+    public PayeeSource getPayeeSourceByNameAndUserId(final String payeeName, final Long userId)
     {
-        return getPayeesByRoleAndUserEmail(role, email)
-                .stream()
-                .map(Payee::toDto)
-                .collect(Collectors.toList());
+        return new PayeeSource(this.payeeQueryRepo.findIdByNameAndUserId(payeeName, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Payee with given name and user id not found!")));
     }
+
+    public String getPayeeNameById(final long payeeId)
+    {
+        return this.payeeQueryRepo.findNameById(payeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Payee with given id not found!"));
+    }
+
+    PayeeDTO getPayeeByNameAndUserIdAsDto(final String name, final Long userId)
+    {
+        var result = this.payeeQueryRepo.findByNameAndUserId(name, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Payee with given name and user id not found!"));
+
+        return toDto(result);
+    }
+
+//    public List<PayeeDTO> getPayeesByRoleAndUserIdAsDto(PayeeRole role, Long userId)
+//    {
+//        return getPayeesByRoleAndUserId(role, userId)
+//                .stream()
+//                .map(Payee::toDto)
+//                .collect(Collectors.toList());
+//    }
 }

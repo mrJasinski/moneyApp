@@ -1,11 +1,9 @@
 package com.moneyApp.payment.dto;
 
-import com.moneyApp.payment.PaymentDate;
 import com.moneyApp.payment.PaymentFrequency;
 import com.moneyApp.payment.PaymentStatus;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class PaymentDTO
 {
@@ -16,7 +14,7 @@ public class PaymentDTO
     private String description;
     private double amount;
     private PaymentStatus isPaid;
-    private List<PaymentDate> dates;
+//    private List<Payment.PaymentDate> dates;
 
     public PaymentDTO()
     {
@@ -43,15 +41,15 @@ public class PaymentDTO
         this.amount = amount;
     }
 
-    public PaymentDTO(LocalDate startDate, PaymentFrequency frequencyType, int frequency, String description, double amount, List<PaymentDate> dates)
-    {
-        this.startDate = startDate;
-        this.frequencyType = frequencyType;
-        this.frequency = frequency;
-        this.description = description;
-        this.amount = amount;
-        this.dates = dates;
-    }
+//    public PaymentDTO(LocalDate startDate, PaymentFrequency frequencyType, int frequency, String description, double amount, List<PaymentDate> dates)
+//    {
+//        this.startDate = startDate;
+//        this.frequencyType = frequencyType;
+//        this.frequency = frequency;
+//        this.description = description;
+//        this.amount = amount;
+//        this.dates = dates;
+//    }
 
     public LocalDate getDate()
     {
@@ -88,8 +86,8 @@ public class PaymentDTO
         return this.isPaid;
     }
 
-    public List<PaymentDate> getDates()
-    {
-        return this.dates;
-    }
+//    public List<PaymentDate> getDates()
+//    {
+//        return this.dates;
+//    }
 }

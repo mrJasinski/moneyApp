@@ -10,13 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-public interface SqlBillRepository extends BillRepository, JpaRepository<Bill, Long>
+interface SqlBillRepository extends BillRepository, JpaRepository<BillSnapshot, Long>
 {
 //    TODO
-
-    @Transactional
-    @Modifying
-    @Override
-    @Query(value = "UPDATE Position p SET p.budgetPosition = :position WHERE p.id = :billPositionId AND p.user.id = :userId")
-    void updatePositionIdInDb(Long billPositionId, Long budgetPositionId, Long userId);
+//
+//    @Transactional
+//    @Modifying
+//    @Override
+//    @Query(value = "UPDATE Position p SET p.budgetPosition = :position WHERE p.id = :billPositionId AND p.user.id = :userId")
+//    void updatePositionIdInDb(Long billPositionId, Long budgetPositionId, Long userId);
 }

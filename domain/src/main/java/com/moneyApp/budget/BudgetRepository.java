@@ -1,8 +1,10 @@
 package com.moneyApp.budget;
 
-public interface BudgetRepository
-{
-    Budget save(Budget budget);
+import java.time.LocalDate;
 
-    Budget.Position save(Budget.Position entity);
+interface BudgetRepository
+{
+    BudgetSnapshot save(BudgetSnapshot budget);
+
+    void deleteByMonthYearAndUserId(LocalDate number, Long userId);
 }

@@ -1,5 +1,7 @@
 package com.moneyApp.bill.dto;
 
+import com.moneyApp.vo.BillSource;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -10,7 +12,8 @@ public class BillDTO
         return new Builder();
     }
 
-    private String number;                  // consequentNumber_monthYear
+    private Long id;
+    private String number;                  // format yearMonthValue_number(counted bills in given month + 1)
     private LocalDate date;
     private String payeeName;
     private String accountName;
@@ -18,13 +21,23 @@ public class BillDTO
     private Double billSum;                 //  positions sum in bill
     List<BillPositionDTO> positions;
 
-    BillDTO(LocalDate date, String payeeName, String accountName, String description, List<BillPositionDTO> positions)
+    public BillDTO(LocalDate date, String payeeName, String accountName, String description, List<BillPositionDTO> positions)
     {
         this.date = date;
         this.payeeName = payeeName;
         this.accountName = accountName;
         this.description = description;
         this.positions = positions;
+    }
+
+    public BillSource toSource()
+    {
+        return new BillSource(this.id);
+    }
+
+    public Long getId()
+    {
+        return this.id;
     }
 
     public String getNumber()
@@ -64,7 +77,7 @@ public class BillDTO
 
     public static class Builder
     {
-        private String number;                  // consequentNumber_monthYear
+        private String number;                  // format yearMonthValue_number(counted bills in given month + 1)
         private LocalDate date;
         private String payeeName;
         private String accountName;

@@ -1,44 +1,46 @@
 package com.moneyApp.category;
 
-import com.moneyApp.user.User;
-import jakarta.persistence.*;
+import com.moneyApp.vo.UserSource;
 
-@Entity
-@Table(name = "main_categories")
+import java.util.Set;
+import java.util.stream.Collectors;
+
 class MainCategory
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-//    persistence constructor
-    protected MainCategory()
+    static MainCategory restore(MainCategorySnapshot snapshot)
     {
+        return new MainCategory(
+                snapshot.getId()
+                , snapshot.getName()
+                , snapshot.getSubCategories().stream().map(SubCategory::restore).collect(Collectors.toSet())
+                , snapshot.getUser()
+        );
     }
 
-    public MainCategory(String name, User user)
-    {
-        this.name = name;
-        this.user = user;
-    }
-//tylko na potrzeby testów
-    public MainCategory(Long id, String name)
+    private final Long id;
+    private final String name;
+    private final Set<SubCategory> subCategories;
+    private final UserSource user;
+
+    private MainCategory(
+            final Long id
+            , final String name
+            , final Set<SubCategory> subCategories
+            , final UserSource user)
     {
         this.id = id;
         this.name = name;
+        this.subCategories = subCategories;
+        this.user = user;
     }
 
-    public Long getId()
+    MainCategorySnapshot getSnapshot()
     {
-        return this.id;
-    }
-
-    public String getName()
-    {
-        return this.name;
+        return new MainCategorySnapshot(
+                this.id
+                , this.name
+                , this.subCategories.stream().map(SubCategory::getSnapshot).collect(Collectors.toSet())
+                , this.user
+        );
     }
 }
