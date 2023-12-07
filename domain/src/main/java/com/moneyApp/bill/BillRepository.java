@@ -1,9 +1,11 @@
 package com.moneyApp.bill;
 
-public interface BillRepository
+interface BillRepository
 {
-    Bill save(Bill entity);
+    BillSnapshot save(BillSnapshot entity);
 
     void deleteByNumberAndUserId(String number, Long userId);
+
+    void updateBudgetIdInBillByNumber(String number, long budgetId);
 //    void updatePositionIdInDb(Long transactionId, Long budgetPositionId, Long userId);
 }

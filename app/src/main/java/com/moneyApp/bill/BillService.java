@@ -10,7 +10,9 @@ import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,7 +55,7 @@ public class BillService
         var number = this.billQueryRepo.findBillCountBetweenDatesAndUserId(startDate, endDate, userId) + 1;
 
 
-        var bill = this.billRepo.save(Bill.restore(new BillSnapshot(
+        var bill = this.billRepo.save(new BillSnapshot(
                 0L
                 , String.format("%s%s_%s", toSave.getDate().getYear(), toSave.getDate().getMonthValue(), number)
                 , toSave.getDate()
@@ -71,15 +73,15 @@ public class BillService
                         , dto.getDescription()
                         ,null))
                     .collect(Collectors.toSet())
-                , user)));
+                , user));
 
 
-        var sum = sumPositionsAmounts(bill.getSnapshot().getPositions());
+        var sum = sumPositionsAmounts(bill.getPositions());
 
 
         this.accountService.updateAccountBalanceByAccountId(sum, account.getId());
 
-        return toDto(bill.getSnapshot());
+        return toDto(bill);
     }
 
     BillDTO toDto(BillSnapshot snap)
@@ -125,7 +127,7 @@ public class BillService
     BillDTO updateBillByNumberAndUserAsDto(final BillDTO toUpdate, final Long userId)
     {
         var bill = this.billQueryRepo.findByNumberAndUserId(toUpdate.getNumber(), userId);
-
+//TODO
         return null;
     }
 
@@ -227,6 +229,41 @@ public class BillService
 //        TODO czy przy braku pozycji z automatu sum wypluje zero? sprawdzić przy okazji testów
         return this.billQueryRepo.findBillPositionsSumByBudgetPositionId(budgetPositionId);
 //                .orElse(0d);
+    }
+
+    public Map<Long, Double> getBillPositionsSumsWithBudgetPositionsId(List<Long> budgetPositionsIds)
+    {
+        var result = new HashMap<Long, Double>();
+
+//        TODO
+        this.billQueryRepo.findBillPositionsSumsWithBudgetPositionIdByBudgetPositionId(budgetPositionsIds);
+
+        return result;
+    }
+
+    public List<BillDTO> getBillsByBudgetIdAsDto(final long budgetId)
+    {
+        return this.billQueryRepo.findByBudgetId(budgetId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public void assignBillsToBudget(final long budgetId, final LocalDate monthYear)
+    {
+//        get from db bills not assigned to any budget
+        var bills = this.billQueryRepo.findWithNullBudgetId();
+
+        if (!bills.isEmpty())
+            for (BillSnapshot b : bills)
+//                monthYear format YYYY-MM-1 so it can be used as first day of month
+                if (b.getBillDate().isAfter(monthYear) && b.getBillDate().isBefore(LocalDate.of(monthYear.getYear(), monthYear.getMonth(), monthYear.lengthOfMonth())))
+                    updateBudgetInBillByBillNumber(b.getNumber(), budgetId);
+    }
+
+    private void updateBudgetInBillByBillNumber(final String number, final long budgetId)
+    {
+        this.billRepo.updateBudgetIdInBillByNumber(number, budgetId);
     }
 //
 //    List<BillPositionDTO> getBillPositionsWithoutBudgetPositionByDateAndUserIdAsDto(LocalDate startDate, LocalDate endDate, Long userId)

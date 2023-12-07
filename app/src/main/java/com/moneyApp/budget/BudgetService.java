@@ -1,6 +1,7 @@
 package com.moneyApp.budget;
 
 import com.moneyApp.bill.BillService;
+import com.moneyApp.bill.dto.BillDTO;
 import com.moneyApp.budget.dto.BudgetDTO;
 import com.moneyApp.budget.dto.BudgetPositionDTO;
 import com.moneyApp.category.CategoryService;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,14 +42,19 @@ public class BudgetService
     {
         var budget = getBudgetByMonthYearAndUserId(getBudgetMonthYearByNumber(number), userId);
 
+//        wygenerowanie pozycji na podstawie kategorii?
+//TODO każda pozycja ma zapytanie do baazy - czy wyciągnąć wpierw kolecję?
+
+//        mapa budgetPositionId i suma?
+        var map = this.billService.getBillPositionsSumsWithBudgetPositionsId(budget.getPositions().stream().map(BudgetPositionSnapshot::getId).collect(Collectors.toList()));
+
         return new BudgetDTO(budget.getMonthYear(), budget.getDescription(), budget.getPositions()
                                                                                     .stream()
                                                                                     .map(p -> new BudgetPositionDTO(
                                                                                             p.getCategory().getName()
                                                                                             , p.getPlannedAmount()
                                                                                             , this.billService.getBillPositionsSumByBudgetPositionId(p.getId())
-                                                                                            , p.getDescription()
-                                                                                            ))
+                                                                                            , p.getDescription()                                                                                            ))
                                                                                     .collect(Collectors.toList()));
     }
 
@@ -57,7 +64,12 @@ public class BudgetService
                 .orElseThrow(() -> new IllegalArgumentException("Budget for given monthYear and user id not found!"));
     }
 
+    List<BillDTO> getBillsByBudgetIdAndMonthYearAsDto(long budgetId, LocalDate monthYear)
+    {
+        this.billService.assignBillsToBudget(budgetId, monthYear);
 
+        return this.billService.getBillsByBudgetIdAsDto(budgetId);
+    }
 
 //    BudgetPlanDTO getBudgetPlannedAsCopyOfMonth(LocalDate date, String email)
 //    {

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -41,4 +42,8 @@ interface SqlBillQueryRepository extends BillQueryRepository, JpaRepository<Bill
     @Override
     @Query(value = "SELECT SUM(b.amount) FROM BillPositionSnapshot b WHERE b.budgetPosition.id = :budgetPositionId")
     Double findBillPositionsSumByBudgetPositionId(Long budgetPositionId);
+
+    @Override
+    @Query(value = "SELECT b.budgetPosition.id, SUM(b.amount) FROM BillPositionSnapshot b WHERE b.budgetPosition.id IN :budgetPositionsIds GROUP BY b.budgetPosition.id")
+    Map<Long, Double> findBillPositionsSumsWithBudgetPositionIdByBudgetPositionId(List<Long> budgetPositionsIds);
 }

@@ -1,4 +1,4 @@
-package com.moneyApp.category.service;
+package com.moneyApp.category;
 
 import com.moneyApp.category.Category;
 import com.moneyApp.category.CategoryType;

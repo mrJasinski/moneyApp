@@ -6,6 +6,7 @@ import com.moneyApp.bill.dto.BillView;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 interface BillQueryRepository
@@ -28,6 +29,12 @@ interface BillQueryRepository
     boolean existsByNumberAndUserId(String number, Long userId);
 
     Double findBillPositionsSumByBudgetPositionId(Long budgetPositionId);
+
+    List<BillSnapshot> findWithNullBudgetId();
+
+    List<BillSnapshot> findByBudgetId(Long budgetId);
+
+    Map<Long, Double> findBillPositionsSumsWithBudgetPositionIdByBudgetPositionId(List<Long> budgetPositionsIds);
 
 //    List<BillPositionSnapshot> findPositionsByBillId(Long billId);
 //    List<BillPositionView> findPositionsByBillIdAsView(Long billId);

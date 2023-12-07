@@ -1,4 +1,4 @@
-package com.moneyApp.budget.service;
+package com.moneyApp.budget;
 
 import com.moneyApp.budget.Budget;
 import com.moneyApp.budget.BudgetPosition;

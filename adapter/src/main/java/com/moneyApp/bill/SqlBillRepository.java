@@ -19,4 +19,10 @@ interface SqlBillRepository extends BillRepository, JpaRepository<BillSnapshot, 
 //    @Override
 //    @Query(value = "UPDATE Position p SET p.budgetPosition = :position WHERE p.id = :billPositionId AND p.user.id = :userId")
 //    void updatePositionIdInDb(Long billPositionId, Long budgetPositionId, Long userId);
+
+    @Transactional
+    @Modifying
+    @Override
+    @Query(value = "UPDATE bills SET budgetId = :budgetId WHERE number = :number", nativeQuery = true)
+    void updateBudgetIdInBillByNumber(String number, long budgetId);
 }

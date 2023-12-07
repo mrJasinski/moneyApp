@@ -1,4 +1,4 @@
-package com.moneyApp.payment.service;
+package com.moneyApp.payment;
 
 import com.moneyApp.payment.Payment;
 import com.moneyApp.payment.PaymentDate;

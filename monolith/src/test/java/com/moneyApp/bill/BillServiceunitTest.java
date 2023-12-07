@@ -1,4 +1,4 @@
-package com.moneyApp.bill.service;
+package com.moneyApp.bill;
 
 import com.moneyApp.account.Account;
 import com.moneyApp.account.AccountService;
