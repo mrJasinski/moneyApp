@@ -1,9 +1,5 @@
 package com.moneyApp.category;
 
-import com.moneyApp.category.Category;
-import com.moneyApp.category.CategoryType;
-import com.moneyApp.category.MainCategory;
-import com.moneyApp.category.SubCategory;
 import com.moneyApp.category.dto.CategoryDTO;
 import com.moneyApp.category.repository.CategoryRepository;
 import com.moneyApp.category.repository.MainCategoryRepository;
@@ -170,7 +166,7 @@ class CategoryServiceUnitTest
         var toTest = new CategoryService(null, mockMainCategoryRepo, null, mockUserService);
 
 //        when
-        var result = toTest.getMainCategoryByIdAndUserId(5L, 1L);
+        var result = toTest.getMainCategoryById(5L, 1L);
 
 //        then
         assertNotNull(result);
@@ -193,7 +189,7 @@ class CategoryServiceUnitTest
         var toTest = new CategoryService(null, mockMainCategoryRepo, null, mockUserService);
 
 //        when
-        var result = catchThrowable(() -> toTest.getMainCategoryByIdAndUserId(5L, 1L));
+        var result = catchThrowable(() -> toTest.getMainCategoryById(5L, 1L));
 
 //        then
         assertThat(result)

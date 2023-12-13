@@ -1,5 +1,6 @@
 package com.moneyApp.budget.dto;
 
+import com.moneyApp.category.CategoryType;
 import com.moneyApp.category.dto.CategoryDTO;
 import com.moneyApp.vo.BudgetPositionSource;
 
@@ -8,6 +9,7 @@ public class BudgetPositionDTO
     private Long id;
     private CategoryDTO category;
     private String categoryName;
+    private CategoryType type;
     private double plannedAmount;
     private double actualAmount;
     private double amountSum;
@@ -16,7 +18,7 @@ public class BudgetPositionDTO
 
     public BudgetPositionDTO(String category, Double plannedAmount)
     {
-        this.category = new CategoryDTO(category);
+        this.categoryName = category;
         this.plannedAmount = plannedAmount;
     }
 
@@ -35,6 +37,20 @@ public class BudgetPositionDTO
         this.description = description;
     }
 
+    public BudgetPositionDTO(
+            String categoryName
+            , CategoryType type
+            , Double plannedAmount
+            , Double actualAmount
+            , String description)
+    {
+        this.categoryName = categoryName;
+        this.type = type;
+        this.plannedAmount = plannedAmount;
+        this.actualAmount = actualAmount;
+        this.description = description;
+    }
+
     public BudgetPositionSource toSource()
     {
         return new BudgetPositionSource(this.id);
@@ -48,6 +64,16 @@ public class BudgetPositionDTO
     public CategoryDTO getCategory()
     {
         return this.category;
+    }
+
+     public String getCategoryName()
+    {
+        return this.categoryName;
+    }
+
+    public CategoryType getType()
+    {
+        return this.type;
     }
 
     public double getPlannedAmount()

@@ -1,7 +1,11 @@
 package com.moneyApp.budget;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 
 @Repository
@@ -31,4 +35,8 @@ interface SqlBudgetQueryRepository extends BudgetQueryRepository, JpaRepository<
 //    @Query(value = "FROM Budget.Position p WHERE MONTH(p.budget.monthYear) = MONTH(:date) AND YEAR(p.budget.monthYear) = " +
 //            "YEAR(:date) AND p.category = :category AND p.budget.user.id = :userId")
 //    Optional<Budget.Position> findBudgetPositionByDateAndCategoryAndUserId(LocalDate date, Category category, Long userId);
+
+//    @Override
+//    @Query(value = "FROM BudgetSnapshot b JOIN FETCH b.positions WHERE b.monthYear = :date AND b.user.id = :userId")
+//    Optional<BudgetSnapshot> findByMonthYearAndUserId(LocalDate date, Long userId);
 }

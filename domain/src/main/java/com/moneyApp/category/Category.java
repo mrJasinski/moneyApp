@@ -10,6 +10,7 @@ class Category
                 snapshot.getId()
                 , MainCategory.restore(snapshot.getMainCategory())
                 , SubCategory.restore(snapshot.getSubCategory())
+                , snapshot.getName()
                 , snapshot.getType()
                 , snapshot.getDescription()
                 , snapshot.getUser()
@@ -19,6 +20,7 @@ class Category
     private final Long id;
     private final MainCategory mainCategory;
     private final SubCategory subCategory;
+    private final String name;
     private final CategoryType type;
     private final String description;
     private final UserSource user;
@@ -27,6 +29,7 @@ class Category
             final Long id
             , final MainCategory mainCategory
             , final SubCategory subCategory
+            , final String name
             , final CategoryType type
             , final String description
             , final UserSource user)
@@ -34,6 +37,7 @@ class Category
         this.id = id;
         this.mainCategory = mainCategory;
         this.subCategory = subCategory;
+        this.name = name;
         this.type = type;
         this.description = description;
         this.user = user;

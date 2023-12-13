@@ -1,6 +1,6 @@
 package com.moneyApp.category;
 
-public interface SubCategoryRepository
+interface SubCategoryRepository
 {
-    SubCategory save(SubCategory entity);
+    SubCategorySnapshot save(SubCategorySnapshot entity);
 }

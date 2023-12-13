@@ -1,10 +1,8 @@
 package com.moneyApp.payee;
 
-import com.moneyApp.bill.dto.BillDTO;
-import com.moneyApp.bill.dto.BillPositionDTO;
 import com.moneyApp.payee.dto.PayeeDTO;
+import com.moneyApp.payee.dto.PayeeWithIdAndNameDTO;
 import com.moneyApp.user.UserService;
-import com.moneyApp.vo.BillSource;
 import com.moneyApp.vo.PayeeSource;
 import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
@@ -95,6 +93,16 @@ public class PayeeService
                 .orElseThrow(() -> new IllegalArgumentException("Payee with given name and user id not found!"));
 
         return toDto(result);
+    }
+
+    public List<PayeeWithIdAndNameDTO> getPayeesByNamesAndUserIdAsDto(final List<String> payeeNames, final Long userId)
+    {
+        return this.payeeQueryRepo.findPayeesIdsAndNamesByNamesAndUserId(payeeNames, userId);
+    }
+
+    public List<PayeeWithIdAndNameDTO> getPayeesByIdsAsDto(final List<Long> payeeIds)
+    {
+        return this.payeeQueryRepo.findPayeesIdsAndNamesByIds(payeeIds);
     }
 
 //    public List<PayeeDTO> getPayeesByRoleAndUserIdAsDto(PayeeRole role, Long userId)

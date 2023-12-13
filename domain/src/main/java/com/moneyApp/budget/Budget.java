@@ -5,6 +5,7 @@ import com.moneyApp.vo.CategorySource;
 import com.moneyApp.vo.UserSource;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,7 +77,7 @@ class Budget
         private final CategorySource category;
         private final Double plannedAmount;
         private final String description;
-        private final Set<BillPositionSource> billPositions;
+        private final Set<BillPositionSource> billPositions = new HashSet<>();
 
         Position(
                 final Long id
@@ -89,7 +90,7 @@ class Budget
             this.category = category;
             this.plannedAmount = plannedAmount;
             this.description = description;
-            this.billPositions = billPositions;
+            this.billPositions.addAll(billPositions);
         }
 
         BudgetPositionSnapshot getSnapshot()
@@ -99,6 +100,8 @@ class Budget
                     , this.category
                     , this.plannedAmount
                     , this.description
+//                    TODO tymczasowo dla testów
+                    , null
                     , this.billPositions
             );
         }

@@ -21,13 +21,35 @@ public class BillDTO
     private Double billSum;                 //  positions sum in bill
     List<BillPositionDTO> positions;
 
-    public BillDTO(LocalDate date, String payeeName, String accountName, String description, List<BillPositionDTO> positions)
+    BillDTO(
+            final String number
+            , final LocalDate date
+            , final String payeeName
+            , final String accountName
+            , final String description
+            , final List<BillPositionDTO> positions)
     {
+        this.number = number;
         this.date = date;
         this.payeeName = payeeName;
         this.accountName = accountName;
         this.description = description;
         this.positions = positions;
+        this.billSum = sumBillPositionsAmounts();
+    }
+
+    private Double sumBillPositionsAmounts()
+    {
+        var sum = 0d;
+
+        for (BillPositionDTO bp : this.positions)
+            switch (bp.getType())
+            {
+                case EXPENSE :  sum -= bp.getAmount();
+                case INCOME : sum += bp.getAmount();
+            }
+
+        return sum;
     }
 
     public BillSource toSource()
@@ -82,7 +104,6 @@ public class BillDTO
         private String payeeName;
         private String accountName;
         private String description;
-        private Double billSum;                 //  positions sum in bill
         List<BillPositionDTO> positions;
 
         public Builder withNumber(String number)
@@ -115,12 +136,6 @@ public class BillDTO
             return this;
         }
 
-        public Builder withBillSum(Double billSum)
-        {
-            this.billSum = billSum;
-            return this;
-        }
-
         public Builder withPositions(List<BillPositionDTO> positions)
         {
             this.positions = positions;
@@ -129,7 +144,7 @@ public class BillDTO
 
         public BillDTO build()
         {
-            return new BillDTO(this.date, this.payeeName, this.accountName, this.description, this.positions);
+            return new BillDTO(this.number, this.date, this.payeeName, this.accountName, this.description, this.positions);
         }
 
     }

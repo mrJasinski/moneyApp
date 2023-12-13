@@ -1,11 +1,12 @@
 package com.moneyApp.bill;
 
+import java.util.List;
+
 interface BillRepository
 {
     BillSnapshot save(BillSnapshot entity);
 
     void deleteByNumberAndUserId(String number, Long userId);
 
-    void updateBudgetIdInBillByNumber(String number, long budgetId);
-//    void updatePositionIdInDb(Long transactionId, Long budgetPositionId, Long userId);
+    void updateBudgetPositionInBillPositionByIds(Long budgetPositionId, List<Long> billPositionIds);
 }

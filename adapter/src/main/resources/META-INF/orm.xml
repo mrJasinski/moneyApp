@@ -99,9 +99,6 @@
             <basic name="description" />
             <one-to-many name="positions" fetch="EAGER">
                 <join-column name="budget_id"/>
-                <cascade>
-                    <cascade-all/>
-                </cascade>
             </one-to-many>
             <embedded name="user">
                 <attribute-override name="id" >
@@ -119,6 +116,7 @@
             </id>
             <basic name="plannedAmount" />
             <basic name="description" />
+            <many-to-one name="budget"/>
             <embedded name="category">
                 <attribute-override name="id" >
                     <column name="category_id" />
@@ -142,6 +140,7 @@
                 <enumerated>STRING</enumerated>
             </basic>
             <basic name="description" />
+            <basic name="name" />
             <many-to-one name="mainCategory">
                 <join-column name="main_category_id"/>
                 <cascade>

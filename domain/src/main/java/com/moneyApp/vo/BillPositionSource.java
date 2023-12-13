@@ -13,7 +13,7 @@ public class BillPositionSource
         this.id = id;
     }
 
-    Long getId()
+    public Long getId()
     {
         return this.id;
     }

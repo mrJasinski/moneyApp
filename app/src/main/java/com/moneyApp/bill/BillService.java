@@ -1,26 +1,23 @@
 package com.moneyApp.bill;
 
 import com.moneyApp.account.AccountService;
-import com.moneyApp.bill.dto.BillDTO;
-import com.moneyApp.bill.dto.BillPositionDTO;
-import com.moneyApp.budget.BudgetService;
+import com.moneyApp.bill.dto.*;
 import com.moneyApp.category.CategoryService;
 import com.moneyApp.payee.PayeeService;
+import com.moneyApp.vo.BillPositionSource;
+import com.moneyApp.vo.CategorySource;
+import com.moneyApp.vo.PayeeSource;
 import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class BillService
 {
     private final AccountService accountService;
-//    private final BudgetService budgetService;
     private final CategoryService categoryService;
     private final PayeeService payeeService;
     private final BillRepository billRepo;
@@ -29,12 +26,10 @@ public class BillService
     BillService(final CategoryService categoryService
             , final PayeeService payeeService
             , final AccountService accountService
-//            , final BudgetService budgetService
             , final BillRepository billRepo
             , final BillQueryRepository billQueryRepo)
     {
         this.accountService = accountService;
-//        this.budgetService = budgetService;
         this.categoryService = categoryService;
         this.payeeService = payeeService;
         this.billRepo = billRepo;
@@ -43,20 +38,22 @@ public class BillService
 
     BillDTO createBillByUserId(BillDTO toSave, Long userId)
     {
-        var user = new UserSource(userId);
         var payee = this.payeeService.getPayeeSourceByNameAndUserId(toSave.getPayeeName(), userId);
         var account = this.accountService.getAccountSourceByNameAndUserId(toSave.getAccountName(), userId);
-//        var budget = this.budgetService.getBudgetSourceByDateAndUserId(toSave.getDate(), userId);
 
-        var date = toSave.getDate();
-        var startDate = LocalDate.of(date.getYear(), date.getMonthValue(), 1);
-        var endDate = LocalDate.of(date.getYear(), date.getMonthValue(), date.lengthOfMonth());
+//        +1 so lowest number (for first bill in month) is 1
+        var number = getBillCountByMonthYearAndUserId(toSave.getDate(), userId) + 1;
 
-        var number = this.billQueryRepo.findBillCountBetweenDatesAndUserId(startDate, endDate, userId) + 1;
+        var catNames = toSave.getPositions().stream().map(BillPositionDTO::getCategoryName).toList();
 
+        var categories = this.categoryService.getCategoriesByNamesAndUserIdAsDto(catNames, userId);
+
+        var payeeNames = toSave.getPositions().stream().map(BillPositionDTO::getGainerName).toList();
+
+        var payees = this.payeeService.getPayeesByNamesAndUserIdAsDto(payeeNames, userId);
 
         var bill = this.billRepo.save(new BillSnapshot(
-                0L
+                null
                 , String.format("%s%s_%s", toSave.getDate().getYear(), toSave.getDate().getMonthValue(), number)
                 , toSave.getDate()
                 , payee
@@ -65,63 +62,51 @@ public class BillService
                 , toSave.getDescription()
                 , toSave.getPositions()
                     .stream()
-                    .map(dto -> new BillPositionSnapshot(null
+                    .map(dto -> new BillPositionSnapshot(
+                            null
                         , toSave.getPositions().indexOf(dto) + 1
                         , dto.getAmount()
-                        , this.categoryService.getCategorySourceByNameAndUserId(dto.getCategoryName(), userId)
-                        , this.payeeService.getPayeeSourceByNameAndUserId(dto.getGainerName(), userId)
+                        , new CategorySource(categories.stream().filter(c -> dto.getCategoryName().equals(c.getName())).toList().get(0).getId())
+                        , new PayeeSource(payees.stream().filter(p -> dto.getGainerName().equals(p.getName())).toList().get(0).getId())
                         , dto.getDescription()
                         ,null))
                     .collect(Collectors.toSet())
-                , user));
+                , new UserSource(userId)));
 
+        var dto = toDto(bill);
 
-        var sum = sumPositionsAmounts(bill.getPositions());
+        this.accountService.updateAccountBalanceByAccountId(dto.getBillSum(), account.getId());
 
-
-        this.accountService.updateAccountBalanceByAccountId(sum, account.getId());
-
-        return toDto(bill);
+        return dto;
     }
 
     BillDTO toDto(BillSnapshot snap)
     {
-//TODO test
+        var catIds = snap.getPositions().stream().map(BillPositionSnapshot::getCategory).map(CategorySource::getId).toList();
+
+        var categories = this.categoryService.getCategoriesByIdsAsDto(catIds);
+
+        var payeeIds = snap.getPositions().stream().map(BillPositionSnapshot::getGainer).map(PayeeSource::getId).toList();
+
+        var payees = this.payeeService.getPayeesByIdsAsDto(payeeIds);
+
       return BillDTO.builder()
                 .withNumber(snap.getNumber())
                 .withDate(snap.getBillDate())
-//                .withPayeeName(snap.getPayee().getName())
                 .withPayeeName(this.payeeService.getPayeeNameById(snap.getPayee().getId()))
-                .withAccountName(snap.getAccount().getName())
+                .withAccountName(this.accountService.getAccountNameById(snap.getAccount().getId()))
                 .withDescription(snap.getDescription())
-                .withPositions(snap.getPositions().stream().map(this::toDto).collect(Collectors.toList()))
+                .withPositions(snap.getPositions()
+                        .stream()
+                        .map(bp -> BillPositionDTO.builder()
+                                .withCategoryName(categories.stream().filter(c -> bp.getCategory().getId().equals(c.getId())).toList().get(0).getName())
+                                .withType(categories.stream().filter(c -> bp.getCategory().getId().equals(c.getId())).toList().get(0).getType())
+                                .withGainerName(payees.stream().filter(p -> bp.getGainer().getId().equals(p.getId())).toList().get(0).getName())
+                                .withAmount(bp.getAmount())
+                                .withDescription(bp.getDescription())
+                                .build()
+                        ).collect(Collectors.toList()))
                 .build();
-    }
-
-    BillPositionDTO toDto(BillPositionSnapshot snap)
-    {
-        //TODO test
-        return BillPositionDTO.builder()
-                .withCategoryName(snap.getCategory().getName())
-                .withAmount(snap.getAmount())
-//                .withAmount(snap.getGainer().getName())
-                .withGainerName(this.payeeService.getPayeeNameById(snap.getGainer().getId()))
-                .withDescription(snap.getDescription())
-                .build();
-    }
-
-    double sumPositionsAmounts(Set<BillPositionSnapshot> positions)
-    {
-        var sum = 0;
-
-        for (BillPositionSnapshot bp : positions)
-            switch (this.categoryService.getCategoryTypeByCategoryId(bp.getCategory().getId()))
-            {
-                case EXPENSE :  sum -= bp.getAmount();
-                case INCOME : sum += bp.getAmount();
-            }
-
-        return sum;
     }
 
     BillDTO updateBillByNumberAndUserAsDto(final BillDTO toUpdate, final Long userId)
@@ -135,20 +120,6 @@ public class BillService
     {
         this.billRepo.deleteByNumberAndUserId(number, userId);
     }
-//
-////    public void updatePositionInTransaction(Bill.Position billPosition, Long budgetPositionId, long userId)
-////    {
-////        billPosition.setBudgetPosition(new SimpleBudgetPosition(String.valueOf(budgetPositionId)));
-////
-////        this.billRepo.updatePositionIdInDb(billPosition.getId(), budgetPositionId, userId);
-////    }
-
-//    long getHighestBillNumberByMonthYearAndUserId(LocalDate date, long userId)
-//    {
-//        return this.billQueryRepo
-//                .findHighestBillNumberByMonthYearAndUserId(date.getMonth().getValue(), date.getYear(), userId)
-//                .orElse(0L);
-//    }
 
     List<BillDTO> getBillsByUserIdAsDto(Long userId)
     {
@@ -157,15 +128,6 @@ public class BillService
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
-
-//    long getHighestPositionNumberByBillId(long billId)
-//    {
-////        read from db the highest position number in given bill
-////        if no number found then assign 0
-//        return this.billQueryRepo
-//                .findHighestNumberByBillId(billId)
-//                .orElse(0L);
-//    }
 
     Integer getBillCountByMonthYearAndUserId(final LocalDate date, final Long userId)
     {
@@ -177,41 +139,8 @@ public class BillService
 //TODO do takich dto to pewnie by dobrze siadły projekcje?
     BillDTO getBillByNumberAndUserIdAsDto(final String number, final Long userId)
     {
-        var bill = this.billQueryRepo.findByNumberAndUserId(number, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Bill with given number and user id not found!"));
-
-        return BillDTO.builder()
-                .withNumber(bill.getNumber())
-                .withDate(bill.getBillDate())
-                .withPayeeName(this.payeeService.getPayeeNameById(bill.getPayee().getId()))
-                .withAccountName(this.accountService.getAccountNameById(bill.getAccount().getId()))
-                .withDescription(bill.getDescription())
-//                .withPositions(getBillPositionsByBillIdAsDto(bill.getId()))
-                .build();
+        return toDto(getBillByNumberAndUserId(number, userId));
     }
-
-
-//    List<BillPositionDTO> getBillPositionsByBillIdAsDto(final Long billId)
-//    {
-//        var result = new ArrayList<BillPositionDTO>();
-//
-//       for (BillPositionView bp :  this.billQueryRepo.findPositionsByBillIdAsView(billId))
-//       {
-//           result.add(BillPositionDTO.builder()
-//                   .withCategoryName(this.categoryService.getCategoryNameById(Long.parseLong(bp.getCategory().getId())))
-//                   .withAmount(bp.getAmount())
-//                   .withGainerName(this.payeeService.getPayeeNameById(Long.parseLong(bp.getGainer().getId())))
-//                   .withDescription(bp.getDescription())
-//                   .build());
-//       }
-//
-//        return result;
-//    }
-
-//    private List<BillPositionSnapshot> getBillPositionsByBillId(final Long billId)
-//    {
-//        return this.billQueryRepo.findPositionsByBillId(billId);
-//    }
 
     boolean existsByNumberAndUserId(final String number, final Long userId)
     {
@@ -224,78 +153,48 @@ public class BillService
                 .orElseThrow(() -> new IllegalArgumentException("Bill with given number and user not found!"));
     }
 
-    public Double getBillPositionsSumByBudgetPositionId(final Long budgetPositionId)
+    public Set<BillWithSumsDTO> getBudgetPositionsIdsWithSumsByBillPositionIds(final List<Long> billPosIds)
     {
-//        TODO czy przy braku pozycji z automatu sum wypluje zero? sprawdzić przy okazji testów
-        return this.billQueryRepo.findBillPositionsSumByBudgetPositionId(budgetPositionId);
-//                .orElse(0d);
+        return this.billQueryRepo.findBudgetPositionsIdsWithSumsByBillPositionIds(billPosIds);
     }
 
-    public Map<Long, Double> getBillPositionsSumsWithBudgetPositionsId(List<Long> budgetPositionsIds)
+    public List<BillPositionDTO> getBillPositionsByMonthYearAndUserIdAsDto(final LocalDate monthYear, final Long userId)
     {
-        var result = new HashMap<Long, Double>();
+        //                monthYear format YYYY-MM-1 so it can be used as first day of month
+        var startDate = LocalDate.of(monthYear.getYear(), monthYear.getMonthValue(), monthYear.getDayOfMonth());
+        var endDate = LocalDate.of(monthYear.getYear(), monthYear.getMonthValue(), monthYear.lengthOfMonth());
 
-//        TODO
-        this.billQueryRepo.findBillPositionsSumsWithBudgetPositionIdByBudgetPositionId(budgetPositionsIds);
+        var bills = this.billQueryRepo.findByDatesAndUserId(startDate, endDate, userId);
+        var positions = new ArrayList<BillPositionDTO>();
 
-        return result;
+        for (BillSnapshot b : bills)
+            positions.addAll(b.getPositions().stream().map(this::toDto).toList());
+
+        return positions;
     }
 
-    public List<BillDTO> getBillsByBudgetIdAsDto(final long budgetId)
+    BillPositionDTO toDto(BillPositionSnapshot snap)
     {
-        return this.billQueryRepo.findByBudgetId(budgetId)
+        //TODO test
+        return BillPositionDTO.builder()
+                .withId(snap.getId())
+                .withCategoryName(this.categoryService.getCategoryNameById(snap.getCategory().getId()))
+                .withAmount(snap.getAmount())
+                .withGainerName(this.payeeService.getPayeeNameById(snap.getGainer().getId()))
+                .withDescription(snap.getDescription())
+                .build();
+    }
+
+    public void updateBudgetPositionInBillPositionById(final Long budgetPositionId, final List<Long> billPositionIds)
+    {
+        this.billRepo.updateBudgetPositionInBillPositionByIds(budgetPositionId, billPositionIds);
+    }
+
+    public Set<BillPositionSource> getBillPositionSourcesByBudgetPositionId(final Long budPosId)
+    {
+        return this.billQueryRepo.findBillPositionIdsByBudgetPositionId(budPosId)
                 .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+                .map(BillPositionSource::new)
+                .collect(Collectors.toSet());
     }
-
-    public void assignBillsToBudget(final long budgetId, final LocalDate monthYear)
-    {
-//        get from db bills not assigned to any budget
-        var bills = this.billQueryRepo.findWithNullBudgetId();
-
-        if (!bills.isEmpty())
-            for (BillSnapshot b : bills)
-//                monthYear format YYYY-MM-1 so it can be used as first day of month
-                if (b.getBillDate().isAfter(monthYear) && b.getBillDate().isBefore(LocalDate.of(monthYear.getYear(), monthYear.getMonth(), monthYear.lengthOfMonth())))
-                    updateBudgetInBillByBillNumber(b.getNumber(), budgetId);
-    }
-
-    private void updateBudgetInBillByBillNumber(final String number, final long budgetId)
-    {
-        this.billRepo.updateBudgetIdInBillByNumber(number, budgetId);
-    }
-//
-//    List<BillPositionDTO> getBillPositionsWithoutBudgetPositionByDateAndUserIdAsDto(LocalDate startDate, LocalDate endDate, Long userId)
-//    {
-//        return this.billQueryRepo
-//                .findBillPositionsBetweenDatesWithoutBudgetPositionByUserId(startDate, endDate, userId);
-//    }
-//
-//    List<BillPositionDTO> getBillPositionsWithoutBudgetPositionsByUserIdAsDto(Long userId)
-//    {
-//        return this.billQueryRepo
-//                .findBillPositionsWithoutBudgetPositionByUserId(userId);
-//    }
-//
-//    List<BillPositionDTO> getBillPositionsByDatesAndUserIdAsDto(LocalDate startDate, LocalDate endDate, Long userId)
-//    {
-//        return this.billQueryRepo
-//                .findBillPositionsBetweenDatesAndUserId(startDate, endDate, userId);
-//    }
-//
-//    List<BillPositionDTO> getBillPositionsByMonthYearAndUserIdAsDto(LocalDate monthYear, long userId)
-//    {
-//        //        monthYear as starting date because of format YYYY-MM-1
-//
-//        if (monthYear.getDayOfMonth() != 1)
-//            monthYear = LocalDate.of(monthYear.getYear(), monthYear.getMonth().getValue(), 1);
-//
-//        return this.billQueryRepo
-//                .findBillPositionsBetweenDatesAndUserId(monthYear
-//                        , LocalDate.of(monthYear.getYear()
-//                        , monthYear.getMonth().getValue()
-//                        , monthYear.lengthOfMonth())
-//                        , userId);
-//    }
 }

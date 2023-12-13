@@ -9,6 +9,7 @@ import java.util.Set;
 
 public class PayeeDTO
 {
+    private Long id;
     private String name;
     private PayeeRole role;
     private Set<BillDTO> bills = new HashSet<>();
@@ -17,6 +18,12 @@ public class PayeeDTO
 
     public PayeeDTO()
     {
+    }
+
+    PayeeDTO(final Long id, final String name)
+    {
+        this.id = id;
+        this.name = name;
     }
 
     public PayeeDTO(String name, PayeeRole role)
@@ -31,6 +38,11 @@ public class PayeeDTO
         this.role = role;
         this.bills = bills;
         this.billPositions = billPositions;
+    }
+
+     public Long getId()
+    {
+        return this.id;
     }
 
     public String getName()

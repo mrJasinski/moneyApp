@@ -7,6 +7,7 @@ class CategorySnapshot
     private Long id;
     private MainCategorySnapshot mainCategory;
     private SubCategorySnapshot subCategory;
+    private String name;
     private CategoryType type;
     private String description;
     private UserSource user;
@@ -27,6 +28,7 @@ class CategorySnapshot
         this.id = id;
         this.mainCategory = mainCategory;
         this.subCategory = subCategory;
+        this.name = addName();
         this.type = type;
         this.description = description;
         this.user = user;
@@ -47,9 +49,14 @@ class CategorySnapshot
         return this.subCategory;
     }
 
-    public String getCategoryName()
+    String addName()
     {
         return String.format("%s : %s", this.mainCategory.getName(), this.subCategory.getName());
+    }
+
+    String getName()
+    {
+        return this.name;
     }
 
     public CategoryType getType()

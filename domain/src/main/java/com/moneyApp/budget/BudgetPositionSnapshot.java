@@ -3,6 +3,7 @@ package com.moneyApp.budget;
 import com.moneyApp.vo.BillPositionSource;
 import com.moneyApp.vo.CategorySource;
 
+import java.util.HashSet;
 import java.util.Set;
 
 class BudgetPositionSnapshot
@@ -11,7 +12,8 @@ class BudgetPositionSnapshot
     private CategorySource category;
     private Double plannedAmount;
     private String description;
-    private Set<BillPositionSource> billPositions;
+    private BudgetSnapshot budget;
+    private Set<BillPositionSource> billPositions = new HashSet<>();
 
     BudgetPositionSnapshot()
     {
@@ -22,13 +24,23 @@ class BudgetPositionSnapshot
             , final CategorySource category
             , final Double plannedAmount
             , final String description
+            , final BudgetSnapshot budget
             , final Set<BillPositionSource> billPositions)
     {
         this.id = id;
         this.category = category;
         this.plannedAmount = plannedAmount;
         this.description = description;
-        this.billPositions = billPositions;
+        this.budget = budget;
+        addBillPositionSources(billPositions);
+    }
+
+    public void addBillPositionSources(Set<BillPositionSource> sources)
+    {
+        if (this.billPositions == null)
+            this.billPositions = new HashSet<>();
+
+        this.billPositions.addAll(sources);
     }
 
     public Long getId()
@@ -49,6 +61,11 @@ class BudgetPositionSnapshot
     public String getDescription()
     {
         return this.description;
+    }
+
+    public BudgetSnapshot getBudget()
+    {
+        return this.budget;
     }
 
     public Set<BillPositionSource> getBillPositions()

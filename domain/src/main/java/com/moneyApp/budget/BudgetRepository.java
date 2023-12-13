@@ -6,5 +6,7 @@ interface BudgetRepository
 {
     BudgetSnapshot save(BudgetSnapshot budget);
 
+    BudgetPositionSnapshot save(BudgetPositionSnapshot position);
+
     void deleteByMonthYearAndUserId(LocalDate number, Long userId);
 }

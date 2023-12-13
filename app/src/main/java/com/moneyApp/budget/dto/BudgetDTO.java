@@ -5,8 +5,6 @@ import com.moneyApp.category.CategoryType;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class BudgetDTO
 {
@@ -20,10 +18,10 @@ public class BudgetDTO
     private double actualSum;
     private double incomesSum;
     private double expensesSum;
-    private List<BudgetPositionDTO> incomes;
-    private List<BudgetPositionDTO> expenses;
+    private final List<BudgetPositionDTO> incomes = new ArrayList<>();
+    private final List<BudgetPositionDTO> expenses = new ArrayList<>();
     private String description;
-    private List<BudgetPositionDTO> positions;
+    private final List<BudgetPositionDTO> positions = new ArrayList<>();
 
     public BudgetDTO()
     {
@@ -31,8 +29,8 @@ public class BudgetDTO
 
     public BudgetDTO(LocalDate monthYear, String description)
     {
-        this.monthYear = monthYear;
-        this.number = generateBudgetNumber(monthYear);
+        this.monthYear = checkIfMonthYearHasCorrectFormat(monthYear);
+        this.number = generateBudgetNumber();
         this.description = description;
     }
 
@@ -43,7 +41,8 @@ public class BudgetDTO
             , double plannedExpenses
             , double actualExpenses)
     {
-        this.monthYear = monthYear;
+
+        this.monthYear = checkIfMonthYearHasCorrectFormat(monthYear);
         this.plannedIncomes = plannedIncomes;
         this.actualIncomes = actualIncomes;
         this.plannedExpenses = plannedExpenses;
@@ -51,34 +50,74 @@ public class BudgetDTO
         this.actualSum = this.plannedIncomes - this.plannedExpenses;
     }
 
-//    private Long id;
-//    private LocalDate monthYear;    //  day always set to 1 because is ignored
-//    private String description;
-//    private UserSource user;
-//    private Set<BudgetPositionSnapshot> positions;
-
     public BudgetDTO(LocalDate monthYear, String description, List<BudgetPositionDTO> positions)
     {
         this(monthYear, description);
-        this.expenses = positions
-                .stream()
-                .filter(p -> p.getCategory().getType().equals(CategoryType.INCOME))
-                .collect(Collectors.toList());
-        this.incomes = positions
-                .stream()
-                .filter(p -> p.getCategory().getType().equals(CategoryType.EXPENSE))
-                .collect(Collectors.toList());
+        addPositions(positions);
     }
 
-
-
-    private String generateBudgetNumber(final LocalDate monthYear)
+    public void addPositions(List<BudgetPositionDTO> positions)
     {
-        var number = String.format("%s%s", monthYear.getMonth().getValue(), monthYear.getYear());
-        if (monthYear.getMonth().getValue() < 10)
+//          add only positions that are not existing already
+        positions.forEach(p -> {
+            if (!this.positions.contains(p))
+                this.positions.add(p);
+        });
+
+        splitPositionsIntoIncomesAndExpenses(positions);
+
+        sumPositionsAmounts();
+    }
+
+    void splitPositionsIntoIncomesAndExpenses(List<BudgetPositionDTO> positions)
+    {
+        this.expenses.addAll(positions
+                .stream()
+                .filter(p -> p.getType().equals(CategoryType.EXPENSE))
+                .toList());
+
+        this.incomes.addAll(positions
+                .stream()
+                .filter(p -> p.getType().equals(CategoryType.INCOME))
+                .toList());
+    }
+
+    void sumPositionsAmounts()
+    {
+        this.plannedIncomes = roundToTwoDecimals(this.incomes.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum());
+        this.plannedExpenses = roundToTwoDecimals(this.expenses.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum());
+
+        this.actualIncomes = roundToTwoDecimals(this.incomes.stream().mapToDouble(BudgetPositionDTO::getActualAmount).sum());
+        this.actualExpenses = roundToTwoDecimals(this.expenses.stream().mapToDouble(BudgetPositionDTO::getActualAmount).sum());
+
+        this.plannedSum = roundToTwoDecimals(this.plannedIncomes - this.plannedExpenses);
+        this.actualSum = roundToTwoDecimals(this.actualIncomes - this.actualExpenses);
+
+        this.incomesSum = roundToTwoDecimals(this.plannedIncomes - this.actualIncomes);
+        this.expensesSum = roundToTwoDecimals(this.plannedExpenses - this.actualExpenses);
+    }
+
+    private String generateBudgetNumber()
+    {
+        var number = String.format("%s%s", this.monthYear.getMonth().getValue(), this.monthYear.getYear());
+
+        if (this.monthYear.getMonth().getValue() < 10)
             number = "0" + number;
 
         return number;
+    }
+
+    double roundToTwoDecimals(double toRound)
+    {
+        return Math.round(toRound * 100d) / 100d;
+    }
+
+    LocalDate checkIfMonthYearHasCorrectFormat(LocalDate monthYear)
+    {
+        if (monthYear.getDayOfMonth() != 1)
+            monthYear = LocalDate.of(monthYear.getYear(), monthYear.getMonth().getValue(), 1);
+
+        return monthYear;
     }
 
     public String getNumber()
@@ -144,61 +183,6 @@ public class BudgetDTO
     public String getDescription()
     {
         return this.description;
-    }
-
-    public void setPlannedIncomes(double plannedIncomes)
-    {
-        this.plannedIncomes = plannedIncomes;
-    }
-
-    public void setPlannedExpenses(double plannedExpenses)
-    {
-        this.plannedExpenses = plannedExpenses;
-    }
-
-    public void setPlannedSum(double plannedSum)
-    {
-        this.plannedSum = plannedSum;
-    }
-
-    public void setActualIncomes(double actualIncomes)
-    {
-        this.actualIncomes = actualIncomes;
-    }
-
-    public void setActualExpenses(double actualExpenses)
-    {
-        this.actualExpenses = actualExpenses;
-    }
-
-    public void setActualSum(double actualSum)
-    {
-        this.actualSum = actualSum;
-    }
-
-    public void setIncomesSum(double incomesSum)
-    {
-        this.incomesSum = incomesSum;
-    }
-
-    public void setExpensesSum(double expensesSum)
-    {
-        this.expensesSum = expensesSum;
-    }
-
-    public void setIncomes(List<BudgetPositionDTO> incomes)
-    {
-        this.incomes = incomes;
-    }
-
-    public void setExpenses(List<BudgetPositionDTO> expenses)
-    {
-        this.expenses = expenses;
-    }
-
-    public void setMonthYear(LocalDate monthYear)
-    {
-        this.monthYear = monthYear;
     }
 
     public List<BudgetPositionDTO> getPositions()

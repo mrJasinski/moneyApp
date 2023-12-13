@@ -50,7 +50,7 @@ public class BudgetController
     @GetMapping("/view/{number}")
     ResponseEntity<?> getBudgetByMonthAndYear(@PathVariable String number, HttpServletRequest request)
     {
-        return ResponseEntity.ok().body(this.budgetService.getBudgetByNumberAndUserEmailAsDto(number, this.jwtService.getUserIdFromToken(request)));
+        return ResponseEntity.ok().body(this.budgetService.getBudgetByNumberAndUserIdAsDto(number, this.jwtService.getUserIdFromToken(request)));
     }
 
 //    edit

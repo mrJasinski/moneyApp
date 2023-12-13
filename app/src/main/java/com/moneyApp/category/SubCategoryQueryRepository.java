@@ -5,11 +5,11 @@ import java.util.Optional;
 
 interface SubCategoryQueryRepository
 {
-    Optional<SubCategory> findByNameAndMainCategoryIdAndUserId(String name, long mainCategoryId, long userId);
+    Optional<SubCategorySnapshot> findByNameAndMainCategoryIdAndUserId(String name, long mainCategoryId, long userId);
 
-    List<SubCategory> findByMainCategoryNameAndUserId(String main, Long userId);
+    List<SubCategorySnapshot> findByMainCategoryNameAndUserId(String main, Long userId);
 
     List<Long> findIdByNameAndUserId(String name, long userId);
 
-    List<SubCategory> findByNameAndUserId(String name, long userId);
+    List<SubCategorySnapshot> findByNameAndUserId(String name, long userId);
 }

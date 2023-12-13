@@ -1,16 +1,20 @@
 package com.moneyApp.category;
 
+import com.moneyApp.category.dto.CategoryDTO;
+import com.moneyApp.category.dto.CategoryWithIdAndNameAndTypeDTO;
+import com.moneyApp.category.dto.CategoryWithIdAndNameDTO;
+
 import java.util.List;
 import java.util.Optional;
 
 interface CategoryQueryRepository
 {
-    List<Category> findByUserId(Long userId);
+    List<CategorySnapshot> findByUserId(Long userId);
 
-    List<Category> findByTypeAndUserId(CategoryType type, long userId);
+    List<CategorySnapshot> findByTypeAndUserId(CategoryType type, long userId);
 
-    Optional<Category> findById(long categoryId);
-    Optional<Category> findCategoryByMainCategoryNameAndSubcategoryNameAndUserId(String mainCategoryName
+    Optional<CategorySnapshot> findById(long categoryId);
+    Optional<CategorySnapshot> findCategoryByMainCategoryNameAndSubcategoryNameAndUserId(String mainCategoryName
                                                                                 , String subCategoryName
                                                                                 , Long userId);
 
@@ -24,4 +28,11 @@ interface CategoryQueryRepository
     CategoryType getTypeById(long categoryId);
 
 
+    List<CategoryWithIdAndNameDTO> findCategoriesIdsAndNamesByNamesAndUserId(List<String> catNames, Long userId);
+
+    List<CategoryWithIdAndNameAndTypeDTO> findCategoriesIdsAndNamesAndTypesByIds(List<Long> catIds);
+
+    List<Long> findIdsByUserId(Long userId);
+
+    List<CategoryWithIdAndNameDTO> findCategoriesIdsAndNamesByUserId(Long userId);
 }

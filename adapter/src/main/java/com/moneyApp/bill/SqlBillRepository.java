@@ -1,28 +1,19 @@
 package com.moneyApp.bill;
 
-import com.moneyApp.bill.Bill;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 interface SqlBillRepository extends BillRepository, JpaRepository<BillSnapshot, Long>
 {
-//    TODO
-//
-//    @Transactional
-//    @Modifying
-//    @Override
-//    @Query(value = "UPDATE Position p SET p.budgetPosition = :position WHERE p.id = :billPositionId AND p.user.id = :userId")
-//    void updatePositionIdInDb(Long billPositionId, Long budgetPositionId, Long userId);
-
     @Transactional
     @Modifying
     @Override
-    @Query(value = "UPDATE bills SET budgetId = :budgetId WHERE number = :number", nativeQuery = true)
-    void updateBudgetIdInBillByNumber(String number, long budgetId);
+    @Query(value = "UPDATE bill_positions b SET b.budget_position_id = :budgetPositionId WHERE id IN :billPositionIds", nativeQuery = true)
+    void updateBudgetPositionInBillPositionByIds(Long budgetPositionId, List<Long> billPositionIds);
 }

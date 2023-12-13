@@ -31,6 +31,11 @@ class BudgetSnapshot
         this.positions = positions;
     }
 
+    void addPositions(Set<BudgetPositionSnapshot> positions)
+    {
+        this.positions.addAll(positions);
+    }
+
     public Long getId()
     {
         return this.id;
