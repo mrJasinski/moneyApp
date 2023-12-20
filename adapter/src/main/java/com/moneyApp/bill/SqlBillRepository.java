@@ -14,6 +14,9 @@ interface SqlBillRepository extends BillRepository, JpaRepository<BillSnapshot, 
     @Transactional
     @Modifying
     @Override
-    @Query(value = "UPDATE bill_positions b SET b.budget_position_id = :budgetPositionId WHERE id IN :billPositionIds", nativeQuery = true)
+    @Query(value = "UPDATE bill_positions b " +
+                   "SET b.budget_position_id = :budgetPositionId " +
+                   "WHERE id IN :billPositionIds"
+                    , nativeQuery = true)
     void updateBudgetPositionInBillPositionByIds(Long budgetPositionId, List<Long> billPositionIds);
 }

@@ -10,10 +10,14 @@ import java.util.Optional;
 interface SqlUserQueryRepository extends UserQueryRepository, JpaRepository<UserSnapshot, Long>
 {
     @Override
-    @Query(value = "SELECT u.id FROM UserSnapshot u WHERE u.email = :email")
+    @Query(value = "SELECT u.id " +
+                   "FROM UserSnapshot u " +
+                   "WHERE u.email = :email")
     Optional<Long> findIdByEmail(String email);
 
     @Override
-    @Query(value = "SELECT u.name FROM UserSnapshot u WHERE u.id = :userId")
+    @Query(value = "SELECT u.name " +
+                   "FROM UserSnapshot u " +
+                   "WHERE u.id = :userId")
     Optional<String> findNameById(Long userId);
 }

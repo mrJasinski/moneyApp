@@ -22,13 +22,15 @@ public class BillDTO
     List<BillPositionDTO> positions;
 
     BillDTO(
-            final String number
+            final Long id
+            , final String number
             , final LocalDate date
             , final String payeeName
             , final String accountName
             , final String description
             , final List<BillPositionDTO> positions)
     {
+        this.id = id;
         this.number = number;
         this.date = date;
         this.payeeName = payeeName;
@@ -43,7 +45,7 @@ public class BillDTO
         var sum = 0d;
 
         for (BillPositionDTO bp : this.positions)
-            switch (bp.getType())
+            switch (bp.getCategory().getType())
             {
                 case EXPENSE :  sum -= bp.getAmount();
                 case INCOME : sum += bp.getAmount();
@@ -99,12 +101,19 @@ public class BillDTO
 
     public static class Builder
     {
+        private Long id;
         private String number;                  // format yearMonthValue_number(counted bills in given month + 1)
         private LocalDate date;
         private String payeeName;
         private String accountName;
         private String description;
         List<BillPositionDTO> positions;
+
+        public Builder withId(Long id)
+        {
+            this.id = id;
+            return this;
+        }
 
         public Builder withNumber(String number)
         {
@@ -144,7 +153,7 @@ public class BillDTO
 
         public BillDTO build()
         {
-            return new BillDTO(this.number, this.date, this.payeeName, this.accountName, this.description, this.positions);
+            return new BillDTO(this.id, this.number, this.date, this.payeeName, this.accountName, this.description, this.positions);
         }
 
     }

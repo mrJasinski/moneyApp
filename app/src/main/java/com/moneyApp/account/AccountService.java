@@ -14,16 +14,15 @@ public class AccountService
 {
     private final AccountRepository accountRepo;
     private final AccountQueryRepository accountQueryRepo;
-    private final UserService userService;
 
     AccountService(
             AccountRepository accountRepo
             , AccountQueryRepository accountQueryRepo
-            , UserService userService)
+    )
+
     {
         this.accountRepo = accountRepo;
         this.accountQueryRepo = accountQueryRepo;
-        this.userService = userService;
     }
 
     public AccountDTO createAccountByUserIdAsDto(AccountDTO toSave, Long userId)
@@ -69,17 +68,6 @@ public class AccountService
         );
     }
 
-    AccountDTO toDto(Account account)
-    {
-        var snap = account.getSnapshot();
-
-        return new AccountDTO(
-                snap.getName()
-                , snap.getDescription()
-                , snap.getActualBalance()
-        );
-    }
-
     public void updateAccountBalanceByAccountId(double sum, long accountId)
     {
         this.accountRepo.updateActualBalanceById(sum, accountId);
@@ -87,6 +75,7 @@ public class AccountService
 
     void updateAccountDataByUserId(final AccountDTO toUpdate, final Long userId)
     {
+//        TODO
 ////        check if account exists in database
 //        var account = this.accountQueryService.getAccountByNameAndUserId(toUpdate.getName(), userId);
 //
@@ -116,23 +105,4 @@ public class AccountService
         return this.accountQueryRepo.findNameById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account with given id not found!"));
     }
-
-//    public Account getAccountByNameAndUserId(String name, Long userId)
-//    {
-//        return this.accountQueryRepo.findByNameAndUserId(name, userId)
-//                .orElseThrow(() -> new IllegalArgumentException("No account found for given name!"));
-//    }
-
-//    public List<AccountSimpleDTO> getDashboardAccountsByUserIdAsDto(Long userId)
-//    {
-//        return this.accountQueryRepo.findSimpleDtoByUserId(userId);
-//    }
-//
-//    public SimpleAccount getSimpleAccountByNameAndUserId(String name, Long userId)
-//    {
-//        var result = this.accountQueryRepo.findByNameAndUserId(name, userId)
-//                .orElseThrow(() -> new IllegalArgumentException("No account found for given name!"));
-//
-//        return new SimpleAccount(Math.toIntExact(result.getId()), result.getName(), String.valueOf(result.getUser().getId()));
-//    }
 }

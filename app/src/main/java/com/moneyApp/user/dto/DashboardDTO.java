@@ -17,7 +17,7 @@ public class DashboardDTO
     public DashboardDTO(String userName, BudgetDTO budget, List<PaymentDTO> payments)
     {
         this.greeting = String.format("Dzień dobry %s!", userName);
-        this.shortcuts = "Konta || Bydżety || Płatności || Rachnki";
+        this.shortcuts = "Konta || Budżety || Płatności || Rachunki";
         this.budgetData = String.format("""
                         Bieżący budżet (%s/%s):
                                     Planowane   Rzeczywiste
@@ -45,13 +45,12 @@ public class DashboardDTO
         return result.toString();
     }
 
-
     public String getGreeting()
     {
         return this.greeting;
     }
 
-    String getShortcuts()
+    public String getShortcuts()
     {
         return this.shortcuts;
     }
@@ -61,7 +60,7 @@ public class DashboardDTO
         return this.budgetData;
     }
 
-    String getPaymentsData()
+    public String getPaymentsData()
     {
         return this.paymentsData;
     }

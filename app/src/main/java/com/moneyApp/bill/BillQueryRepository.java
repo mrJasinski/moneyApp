@@ -21,4 +21,6 @@ interface BillQueryRepository
     Set<BillWithSumsDTO> findBudgetPositionsIdsWithSumsByBillPositionIds(List<Long> billPosIds);
 
     Set<Long> findBillPositionIdsByBudgetPositionId(Long budPosId);
+
+    List<BillSnapshot> getBillsBetweenDatesAndByUserId(LocalDate startDate, LocalDate endDate, Long userId);
 }

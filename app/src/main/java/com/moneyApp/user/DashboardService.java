@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 
 @Service
-public class DashboardService
+class DashboardService
 {
     private final UserService userService;
     private final BudgetService budgetService;
@@ -24,15 +24,14 @@ public class DashboardService
         this.paymentService = paymentService;
     }
 
-    public Object getDashboardByUserIdAsDto(long userId)
+    public DashboardDTO getDashboardByUserIdAsDto(long userId)
     {
         var userName = this.userService.getUserNameById(userId);
 
         var budget = this.budgetService.getBudgetByDateAndUserIdAsDto(LocalDate.now(), userId);
 
-//        var payments = this.paymentService.getPaymentsFromNowTillDateWithPreviousUnpaidByUserIdAsDto(LocalDate.now().plusWeeks(2), userId);
-//TODO chwilowo
-//        return new DashboardDTO(userName, budget, payments);
-        return new DashboardDTO(userName, budget, null);
+        var payments = this.paymentService.getUnpaidPaymentsTillDateByUserIdAsDto(LocalDate.now().plusWeeks(2), userId);
+        
+        return new DashboardDTO(userName, budget, payments);
     }
 }

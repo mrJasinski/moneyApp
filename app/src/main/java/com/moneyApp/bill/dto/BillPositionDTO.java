@@ -1,6 +1,7 @@
 package com.moneyApp.bill.dto;
 
 import com.moneyApp.category.CategoryType;
+import com.moneyApp.category.dto.CategoryDTO;
 import com.moneyApp.vo.BillPositionSource;
 
 import java.time.LocalDate;
@@ -15,7 +16,7 @@ public class BillPositionDTO
     private final Long id;
     private final Double amount;
     private final String categoryName;
-    private final CategoryType type;
+    private final CategoryDTO category;
     private final String gainerName;
     private final String description;
     private final LocalDate date;
@@ -28,15 +29,15 @@ public class BillPositionDTO
             , String payeeName
             , String accountName
             , Double amount
+            , CategoryDTO category
             , String categoryName
-            , CategoryType type
             , String gainerName
             , String description)
     {
         this.id = id;
         this.amount = amount;
+        this.category = category;
         this.categoryName = categoryName;
-        this.type = type;
         this.gainerName = gainerName;
         this.description = description;
         this.date = date;
@@ -59,14 +60,14 @@ public class BillPositionDTO
         return this.amount;
     }
 
-    public String getCategoryName()
+     public CategoryDTO getCategory()
     {
-        return this.categoryName;
+        return this.category;
     }
 
-    public CategoryType getType()
+     public String getCategoryName()
     {
-        return this.type;
+        return this.categoryName;
     }
 
     public String getGainerName()
@@ -98,8 +99,8 @@ public class BillPositionDTO
     {
         private Long id;
         private Double amount;
+        private CategoryDTO category;
         private String categoryName;
-        private CategoryType type;
         private String gainerName;
         private String description;
         private LocalDate date;
@@ -118,15 +119,15 @@ public class BillPositionDTO
             return this;
         }
 
-        public Builder withCategoryName(String categoryName)
+        public Builder withCategory(CategoryDTO category)
         {
-            this.categoryName = categoryName;
+            this.category = category;
             return this;
         }
 
-        public Builder withType(CategoryType type)
+        public Builder withCategoryName(String categoryName)
         {
-            this.type = type;
+            this.categoryName = categoryName;
             return this;
         }
 
@@ -168,8 +169,8 @@ public class BillPositionDTO
                     , this.payeeName
                     , this.accountName
                     , this.amount
+                    , this.category
                     , this.categoryName
-                    , this.type
                     , this.gainerName
                     , this.description);
         }

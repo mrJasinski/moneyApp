@@ -1,6 +1,7 @@
 package com.moneyApp.budget.dto;
 
 import com.moneyApp.category.CategoryType;
+import com.moneyApp.utils.Utils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,11 +44,11 @@ public class BudgetDTO
     {
 
         this.monthYear = checkIfMonthYearHasCorrectFormat(monthYear);
-        this.plannedIncomes = plannedIncomes;
-        this.actualIncomes = actualIncomes;
-        this.plannedExpenses = plannedExpenses;
-        this.actualExpenses = actualExpenses;
-        this.actualSum = this.plannedIncomes - this.plannedExpenses;
+        this.plannedIncomes = Utils.roundToTwoDecimals(plannedIncomes);
+        this.actualIncomes = Utils.roundToTwoDecimals(actualIncomes);
+        this.plannedExpenses = Utils.roundToTwoDecimals(plannedExpenses);
+        this.actualExpenses = Utils.roundToTwoDecimals(actualExpenses);
+        this.actualSum = Utils.roundToTwoDecimals(this.plannedIncomes - this.plannedExpenses);
     }
 
     public BudgetDTO(LocalDate monthYear, String description, List<BudgetPositionDTO> positions)
@@ -71,30 +72,30 @@ public class BudgetDTO
 
     void splitPositionsIntoIncomesAndExpenses(List<BudgetPositionDTO> positions)
     {
-        this.expenses.addAll(positions
-                .stream()
-                .filter(p -> p.getType().equals(CategoryType.EXPENSE))
-                .toList());
-
         this.incomes.addAll(positions
                 .stream()
                 .filter(p -> p.getType().equals(CategoryType.INCOME))
+                .toList());
+
+        this.expenses.addAll(positions
+                .stream()
+                .filter(p -> p.getType().equals(CategoryType.EXPENSE))
                 .toList());
     }
 
     void sumPositionsAmounts()
     {
-        this.plannedIncomes = roundToTwoDecimals(this.incomes.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum());
-        this.plannedExpenses = roundToTwoDecimals(this.expenses.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum());
+        this.plannedIncomes = Utils.roundToTwoDecimals(this.incomes.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum());
+        this.plannedExpenses = Utils.roundToTwoDecimals(this.expenses.stream().mapToDouble(BudgetPositionDTO::getPlannedAmount).sum());
 
-        this.actualIncomes = roundToTwoDecimals(this.incomes.stream().mapToDouble(BudgetPositionDTO::getActualAmount).sum());
-        this.actualExpenses = roundToTwoDecimals(this.expenses.stream().mapToDouble(BudgetPositionDTO::getActualAmount).sum());
+        this.actualIncomes = Utils.roundToTwoDecimals(this.incomes.stream().mapToDouble(BudgetPositionDTO::getActualAmount).sum());
+        this.actualExpenses = Utils.roundToTwoDecimals(this.expenses.stream().mapToDouble(BudgetPositionDTO::getActualAmount).sum());
 
-        this.plannedSum = roundToTwoDecimals(this.plannedIncomes - this.plannedExpenses);
-        this.actualSum = roundToTwoDecimals(this.actualIncomes - this.actualExpenses);
+        this.plannedSum = Utils.roundToTwoDecimals(this.plannedIncomes - this.plannedExpenses);
+        this.actualSum = Utils.roundToTwoDecimals(this.actualIncomes - this.actualExpenses);
 
-        this.incomesSum = roundToTwoDecimals(this.plannedIncomes - this.actualIncomes);
-        this.expensesSum = roundToTwoDecimals(this.plannedExpenses - this.actualExpenses);
+        this.incomesSum = Utils.roundToTwoDecimals(this.plannedIncomes - this.actualIncomes);
+        this.expensesSum = Utils.roundToTwoDecimals(this.plannedExpenses - this.actualExpenses);
     }
 
     private String generateBudgetNumber()
@@ -105,11 +106,6 @@ public class BudgetDTO
             number = "0" + number;
 
         return number;
-    }
-
-    double roundToTwoDecimals(double toRound)
-    {
-        return Math.round(toRound * 100d) / 100d;
     }
 
     LocalDate checkIfMonthYearHasCorrectFormat(LocalDate monthYear)

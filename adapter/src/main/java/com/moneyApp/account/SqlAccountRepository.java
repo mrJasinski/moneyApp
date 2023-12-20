@@ -12,6 +12,8 @@ interface SqlAccountRepository extends AccountRepository, JpaRepository<AccountS
     @Transactional
     @Modifying
     @Override
-    @Query(value = "UPDATE AccountSnapshot a SET a.actualBalance = a.actualBalance + :amount WHERE a.id = :accountId")
+    @Query(value = "UPDATE AccountSnapshot a " +
+                   "SET a.actualBalance = a.actualBalance + :amount " +
+                   "WHERE a.id = :accountId")
     void updateActualBalanceById(Double amount, Long accountId);
 }

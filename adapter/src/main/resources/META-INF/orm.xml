@@ -241,9 +241,6 @@
             <basic name="amount"/>
             <one-to-many name="positions" fetch="EAGER">
                 <join-column name="payment_id"/>
-                <cascade>
-                    <cascade-all/>
-                </cascade>
             </one-to-many>
             <embedded name="user">
                 <attribute-override name="id" >
@@ -254,7 +251,7 @@
     </entity>
 
     <entity class="com.moneyApp.payment.PaymentPositionSnapshot" access="FIELD">
-        <table name="payments" />
+        <table name="payment_positions" />
         <attributes>
             <id name="id">
                 <generated-value strategy="IDENTITY"/>
@@ -262,6 +259,7 @@
             <basic name="paymentDate"/>
             <basic name="isPaid"/>
             <basic name="hash"/>
+            <many-to-one name="payment"/>
         </attributes>
     </entity>
 

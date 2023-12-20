@@ -20,7 +20,6 @@ public class CategoryService
     private final MainCategoryQueryRepository mainCategoryQueryRepo;
     private final SubCategoryRepository subCategoryRepo;
     private final SubCategoryQueryRepository subCategoryQueryRepo;
-    private final UserService userService;
 
     CategoryService(
             final CategoryRepository categoryRepo
@@ -29,7 +28,7 @@ public class CategoryService
             , final MainCategoryQueryRepository mainCategoryQueryRepo
             , final SubCategoryRepository subCategoryRepo
             , final SubCategoryQueryRepository subCategoryQueryRepo
-            , final UserService userService)
+    )
     {
         this.categoryRepo = categoryRepo;
         this.categoryQueryRepo = categoryQueryRepo;
@@ -37,7 +36,6 @@ public class CategoryService
         this.mainCategoryQueryRepo = mainCategoryQueryRepo;
         this.subCategoryRepo = subCategoryRepo;
         this.subCategoryQueryRepo = subCategoryQueryRepo;
-        this.userService = userService;
     }
 
     CategoryDTO createCategoryByUserId(CategoryDTO toSave, Long userId)
@@ -84,7 +82,6 @@ public class CategoryService
                 .orElseGet(() -> createMainCategoryByNameAndUserId(name, userId));
     }
 
-//    TODO id jest jednoznaczne więc mozna usunąc userId
     MainCategorySnapshot getMainCategoryById(long id)
     {
         return this.mainCategoryQueryRepo.findById(id)
@@ -95,7 +92,6 @@ public class CategoryService
     {
 //        TODO set<subcats>
         return this.mainCategoryRepo.save(new MainCategorySnapshot(null, name, null, new UserSource(userId)));
-//        return this.mainCategoryRepo.save(MainCategory.restore(new MainCategorySnapshot(null, name, null, new UserSource(String.valueOf(userId)))));
     }
 
     SubCategorySnapshot getSubCategoryByNameAndMainCategoryIdAndUserId(String name, long mainCategoryId, long userId)
@@ -108,7 +104,6 @@ public class CategoryService
     {
         return this.subCategoryRepo.save(new SubCategorySnapshot(null, name,
                 getMainCategoryById(mainCategoryId), new UserSource(userId)));
-//                getMainCategoryByIdAndUserId(mainCategoryId, userId).getSnapshot(), new UserSource(String.valueOf(userId)))));
     }
 
     public List<CategoryDTO> getCategoriesByUserIdAsDto(Long userId)
@@ -129,75 +124,9 @@ public class CategoryService
         return this.categoryQueryRepo.findByUserId(userId);
     }
 
-     List<CategorySnapshot> getCategoriesByTypeAndUserId(CategoryType categoryType, long userId)
-    {
-        return this.categoryQueryRepo.findByTypeAndUserId(categoryType, userId);
-    }
-
-    CategorySnapshot getCategoryByNameAndUserId(String name, Long userId)
-    {
-        var names = splitCategoryNameIntoMainAndSubNames(name);
-
-        return getCategoryByMainCategoryNameAndSubcategoryNameAndUserId(names[0], names[1], userId);
-    }
-
-    CategorySnapshot getCategoryByMainCategoryNameAndSubcategoryNameAndUserId(String mainCategoryName, String subCategoryName, Long userId)
-    {
-        return this.categoryQueryRepo.findCategoryByMainCategoryNameAndSubcategoryNameAndUserId(mainCategoryName, subCategoryName, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Category with given data not found!"));
-    }
-
     List<SubCategorySnapshot> getSubcategoriesByMainCategoryNameAndUserId(final String main, final Long userId)
     {
         return this.subCategoryQueryRepo.findByMainCategoryNameAndUserId(main, userId);
-    }
-
-    public CategorySource getCategorySourceByNameAndUserId(final String categoryName, final long userId)
-    {
-        var ids = getMainSubCategoryIdsByCategoryNameAndUserId(categoryName, userId);
-
-        return new CategorySource(this.categoryQueryRepo.findIdByMainCategoryIdAndSubCategoryIdAndUserId(ids[0], ids[1], userId)
-                .orElseThrow(() -> new IllegalArgumentException("Category for given data not found!")));
-    }
-
-    long[] getMainSubCategoryIdsByCategoryNameAndUserId(String categoryName, long userId)
-    {
-        var names = splitCategoryNameIntoMainAndSubNames(categoryName);
-
-        var mainId = getMainCategoryIdByName(names[0], userId);
-
-        var snapshots = getSubcategoriesByNameAndUserId(names[1], userId);
-
-        for (SubCategorySnapshot sub : snapshots)
-            if (sub.getMainCategory().getId() == mainId)
-                return new long[] {mainId, sub.getId()};
-
-        throw new IllegalArgumentException("Sub category for given data not found!");
-    }
-
-    private long getMainCategoryIdByName(final String name, long userId)
-    {
-        return this.mainCategoryQueryRepo.findIdByNameAndUserId(name, userId)
-            .orElseThrow(() -> new IllegalArgumentException("Main category for given data not found!"));
-    }
-
-    List<SubCategorySnapshot> getSubcategoriesByNameAndUserId(final String name, final long userId)
-    {
-        return this.subCategoryQueryRepo.findByNameAndUserId(name, userId);
-    }
-
-    String[] splitCategoryNameIntoMainAndSubNames(String categoryName)
-    {
-        if (!categoryName.contains(" : "))
-            throw new IllegalArgumentException("Invalid category name!");
-
-        return new String[] {categoryName.replaceAll(" .*", ""), categoryName.replaceAll(".* : ", "")};
-    }
-
-    public CategoryType getCategoryTypeByCategoryId(final Long categoryId)
-    {
-//        TODO optional?
-        return this.categoryQueryRepo.getTypeById(categoryId);
     }
 
     public String getCategoryNameById(final long categoryId)
@@ -213,13 +142,24 @@ public class CategoryService
         return this.categoryQueryRepo.findCategoriesIdsAndNamesByNamesAndUserId(catNames, userId);
     }
 
-    public List<CategoryWithIdAndNameAndTypeDTO> getCategoriesByIdsAsDto(final List<Long> catIds)
+    public List<CategoryDTO> getCategoriesByIdsAsDto(final List<Long> catIds)
     {
-        return this.categoryQueryRepo.findCategoriesIdsAndNamesAndTypesByIds(catIds);
+        return this.categoryQueryRepo.findCategoriesByIds(catIds)
+                .stream()
+                .map(this::toDto)
+                .toList();
     }
 
-    public List<Long> getCategoriesIdsByUserId(final Long userId)
+    public CategoryType getCategoryTypeById(final Long categoryId)
     {
-        return this.categoryQueryRepo.findIdsByUserId(userId);
+//        TODO wyjątek
+        return this.categoryQueryRepo.findTypeById(categoryId)
+                .orElseThrow();
+    }
+
+    public CategoryDTO getCategoryByIdAsDto(final Long categoryId)
+    {
+        return toDto(this.categoryQueryRepo.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category with given id not found!")));
     }
 }

@@ -2,7 +2,6 @@ package com.moneyApp.payee;
 
 import com.moneyApp.payee.dto.PayeeDTO;
 import com.moneyApp.payee.dto.PayeeWithIdAndNameDTO;
-import com.moneyApp.user.UserService;
 import com.moneyApp.vo.PayeeSource;
 import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
@@ -15,16 +14,14 @@ public class PayeeService
 {
     private final PayeeRepository payeeRepo;
     private final PayeeQueryRepository payeeQueryRepo;
-    private final UserService userService;
 
     PayeeService(
             final PayeeRepository payeeRepo
             , final PayeeQueryRepository payeeQueryRepo
-            , final UserService userService)
+    )
     {
         this.payeeRepo = payeeRepo;
         this.payeeQueryRepo = payeeQueryRepo;
-        this.userService = userService;
     }
 
     PayeeSnapshot getPayeeByNameAndUserId(String name, long userId)

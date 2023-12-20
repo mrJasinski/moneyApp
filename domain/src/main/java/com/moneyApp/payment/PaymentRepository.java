@@ -1,12 +1,9 @@
 package com.moneyApp.payment;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-public interface PaymentRepository
+interface PaymentRepository
 {
-    Payment save(Payment entity);
+    PaymentSnapshot save(PaymentSnapshot entity);
+    PaymentPositionSnapshot save(PaymentPositionSnapshot entity);
 //
 //    List<Payment.Position> findByDatesAndUserId(LocalDate startDate, LocalDate endDate, Long userId);
 //

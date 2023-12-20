@@ -3,7 +3,9 @@ package com.moneyApp.bill;
 import com.moneyApp.account.AccountService;
 import com.moneyApp.bill.dto.*;
 import com.moneyApp.category.CategoryService;
+import com.moneyApp.category.dto.CategoryDTO;
 import com.moneyApp.payee.PayeeService;
+import com.moneyApp.utils.Utils;
 import com.moneyApp.vo.BillPositionSource;
 import com.moneyApp.vo.CategorySource;
 import com.moneyApp.vo.PayeeSource;
@@ -100,7 +102,6 @@ public class BillService
                         .stream()
                         .map(bp -> BillPositionDTO.builder()
                                 .withCategoryName(categories.stream().filter(c -> bp.getCategory().getId().equals(c.getId())).toList().get(0).getName())
-                                .withType(categories.stream().filter(c -> bp.getCategory().getId().equals(c.getId())).toList().get(0).getType())
                                 .withGainerName(payees.stream().filter(p -> bp.getGainer().getId().equals(p.getId())).toList().get(0).getName())
                                 .withAmount(bp.getAmount())
                                 .withDescription(bp.getDescription())
@@ -178,7 +179,7 @@ public class BillService
         //TODO test
         return BillPositionDTO.builder()
                 .withId(snap.getId())
-                .withCategoryName(this.categoryService.getCategoryNameById(snap.getCategory().getId()))
+                .withCategory(this.categoryService.getCategoryByIdAsDto(snap.getCategory().getId()))
                 .withAmount(snap.getAmount())
                 .withGainerName(this.payeeService.getPayeeNameById(snap.getGainer().getId()))
                 .withDescription(snap.getDescription())
@@ -196,5 +197,48 @@ public class BillService
                 .stream()
                 .map(BillPositionSource::new)
                 .collect(Collectors.toSet());
+    }
+
+    public BillActualAmounts getXXXNoNameYetByMonthYearAndUserId(final LocalDate monthYear, final Long userId)
+    {
+        var bills = this.billQueryRepo.getBillsBetweenDatesAndByUserId(Utils.getMonthYearStartDate(monthYear), Utils.getMonthYearEndDate(monthYear), userId);
+
+        var incomes = 0d;
+
+        var expenses = 0d;
+
+        for (BillSnapshot b : bills)
+        {
+            for (BillPositionSnapshot p : b.getPositions())
+            {
+                var catType = this.categoryService.getCategoryTypeById(p.getCategory().getId());
+
+                switch (catType)
+                {
+                    case INCOME -> incomes += p.getAmount();
+                    case EXPENSE -> expenses += p.getAmount();
+                }
+            }
+        }
+
+        return new BillActualAmounts(incomes, expenses);
+    }
+
+    public List<BillPositionDTO> getBillPositionsWithoutAssignedBudgetPositionByMonthYearAndUserIdAsDto(final LocalDate monthYear, final Long userId)
+    {
+        var startDate = Utils.getMonthYearStartDate(monthYear);
+        var endDate = Utils.getMonthYearEndDate(monthYear);
+
+        var bills = this.billQueryRepo.findByDatesAndUserId(startDate, endDate, userId);
+        var positions = new ArrayList<BillPositionDTO>();
+
+        for (BillSnapshot b : bills)
+            positions.addAll(b.getPositions()
+                    .stream()
+                    .filter(p -> p.getBudgetPosition() == null)
+                    .map(this::toDto)
+                    .toList());
+
+        return positions;
     }
 }

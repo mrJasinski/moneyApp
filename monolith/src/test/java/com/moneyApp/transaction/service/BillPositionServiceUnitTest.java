@@ -1,12 +1,5 @@
 package com.moneyApp.transaction.service;
 
-import com.moneyApp.bill.service.BillPositionService;
-import com.moneyApp.budget.BudgetPosition;
-import com.moneyApp.bill.BillPosition;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 class BillPositionServiceUnitTest
 {
 //    TODO przeniesienie do BillServiceImpl?

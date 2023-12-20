@@ -35,12 +35,20 @@ class BudgetPositionSnapshot
         addBillPositionSources(billPositions);
     }
 
-    public void addBillPositionSources(Set<BillPositionSource> sources)
+    void addBillPositionSources(Set<BillPositionSource> sources)
     {
         if (this.billPositions == null)
             this.billPositions = new HashSet<>();
 
         this.billPositions.addAll(sources);
+    }
+
+    void addBillPositionSource(final BillPositionSource billPositionSource)
+    {
+        if (this.billPositions == null)
+            this.billPositions = new HashSet<>();
+
+        this.billPositions.add(billPositionSource);
     }
 
     public Long getId()
@@ -72,4 +80,5 @@ class BudgetPositionSnapshot
     {
         return this.billPositions;
     }
+
 }

@@ -4,6 +4,7 @@ import com.moneyApp.payment.PaymentFrequency;
 import com.moneyApp.payment.PaymentStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class PaymentDTO
 {
@@ -13,8 +14,10 @@ public class PaymentDTO
     private int frequency;
     private String description;
     private double amount;
-    private PaymentStatus isPaid;
-//    private List<Payment.PaymentDate> dates;
+    private PaymentStatus status;
+    private List<PaymentPositionDTO> positions;
+//    TODO tylko dla testu - zmienić na coś rozsądnego
+    private String linkDesc;
 
     public PaymentDTO()
     {
@@ -27,9 +30,9 @@ public class PaymentDTO
         this.amount = amount;
 
         if (isPaid)
-            this.isPaid = PaymentStatus.PAID;
+            this.status = PaymentStatus.PAID;
         else
-            this.isPaid = PaymentStatus.UNPAID;
+            this.status = PaymentStatus.UNPAID;
     }
 
     public PaymentDTO(LocalDate startDate, PaymentFrequency frequencyType, int frequency, String description, double amount)
@@ -41,7 +44,24 @@ public class PaymentDTO
         this.amount = amount;
     }
 
-//    public PaymentDTO(LocalDate startDate, PaymentFrequency frequencyType, int frequency, String description, double amount, List<PaymentDate> dates)
+    public PaymentDTO(
+            final LocalDate startDate
+            , final PaymentFrequency frequencyType
+            , final int frequency
+            , final String description
+            , final double amount
+            , final List<PaymentPositionDTO> positions)
+    {
+        this.startDate = startDate;
+        this.frequencyType = frequencyType;
+        this.frequency = frequency;
+        this.description = description;
+        this.amount = amount;
+        this.positions = positions;
+        this.linkDesc = this.description.replaceAll(" ", "-");
+    }
+
+    //    public PaymentDTO(LocalDate startDate, PaymentFrequency frequencyType, int frequency, String description, double amount, List<PaymentDate> dates)
 //    {
 //        this.startDate = startDate;
 //        this.frequencyType = frequencyType;
@@ -81,13 +101,18 @@ public class PaymentDTO
         return this.amount;
     }
 
-    public PaymentStatus getIsPaid()
+    public PaymentStatus getStatus()
     {
-        return this.isPaid;
+        return this.status;
     }
 
-//    public List<PaymentDate> getDates()
-//    {
-//        return this.dates;
-//    }
+    public List<PaymentPositionDTO> getPositions()
+    {
+        return this.positions;
+    }
+
+    public String getLinkDesc()
+    {
+        return this.linkDesc;
+    }
 }

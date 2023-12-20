@@ -14,6 +14,8 @@ interface SqlBudgetRepository extends BudgetRepository, JpaRepository<BudgetSnap
     @Modifying
     @Transactional
     @Override
-    @Query(value = "DELETE FROM BudgetSnapshot b WHERE b.monthYear = :monthYear AND b.user.id = :userId")
+    @Query(value = "DELETE " +
+                   "FROM BudgetSnapshot b " +
+                   "WHERE b.monthYear = :monthYear AND b.user.id = :userId")
     void deleteByMonthYearAndUserId(LocalDate monthYear, Long userId);
 }

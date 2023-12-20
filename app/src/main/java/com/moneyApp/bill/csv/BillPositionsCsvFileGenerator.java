@@ -22,7 +22,7 @@ public class BillPositionsCsvFileGenerator
 
             for (BillPositionDTO t : transactions)
             {
-                printer.printRecord(t.getDate(), t.getCategoryName(), t.getAmount(), t.getPayeeName(), t.getGainerName(), t.getDescription());
+                printer.printRecord(t.getDate(), t.getCategory(), t.getAmount(), t.getPayeeName(), t.getGainerName(), t.getDescription());
             }
 
         } catch (IOException e)

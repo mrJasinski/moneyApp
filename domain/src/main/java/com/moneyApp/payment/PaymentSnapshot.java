@@ -3,6 +3,7 @@ package com.moneyApp.payment;
 import com.moneyApp.vo.UserSource;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 class PaymentSnapshot
@@ -14,10 +15,10 @@ class PaymentSnapshot
     private String description;
     private double amount;
     private UserSource user;
-    private Set<PaymentPositionSnapshot> positions;
+    private Set<PaymentPositionSnapshot> positions = new HashSet<>();
 
     //    persistence constructor
-    public PaymentSnapshot()
+    protected PaymentSnapshot()
     {
     }
 
@@ -34,11 +35,27 @@ class PaymentSnapshot
         this.id = id;
         this.startDate = startDate;
         this.frequencyType = frequencyType;
-        this.frequency = frequency;
+        this.frequency = checkFrequency(frequency);
         this.description = description;
         this.amount = amount;
         this.user = user;
-        this.positions = positions;
+        addPositions(positions);
+    }
+
+    int checkFrequency(int frequency)
+    {
+        if (this.frequencyType.equals(PaymentFrequency.ONCE))
+            return this.frequency = 1;
+
+        return frequency;
+    }
+
+    void addPositions(Set<PaymentPositionSnapshot> positions)
+    {
+        if (this.positions == null)
+            this.positions = new HashSet<>();
+
+        this.positions.addAll(positions);
     }
 
     public Long getId()
