@@ -57,9 +57,19 @@ class BillPositionSnapshot
         return this.category;
     }
 
+    Long getCategoryId()
+    {
+        return this.category.getId();
+    }
+
     PayeeSource getGainer()
     {
         return this.gainer;
+    }
+
+    Long getGainerId()
+    {
+        return this.gainer.getId();
     }
 
     String getDescription()

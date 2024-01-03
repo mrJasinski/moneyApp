@@ -19,7 +19,6 @@ public class AccountService
             AccountRepository accountRepo
             , AccountQueryRepository accountQueryRepo
     )
-
     {
         this.accountRepo = accountRepo;
         this.accountQueryRepo = accountQueryRepo;
@@ -31,12 +30,8 @@ public class AccountService
         if (this.accountQueryRepo.existsByNameAndUserId(toSave.getName(), userId))
             throw new IllegalArgumentException("Account with given name already exists!");
 
-//        check if account name has whitespaces
-        if  (toSave.getName().contains(" "))
-            throw new IllegalArgumentException("Account name cannot contain whitespaces!");
-
         return toDto(this.accountRepo.save(new AccountSnapshot(
-                null
+                0L
                 , toSave.getName()
                 , toSave.getDescription()
                 , toSave.getActualBalance()
@@ -75,23 +70,16 @@ public class AccountService
 
     void updateAccountDataByUserId(final AccountDTO toUpdate, final Long userId)
     {
-//        TODO
-////        check if account exists in database
-//        var account = this.accountQueryService.getAccountByNameAndUserId(toUpdate.getName(), userId);
-//
-////        update only if value given is not null and differs from actual name
-//        if (!toUpdate.getName().isEmpty() && !toUpdate.getName().equals(account.getName()))
-//            account.setName(toUpdate.getName());
-//
-////        update only if value given is not null and differs from actual description
-//        if (!toUpdate.getName().isEmpty() && !toUpdate.getDescription().equals(account.getDescription()))
-//            account.setDescription(toUpdate.getDescription());
-//
-////        update only if value given is not null and differs from actual value of balance
-//        if (toUpdate.getActualBalance() != null && !toUpdate.getActualBalance().equals(account.getActualBalance()))
-//            account.setActualBalance(toUpdate.getActualBalance());
+//        check if account exists in database
+        var account = this.accountQueryRepo.findByNameAndUserId(toUpdate.getName(), userId)
+                .orElseThrow(() -> new IllegalArgumentException("Account with given name not found!"));
 
-//        this.accountRepo.update(account);
+        this.accountRepo.save(new AccountSnapshot(
+                account.getId()
+                , toUpdate.getName()
+                , toUpdate.getDescription()
+                , toUpdate.getActualBalance()
+                , account.getUser()));
     }
 
     public AccountSource getAccountSourceByNameAndUserId(final String accountName, final Long userId)

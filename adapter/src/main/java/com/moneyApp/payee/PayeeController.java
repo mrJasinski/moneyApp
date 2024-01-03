@@ -43,10 +43,4 @@ public class PayeeController
 
 //    edit
 //    delete
-//
-//    @GetMapping("/role")
-//    ResponseEntity<?> getPayeesByRoleAndUser(@RequestParam PayeeRole role, HttpServletRequest request)
-//    {
-//        return ResponseEntity.ok(this.payeeService.getPayeesByRoleAndUserIdAsDto(role, this.jwtService.getUserIdFromToken(request)));
-//    }
 }

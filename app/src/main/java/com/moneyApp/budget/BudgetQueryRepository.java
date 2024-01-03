@@ -1,7 +1,5 @@
 package com.moneyApp.budget;
 
-import com.moneyApp.budget.dto.BudgetDTO;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

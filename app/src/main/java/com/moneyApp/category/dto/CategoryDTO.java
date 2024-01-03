@@ -42,6 +42,17 @@ public class CategoryDTO
         this.description = description;
     }
 
+    public CategoryDTO(
+            final Long id
+            , final String mainCategoryName
+            , final String subCategoryName
+            , final CategoryType type
+            , final String description)
+    {
+        this(mainCategoryName, subCategoryName, type, description);
+        this.id = id;
+    }
+
     String addName(String mainCategory, String subCategory)
     {
         return String.format("%s : %s", mainCategory, subCategory);
@@ -59,14 +70,12 @@ public class CategoryDTO
 
     public String getUrlName()
     {
-        //edited name to be used in URL (without whitespaces and letters like ż, ą etc)
-        var urlName = this.name.replace(" : ", "-");
+        //edited name to be used in URL
+        var urlName = this.name.replace(" : ", ":");
 
         urlName = urlName.replace(" ", "-");
 
-        urlName = Normalizer.normalize(urlName, Normalizer.Form.NFKD);
-
-        return urlName.replaceAll("\\p{M}", "");
+        return urlName;
     }
 
     public String getMainCategory()

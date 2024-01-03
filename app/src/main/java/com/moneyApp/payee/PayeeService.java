@@ -101,12 +101,4 @@ public class PayeeService
     {
         return this.payeeQueryRepo.findPayeesIdsAndNamesByIds(payeeIds);
     }
-
-//    public List<PayeeDTO> getPayeesByRoleAndUserIdAsDto(PayeeRole role, Long userId)
-//    {
-//        return getPayeesByRoleAndUserId(role, userId)
-//                .stream()
-//                .map(Payee::toDto)
-//                .collect(Collectors.toList());
-//    }
 }

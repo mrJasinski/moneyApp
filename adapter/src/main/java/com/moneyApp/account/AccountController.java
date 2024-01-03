@@ -41,7 +41,6 @@ class AccountController
     @PutMapping("/update/{name}")
     ResponseEntity<?> updateAccount(@RequestBody AccountDTO toUpdate, HttpServletRequest request)
     {
-//        TODO
         this.accountService.updateAccountDataByUserId(toUpdate, this.jwtService.getUserIdFromToken(request));
 
         return ResponseEntity.ok("Account data successfully updated!");

@@ -28,7 +28,7 @@ class CategorySnapshot
         this.id = id;
         this.mainCategory = mainCategory;
         this.subCategory = subCategory;
-        this.name = addName();
+        this.name = generateName();
         this.type = type;
         this.description = description;
         this.user = user;
@@ -44,12 +44,22 @@ class CategorySnapshot
         return this.mainCategory;
     }
 
+    String getMainCategoryName()
+    {
+        return this.mainCategory.getName();
+    }
+
     public SubCategorySnapshot getSubCategory()
     {
         return this.subCategory;
     }
 
-    String addName()
+    String getSubCategoryName()
+    {
+        return this.subCategory.getName();
+    }
+
+    String generateName()
     {
         return String.format("%s : %s", this.mainCategory.getName(), this.subCategory.getName());
     }

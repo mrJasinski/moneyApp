@@ -13,7 +13,7 @@ public class BudgetSource
         this.id = id;
     }
 
-    Long getId()
+    public Long getId()
     {
         return this.id;
     }

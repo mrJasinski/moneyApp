@@ -13,4 +13,11 @@ import java.util.List;
 interface SqlPaymentRepository extends PaymentRepository, JpaRepository<PaymentSnapshot, Long>
 {
 
+    @Modifying
+    @Transactional
+    @Override
+    @Query(value = "UPDATE PaymentPositionSnapshot p " +
+                   "SET p.isPaid = TRUE " +
+                   "WHERE p.hash = :hash")
+    void setPaymentPositionAsPaidByHash(Integer hash);
 }

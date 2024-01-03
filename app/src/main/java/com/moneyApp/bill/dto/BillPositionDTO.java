@@ -1,6 +1,5 @@
 package com.moneyApp.bill.dto;
 
-import com.moneyApp.category.CategoryType;
 import com.moneyApp.category.dto.CategoryDTO;
 import com.moneyApp.vo.BillPositionSource;
 
@@ -14,6 +13,7 @@ public class BillPositionDTO
     }
 
     private final Long id;
+    private final long number;
     private final Double amount;
     private final String categoryName;
     private final CategoryDTO category;
@@ -25,6 +25,7 @@ public class BillPositionDTO
 
     BillPositionDTO(
             Long id
+            , long number
             , LocalDate date
             , String payeeName
             , String accountName
@@ -35,6 +36,7 @@ public class BillPositionDTO
             , String description)
     {
         this.id = id;
+        this.number = number;
         this.amount = amount;
         this.category = category;
         this.categoryName = categoryName;
@@ -53,6 +55,11 @@ public class BillPositionDTO
     public Long getId()
     {
         return this.id;
+    }
+
+    public Long getNumber()
+    {
+        return this.number;
     }
 
     public Double getAmount()
@@ -98,6 +105,7 @@ public class BillPositionDTO
     public static class Builder
     {
         private Long id;
+        private long number;
         private Double amount;
         private CategoryDTO category;
         private String categoryName;
@@ -110,6 +118,12 @@ public class BillPositionDTO
         public Builder withId(Long id)
         {
             this.id = id;
+            return this;
+        }
+
+        public Builder withNumber(long number)
+        {
+            this.number = number;
             return this;
         }
 
@@ -165,6 +179,7 @@ public class BillPositionDTO
         {
             return new BillPositionDTO(
                     this.id
+                    , this.number
                     , this.date
                     , this.payeeName
                     , this.accountName

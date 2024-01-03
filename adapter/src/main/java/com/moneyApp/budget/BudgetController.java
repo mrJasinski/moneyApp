@@ -54,7 +54,6 @@ public class BudgetController
     }
 
 //    edit
-//    delete
 
     @DeleteMapping("/delete")
     ResponseEntity<?> deleteBudgetByNumber(@RequestParam String number, HttpServletRequest request)

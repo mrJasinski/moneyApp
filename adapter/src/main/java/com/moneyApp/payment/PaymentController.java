@@ -38,14 +38,16 @@ class PaymentController
         return ResponseEntity.ok(this.paymentService.getPaymentsByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
     }
 
-//    TODO test
-//    @PostMapping("/pay")
-//    public ResponseEntity<?> setPaymentDateAsPaid(@RequestParam Integer hash)
-//    {
-//        var paymentDate = this.paymentService.getPaymentDateByHash(hash);
-//
-//        this.paymentService.setPaymentDateAsPaid(paymentDate);
-//
-//        return ResponseEntity.ok(String.format("Payment #%s marked as paid!", paymentDate.getHash()));
-//    }
+//    edit
+//    delete
+//    view
+
+
+    @PutMapping("/pay")
+    public ResponseEntity<?> setPaymentDateAsPaid(@RequestParam Integer hash)
+    {
+        this.paymentService.setPaymentPositionAsPaidByHash(hash);
+
+        return ResponseEntity.ok(String.format("Payment #%s marked as paid!", hash));
+    }
 }

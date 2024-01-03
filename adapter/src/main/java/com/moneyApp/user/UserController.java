@@ -18,7 +18,6 @@ import java.net.URI;
 public class UserController
 {
     private final UserService userService;
-    private final DashboardService dashboardService;
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
     private final MailService mailService;
@@ -26,14 +25,12 @@ public class UserController
 
     public UserController(
             final UserService userService
-            , final DashboardService dashboardService
             , final JwtService jwtService
             , final AuthenticationManager authManager
             , final MailService mailService
             , final SimpleMailMessage message)
     {
         this.userService = userService;
-        this.dashboardService = dashboardService;
         this.jwtService = jwtService;
         this.authManager = authManager;
         this.mailService = mailService;
@@ -41,24 +38,24 @@ public class UserController
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> generateToken(@RequestBody JwtRequest user)
+    ResponseEntity<?> generateToken(@RequestBody JwtRequest user)
     {
         var userDetails = this.authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 
         if (!userDetails.isAuthenticated())
-            throw new UsernameNotFoundException("User with given credentials not found!");
+            throw new UsernameNotFoundException("Invalid user credentials!");
 
         return ResponseEntity.ok(this.jwtService.generateToken(user.getEmail()));
     }
 
     @GetMapping("/myDashboard")
-    public ResponseEntity<?> getDashboard(HttpServletRequest request)
+    ResponseEntity<?> getDashboard(HttpServletRequest request)
     {
-        return ResponseEntity.ok(this.dashboardService.getDashboardByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
+        return ResponseEntity.ok(this.userService.getUserDashboardByUserIdAsDto(this.jwtService.getUserIdFromToken(request)));
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> getUserDetailsAfterLogin(HttpServletRequest request)
+    ResponseEntity<?> getUserDetailsAfterLogin(HttpServletRequest request)
     {
         return ResponseEntity.ok(this.userService.getUserByEmailAsDto(this.jwtService.getUserEmail(request)));
     }
@@ -75,7 +72,6 @@ public class UserController
     }
 
 //    TODO test
-//    nawet zadziałało :D
     @GetMapping("/sendMail")
     ResponseEntity<?> sendMailToUser()
     {

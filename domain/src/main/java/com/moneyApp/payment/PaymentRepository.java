@@ -4,6 +4,8 @@ interface PaymentRepository
 {
     PaymentSnapshot save(PaymentSnapshot entity);
     PaymentPositionSnapshot save(PaymentPositionSnapshot entity);
+
+    void setPaymentPositionAsPaidByHash(Integer hash);
 //
 //    List<Payment.Position> findByDatesAndUserId(LocalDate startDate, LocalDate endDate, Long userId);
 //

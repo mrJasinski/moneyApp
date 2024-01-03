@@ -1,14 +1,14 @@
 package com.moneyApp.user;
 
+import com.moneyApp.budget.BudgetService;
 import com.moneyApp.mail.service.MailService;
+import com.moneyApp.payment.PaymentService;
+import com.moneyApp.user.dto.DashboardDTO;
 import com.moneyApp.user.dto.UserDTO;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 
 @Service
@@ -18,30 +18,26 @@ public class UserService
     private final UserQueryRepository userQueryRepo;
     private final PasswordEncoder encoder;
     private final MailService mailService;
+    private final BudgetService budgetService;
+    private final PaymentService paymentService;
 
     UserService(
             final UserRepository userRepo
             , final UserQueryRepository userQueryRepo
             , final PasswordEncoder encoder
-            , final MailService mailService)
+            , final MailService mailService
+            , final BudgetService budgetService
+            , final PaymentService paymentService)
     {
         this.userRepo = userRepo;
         this.userQueryRepo = userQueryRepo;
         this.encoder = encoder;
         this.mailService = mailService;
+        this.budgetService = budgetService;
+        this.paymentService = paymentService;
     }
 
-    public boolean isAuthenticated()
-    {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth == null || AnonymousAuthenticationToken.class.isAssignableFrom(auth.getClass()))
-            return false;
-
-        return auth.isAuthenticated();
-    }
-
-    public User getUserByEmail(String email)
+    User getUserByEmail(String email)
     {
         var snap = this.userQueryRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User with given email not found!"));
@@ -66,6 +62,17 @@ public class UserService
         );
     }
 
+    DashboardDTO getUserDashboardByUserIdAsDto(long userId)
+    {
+        var userName = getUserNameById(userId);
+
+        var budget = this.budgetService.getBudgetByDateAndUserIdAsDto(LocalDate.now(), userId);
+
+        var payments = this.paymentService.getUnpaidPaymentsTillDateByUserIdAsDto(LocalDate.now().plusWeeks(2), userId);
+
+        return new DashboardDTO(userName, budget, payments);
+    }
+
     public UserDTO createUser(UserDTO toSave)
     {
         if (!validateEmail(toSave.getEmail()))
@@ -77,19 +84,20 @@ public class UserService
         if (!validatePassword(toSave.getPassword()))
             throw new IllegalArgumentException("Provided password is invalid!");
 
-        toSave.setPassword(hashPassword(toSave.getPassword()));
+        var hashedPassword = hashPassword(toSave.getPassword());
 
-        var user = this.userRepo.save(new User(toSave.getId(), toSave.getEmail(), toSave.getPassword(), toSave.getRole(), toSave.getName()));
+        var user = this.userRepo.save(new User(toSave.getId(), toSave.getEmail(), hashedPassword, toSave.getRole(), toSave.getName()));
 
-        this.mailService.sendAfterRegistrationMail(toSave);
+        var dto = toDto(user);
 
-        return toSave;
+        this.mailService.sendAfterRegistrationMail(dto);
+
+        return dto;
     }
 
     boolean validateEmail(String email)
     {
 //        validation if email has form xxx@xxx.xx
-
         var regex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
 
         return email.matches(regex);
@@ -122,7 +130,7 @@ public class UserService
                 .orElseThrow(() -> new IllegalArgumentException("User id with given email not found!"));
     }
 
-    public UserSnapshot getUserById(long userId)
+    UserSnapshot getUserById(long userId)
     {
         return this.userQueryRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with given id not found!"));
@@ -134,7 +142,7 @@ public class UserService
                 .orElseThrow(() -> new IllegalArgumentException("User name for given user id not found!"));
     }
 
-    public void deleteUserById(long userId)
+    void deleteUserById(long userId)
     {
         if (!this.userQueryRepo.existsById(userId))
             throw new IllegalArgumentException("User with given id not found!");

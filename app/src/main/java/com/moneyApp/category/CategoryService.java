@@ -8,6 +8,7 @@ import com.moneyApp.vo.CategorySource;
 import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,11 +47,11 @@ public class CategoryService
         var subCategory = getSubCategoryByNameAndMainCategoryIdAndUserId(toSave.getSubCategory(),
                 mainCategory.getId(), userId);
 
-        if (checkIfCategoryExists(mainCategory, subCategory, toSave.getType(), userId))
+        if (checkIfCategoryExists(mainCategory.getId(), subCategory.getId(), toSave.getType(), userId))
             throw new IllegalArgumentException("Category with given data already exists!");
 
         return toDto(this.categoryRepo.save(new CategorySnapshot(
-                null
+                0L
                 , mainCategory
                 , subCategory
                 , toSave.getType()
@@ -61,17 +62,17 @@ public class CategoryService
     CategoryDTO toDto(CategorySnapshot snap)
     {
         return new CategoryDTO(
-                snap.getMainCategory().getName()
-                , snap.getSubCategory().getName()
+                snap.getId()
+                , snap.getMainCategoryName()
+                , snap.getSubCategoryName()
                 , snap.getType()
                 , snap.getDescription()
         );
     }
 
-    boolean checkIfCategoryExists(MainCategorySnapshot mainCategory, SubCategorySnapshot subCategory, CategoryType type, long userId)
+    boolean checkIfCategoryExists(long mainCategoryId, long subCategoryId, CategoryType type, long userId)
     {
-        return this.categoryQueryRepo.existsByMainCategoryIdAndSubCategoryIdAndTypeAndUserId(mainCategory.getId(), subCategory.getId(),
-                type, userId);
+        return this.categoryQueryRepo.existsByMainCategoryIdAndSubCategoryIdAndTypeAndUserId(mainCategoryId, subCategoryId, type, userId);
     }
 
     MainCategorySnapshot getMainCategoryByNameAndUserId(String name, long userId)
@@ -91,7 +92,7 @@ public class CategoryService
     MainCategorySnapshot createMainCategoryByNameAndUserId(String name, long userId)
     {
 //        TODO set<subcats>
-        return this.mainCategoryRepo.save(new MainCategorySnapshot(null, name, null, new UserSource(userId)));
+        return this.mainCategoryRepo.save(new MainCategorySnapshot(0L, name, new HashSet<>(), new UserSource(userId)));
     }
 
     SubCategorySnapshot getSubCategoryByNameAndMainCategoryIdAndUserId(String name, long mainCategoryId, long userId)
@@ -102,7 +103,7 @@ public class CategoryService
 
     SubCategorySnapshot createSubCategoryByNameAndMainCategoryIdAndUserId(String name, long mainCategoryId, long userId)
     {
-        return this.subCategoryRepo.save(new SubCategorySnapshot(null, name,
+        return this.subCategoryRepo.save(new SubCategorySnapshot(0L, name,
                 getMainCategoryById(mainCategoryId), new UserSource(userId)));
     }
 
@@ -112,11 +113,6 @@ public class CategoryService
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
-    }
-
-    public List<CategoryWithIdAndNameDTO> getCategoriesIdsAndNamesByUserIdAsDto(long userId)
-    {
-        return this.categoryQueryRepo.findCategoriesIdsAndNamesByUserId(userId);
     }
 
     List<CategorySnapshot> getAllCategoriesByUserId(long userId)
@@ -161,5 +157,20 @@ public class CategoryService
     {
         return toDto(this.categoryQueryRepo.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category with given id not found!")));
+    }
+
+    CategoryDTO getCategoryByUrlNameAndUserIdAsDto(final String urlName, final Long userId)
+    {
+       return toDto(this.categoryQueryRepo.findByNameAndUserId(getNameFromUrlName(urlName), userId)
+               .orElseThrow(() -> new IllegalArgumentException("Category with given name not found!")));
+    }
+
+    String getNameFromUrlName(String urlName)
+    {
+        var result = urlName.replaceAll(":", " : ");
+
+        result = result.replace("-", " ");
+
+        return result;
     }
 }

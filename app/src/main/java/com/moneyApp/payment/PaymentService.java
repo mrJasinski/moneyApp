@@ -79,8 +79,8 @@ public class PaymentService
                     .map(p -> new PaymentPositionDTO(
                             p.getPaymentDate()
                             , p.isPaid()
-                            , p.getHash()
-                    )).collect(Collectors.toList())
+                            , p.getHash()))
+                    .collect(Collectors.toList())
         );
     }
 
@@ -180,5 +180,10 @@ public class PaymentService
     LocalDateTime computeReminderDate(PaymentPositionSnapshot date)
     {
         return LocalDateTime.of(date.getPaymentDate().minusDays(1), LocalTime.of(18, 0));
+    }
+
+    void setPaymentPositionAsPaidByHash(final Integer hash)
+    {
+        this.paymentRepo.setPaymentPositionAsPaidByHash(hash);
     }
 }

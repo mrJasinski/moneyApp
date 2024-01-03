@@ -17,11 +17,6 @@ interface SqlCategoryQueryRepository extends CategoryQueryRepository, JpaReposit
                    "FROM CategorySnapshot c " +
                    "WHERE c.name IN :catNames AND c.user.id = :userId")
     List<CategoryWithIdAndNameDTO> findCategoriesIdsAndNamesByNamesAndUserId(List<String> catNames, Long userId);
-    @Override
-    @Query(value = "SELECT c.id AS id, c.name AS name " +
-                   "FROM CategorySnapshot c " +
-                   "WHERE c.user.id = :userId")
-    List<CategoryWithIdAndNameDTO> findCategoriesIdsAndNamesByUserId(Long userId);
 
     @Override
     @Query(value = "SELECT c.type " +

@@ -26,8 +26,14 @@ public class CategoryController
     {
 //        no specific endpoints for creating sub and main categories because if they not exist they will be created during this process
         var result = this.service.createCategoryByUserId(toSave, this.jwtService.getUserIdFromToken(request));
-//TODO do linku bez spacji lub inny wyróżnik
+
         return ResponseEntity.created(URI.create("/" + result.getUrlName())).body(result);
+    }
+
+    @GetMapping("/{urlName}")
+    ResponseEntity<?> getCategoryByUrlNameAndUserId(@PathVariable String urlName, HttpServletRequest request)
+    {
+        return ResponseEntity.ok(this.service.getCategoryByUrlNameAndUserIdAsDto(urlName, this.jwtService.getUserIdFromToken(request)));
     }
 
     @GetMapping("/{main}/subcategories")
@@ -35,7 +41,7 @@ public class CategoryController
     {
         var result = this.service.getSubcategoriesByMainCategoryNameAndUserId(main, this.jwtService.getUserIdFromToken(request));
 
-        return ResponseEntity.ok(request);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping

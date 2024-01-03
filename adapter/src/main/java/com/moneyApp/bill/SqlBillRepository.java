@@ -19,4 +19,12 @@ interface SqlBillRepository extends BillRepository, JpaRepository<BillSnapshot, 
                    "WHERE id IN :billPositionIds"
                     , nativeQuery = true)
     void updateBudgetPositionInBillPositionByIds(Long budgetPositionId, List<Long> billPositionIds);
+
+    @Transactional
+    @Modifying
+    @Override
+    @Query(value = "UPDATE BillSnapshot b " +
+                   "SET b.budget.id = :budgetId " +
+                   "WHERE b.id IN :billIds")
+    void updateBudgetInBills(long budgetId, List<Long> billIds);
 }

@@ -16,7 +16,7 @@ public class PaymentDTO
     private double amount;
     private PaymentStatus status;
     private List<PaymentPositionDTO> positions;
-//    TODO tylko dla testu - zmienić na coś rozsądnego
+//    TODO tylko dla testu - zmienić na coś rozsądnego choćby dlatego że nazwy mogą się dublować
     private String linkDesc;
 
     public PaymentDTO()

@@ -52,7 +52,7 @@ public class BillController
     {
         var userId = this.jwtService.getUserIdFromToken(request);
 
-        if (this.billService.existsByNumberAndUserId(number, userId))
+        if (!this.billService.existsByNumberAndUserId(number, userId))
             return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(this.billService.updateBillByNumberAndUserAsDto(toUpdate, userId));

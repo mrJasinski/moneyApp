@@ -30,11 +30,19 @@ class AccountSnapshot
             , final UserSource user)
     {
         this.id = id;
+        checkNameForWhitespaces(name);
         this.name = name;
         this.description = description;
         this.actualBalance = actualBalance;
 //        this.bills = bills;
         this.user = user;
+    }
+
+    void checkNameForWhitespaces(String name)
+    {
+        //        check if account name has whitespaces
+        if  (name.contains(" "))
+            throw new IllegalArgumentException("Account name cannot contain whitespaces!");
     }
 
     public Long getId()

@@ -11,7 +11,6 @@ interface CategoryQueryRepository
     List<CategorySnapshot> findCategoriesByIds(List<Long> catIds);
 
     List<CategoryWithIdAndNameDTO> findCategoriesIdsAndNamesByNamesAndUserId(List<String> catNames, Long userId);
-    List<CategoryWithIdAndNameDTO> findCategoriesIdsAndNamesByUserId(Long userId);
 
     Optional<CategorySnapshot> findById(long categoryId);
 
@@ -21,4 +20,6 @@ interface CategoryQueryRepository
                                                                     , Long subCategoryId
                                                                     , CategoryType type
                                                                     , Long userId);
+
+    Optional<CategorySnapshot> findByNameAndUserId(String nameFromUrlName, Long userId);
 }

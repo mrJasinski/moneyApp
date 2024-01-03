@@ -68,9 +68,19 @@ class BillSnapshot
         return this.payee;
     }
 
+    Long getPayeeId()
+    {
+        return this.payee.getId();
+    }
+
     AccountSource getAccount()
     {
         return this.account;
+    }
+
+    Long getAccountId()
+    {
+        return this.account.getId();
     }
 
     BudgetSource getBudget()
