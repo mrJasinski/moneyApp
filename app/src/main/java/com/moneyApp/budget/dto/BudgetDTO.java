@@ -35,22 +35,6 @@ public class BudgetDTO
         this.description = description;
     }
 
-    public BudgetDTO(
-            LocalDate monthYear
-            , double plannedIncomes
-            , double actualIncomes
-            , double plannedExpenses
-            , double actualExpenses)
-    {
-
-        this.monthYear = checkIfMonthYearHasCorrectFormat(monthYear);
-        this.plannedIncomes = Utils.roundToTwoDecimals(plannedIncomes);
-        this.actualIncomes = Utils.roundToTwoDecimals(actualIncomes);
-        this.plannedExpenses = Utils.roundToTwoDecimals(plannedExpenses);
-        this.actualExpenses = Utils.roundToTwoDecimals(actualExpenses);
-        this.actualSum = Utils.roundToTwoDecimals(this.plannedIncomes - this.plannedExpenses);
-    }
-
     public BudgetDTO(LocalDate monthYear, String description, List<BudgetPositionDTO> positions)
     {
         this(monthYear, description);

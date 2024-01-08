@@ -77,8 +77,6 @@ public class CategoryService
 
     MainCategorySnapshot getMainCategoryByNameAndUserId(String name, long userId)
     {
-//        TODO zmienić wszystkie orElse na orElseGet
-//        orElse ma wartość domyślną którą zawsze wypluwa
         return this.mainCategoryQueryRepo.findByNameAndUserId(name, userId)
                 .orElseGet(() -> createMainCategoryByNameAndUserId(name, userId));
     }
@@ -91,7 +89,6 @@ public class CategoryService
 
     MainCategorySnapshot createMainCategoryByNameAndUserId(String name, long userId)
     {
-//        TODO set<subcats>
         return this.mainCategoryRepo.save(new MainCategorySnapshot(0L, name, new HashSet<>(), new UserSource(userId)));
     }
 
@@ -144,13 +141,6 @@ public class CategoryService
                 .stream()
                 .map(this::toDto)
                 .toList();
-    }
-
-    public CategoryType getCategoryTypeById(final Long categoryId)
-    {
-//        TODO wyjątek
-        return this.categoryQueryRepo.findTypeById(categoryId)
-                .orElseThrow();
     }
 
     public CategoryDTO getCategoryByIdAsDto(final Long categoryId)

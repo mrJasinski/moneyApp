@@ -1,7 +1,6 @@
 package com.moneyApp.account;
 
 import com.moneyApp.account.dto.AccountDTO;
-import com.moneyApp.user.UserService;
 import com.moneyApp.vo.AccountSource;
 import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
@@ -15,10 +14,7 @@ public class AccountService
     private final AccountRepository accountRepo;
     private final AccountQueryRepository accountQueryRepo;
 
-    AccountService(
-            AccountRepository accountRepo
-            , AccountQueryRepository accountQueryRepo
-    )
+    AccountService(AccountRepository accountRepo, AccountQueryRepository accountQueryRepo)
     {
         this.accountRepo = accountRepo;
         this.accountQueryRepo = accountQueryRepo;
@@ -59,8 +55,7 @@ public class AccountService
         return new AccountDTO(
                 snap.getName()
                 , snap.getDescription()
-                , snap.getActualBalance()
-        );
+                , snap.getActualBalance());
     }
 
     public void updateAccountBalanceByAccountId(double sum, long accountId)
@@ -92,5 +87,10 @@ public class AccountService
     {
         return this.accountQueryRepo.findNameById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account with given id not found!"));
+    }
+
+    void deleteAccountByNameAndUserId(final String name, final Long userId)
+    {
+        this.accountRepo.deleteByNameAndUserId(name, userId);
     }
 }

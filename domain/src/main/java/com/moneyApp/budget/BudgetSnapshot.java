@@ -3,6 +3,7 @@ package com.moneyApp.budget;
 import com.moneyApp.vo.UserSource;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 class BudgetSnapshot
@@ -11,7 +12,7 @@ class BudgetSnapshot
     private LocalDate monthYear;    //  day always set to 1 because is ignored
     private String description;
     private UserSource user;
-    private Set<BudgetPositionSnapshot> positions;
+    private Set<BudgetPositionSnapshot> positions = new HashSet<>();
 
     public BudgetSnapshot()
     {
@@ -59,6 +60,11 @@ class BudgetSnapshot
     public UserSource getUser()
     {
         return this.user;
+    }
+
+    Long getUserId()
+    {
+        return this.user.getId();
     }
 
     public Set<BudgetPositionSnapshot> getPositions()

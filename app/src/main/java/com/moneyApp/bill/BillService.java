@@ -80,7 +80,6 @@ public class BillService
 
     BillDTO toDto(BillSnapshot snap)
     {
-
         var gainerIds = snap.getPositions()
                         .stream()
                         .map(BillPositionSnapshot::getGainerId)
@@ -110,8 +109,7 @@ public class BillService
 
     BillDTO updateBillByNumberAndUserAsDto(final BillDTO toUpdate, final Long userId)
     {
-        var bill = this.billQueryRepo.findByNumberAndUserId(toUpdate.getNumber(), userId)
-                .orElseThrow(() -> new IllegalArgumentException("Bill with given number not found!"));
+        var bill = getBillByNumberAndUserId(toUpdate.getNumber(), userId);
 
         var gainerNames = toUpdate.getPositions()
                 .stream()
@@ -122,7 +120,6 @@ public class BillService
 
         var billNumber = toUpdate.getNumber();
         var budget = bill.getBudget();
-
 
         if (bill.getBillDate().getYear() != toUpdate.getDate().getYear() || bill.getBillDate().getMonthValue() != toUpdate.getDate().getMonthValue())
         {
@@ -183,7 +180,7 @@ public class BillService
 
         return this.billQueryRepo.findBillCountBetweenDatesAndUserId(startDate, endDate, userId);
     }
-//TODO do takich dto to pewnie by dobrze siadły projekcje?
+
     BillDTO getBillByNumberAndUserIdAsDto(final String number, final Long userId)
     {
         return toDto(getBillByNumberAndUserId(number, userId));
@@ -197,7 +194,7 @@ public class BillService
     BillSnapshot getBillByNumberAndUserId(final String number, final Long userId)
     {
         return this.billQueryRepo.findByNumberAndUserId(number, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Bill with given number and user not found!"));
+                .orElseThrow(() -> new IllegalArgumentException("Bill with given number not found!"));
     }
 
     public Set<BillWithSumsDTO> getBudgetPositionsIdsWithSumsByBillPositionIds(final List<Long> billPosIds)

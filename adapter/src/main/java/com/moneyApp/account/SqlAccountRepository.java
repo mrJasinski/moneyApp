@@ -16,4 +16,12 @@ interface SqlAccountRepository extends AccountRepository, JpaRepository<AccountS
                    "SET a.actualBalance = a.actualBalance + :amount " +
                    "WHERE a.id = :accountId")
     void updateActualBalanceById(Double amount, Long accountId);
+
+    @Transactional
+    @Modifying
+    @Override
+    @Query(value = "DELETE " +
+                   "FROM AccountSnapshot a " +
+                   "WHERE a.name = :name AND a.user.id = :userId")
+    void deleteByNameAndUserId(String name, Long userId);
 }

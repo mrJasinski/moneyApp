@@ -5,7 +5,6 @@ import com.moneyApp.bill.dto.BillPositionDTO;
 import com.moneyApp.budget.dto.BudgetDTO;
 import com.moneyApp.budget.dto.BudgetPositionDTO;
 import com.moneyApp.category.CategoryService;
-import com.moneyApp.category.CategoryType;
 import com.moneyApp.vo.BillPositionSource;
 import com.moneyApp.vo.CategorySource;
 import com.moneyApp.vo.UserSource;
@@ -36,12 +35,12 @@ public class BudgetService
 
     BudgetDTO getBudgetByNumberAndUserIdAsDto(String number, Long userId)
     {
-        return toDto(prepareBudget(getBudgetByNumberAndUserId(number, userId)));
+        return prepareBudgetAsDto(getBudgetByNumberAndUserId(number, userId));
     }
 
     BudgetSnapshot prepareBudget(final BudgetSnapshot budget)
     {
-        var userId = budget.getUser().getId();
+        var userId = budget.getUserId();
         var monthYear = budget.getMonthYear();
 
         this.billService.updateBudgetInBillsByMonthYearAndUserId(monthYear, budget.getId(), userId);
@@ -50,36 +49,20 @@ public class BudgetService
 
         if (!billPositionsDto.isEmpty())
         {
-            var categoriesIdFromBudgetPositions = budget.getPositions()
+            var categoriesIdsFromBudgetPositions = budget.getPositions()
                                                     .stream()
-                                                    .map(BudgetPositionSnapshot::getCategory)
-                                                    .map(CategorySource::getId)
+                                                    .map(BudgetPositionSnapshot::getCategoryId)
                                                     .toList();
 
             var map = new HashMap<Long, List<Long>>();
 
             for (BillPositionDTO bp : billPositionsDto)
             {
-                var billPositionCategoryId = bp.getCategory().getId();
+                var billPositionCategoryId = bp.getCategoryId();
 
-                if (categoriesIdFromBudgetPositions.contains(billPositionCategoryId))
+                if (categoriesIdsFromBudgetPositions.contains(billPositionCategoryId))
                 {
-                    var budgetPosition = budget.getPositions()
-                            .stream()
-                            .filter(p -> p.getCategory().getId().equals(billPositionCategoryId)).
-                            toList()
-                            .get(0);
-
-                    var billPositionId = bp.getId();
-
-                    budgetPosition.addBillPositionSource(new BillPositionSource(billPositionId));
-
-                    var budgetPositionId = budgetPosition.getId();
-
-                    if (!map.containsKey(budgetPosition.getId()))
-                        map.put(budgetPositionId, List.of(billPositionId));
-                    else
-                        map.get(budgetPositionId).add(billPositionId);
+                    updateBudgetPositionsMap(budget.getPositions(), bp, map);
                 }
                 else
                     budget.addPosition(new BudgetPositionSnapshot(
@@ -92,13 +75,7 @@ public class BudgetService
                     ));
             }
 
-            var positionsToSave = budget.getPositions()
-                                    .stream()
-                                    .filter(p -> p.getId() < 1)
-                                    .toList();
-
-//            TODO zapis listy do bazy - najlepiej inny niż iteracji i zapis pojedynczego obiektu
-            positionsToSave.forEach(this::saveBudgetPositionInDb);
+            saveCreatedBudgetPositionsInDb(budget.getPositions());
 
             map.forEach(this.billService::updateBudgetPositionInBillPositionById);
         }
@@ -106,29 +83,66 @@ public class BudgetService
         return budget;
     }
 
-    void saveBudgetPositionsInDb(List<BudgetPositionSnapshot> toSave)
+    void updateBudgetPositionsMap(Set<BudgetPositionSnapshot> budgetPositions, BillPositionDTO  billPosition, Map<Long, List<Long>> map)
     {
-        this.budgetRepo.save(toSave);
+        var budgetPosition = budgetPositions
+                .stream()
+                .filter(p -> p.getCategory().getId().equals(billPosition.getCategoryId()))
+                .toList()
+                .get(0);
+
+        var billPositionId = billPosition.getId();
+
+        budgetPosition.addBillPositionSource(new BillPositionSource(billPositionId));
+
+        var budgetPositionId = budgetPosition.getId();
+
+        if (!map.containsKey(budgetPositionId))
+            map.put(budgetPositionId, new ArrayList<>(List.of(billPositionId)));
+        else
+            map.get(budgetPositionId).add(billPositionId);
     }
 
-    private BudgetPositionSnapshot saveBudgetPositionInDb(BudgetPositionSnapshot toSave)
+    BudgetDTO prepareBudgetAsDto(BudgetSnapshot budget)
     {
-        return this.budgetRepo.save(toSave);
+        return toDto(prepareBudget(budget));
+    }
+
+    void saveCreatedBudgetPositionsInDb(Set<BudgetPositionSnapshot> positions)
+    {
+        filterPositionsToBeSaved(positions)
+                .forEach(this.budgetRepo::save);
+    }
+
+    List<BudgetPositionSnapshot> filterPositionsToBeSaved(Set<BudgetPositionSnapshot> positions)
+    {
+        return positions
+                .stream()
+                .filter(p -> p.getId() < 1)
+                .toList();
     }
 
     BudgetSnapshot getBudgetByNumberAndUserId(String number, Long userId)
     {
         var monthYear = getBudgetMonthYearByNumber(number);
 
+        return getBudgetByMonthYearAndUserId(monthYear, userId);
+    }
+
+    BudgetSnapshot getBudgetByMonthYearAndUserId(LocalDate monthYear, Long userId)
+    {
         return this.budgetQueryRepo.findByMonthYearAndUserId(monthYear, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Budget for given monthYear and user id not found!"));
     }
 
     LocalDate getBudgetMonthYearByNumber(String number)
     {
-//        check if budget number has correct format (6 digits)
-        if (!(number.length() == 6 || !number.matches("\\d+")))
-            throw new IllegalArgumentException("Wrong budget number!");
+//        check if budget number has correct format
+        if (!number.matches("\\d+"))
+            throw new IllegalArgumentException("Budget number has to contain digits only!");
+
+        if (!(number.length() == 6))
+            throw new IllegalArgumentException("Budget number should be six chars long!");
 
         var month = Integer.parseInt(number.substring(0, 2));
         var year = Integer.parseInt(number.substring(2, 6));
@@ -140,14 +154,16 @@ public class BudgetService
     {
         return this.budgetQueryRepo.findAllByUserId(userId)
                 .stream()
-                .map(this::prepareBudget)
-                .map(this::toDto)
+                .map(this::prepareBudgetAsDto)
                 .collect(Collectors.toList());
     }
 
     BudgetDTO toDto(BudgetSnapshot budget)
     {
-        var catIds = budget.getPositions().stream().map(BudgetPositionSnapshot::getCategory).map(CategorySource::getId).toList();
+        var catIds = budget.getPositions()
+                .stream()
+                .map(BudgetPositionSnapshot::getCategoryId)
+                .toList();
 
         var categories = this.categoryService.getCategoriesByIdsAsDto(catIds);
 
@@ -167,8 +183,7 @@ public class BudgetService
                 , budget.getPositions()
                     .stream()
                     .map(p -> new BudgetPositionDTO(
-                            categories.stream().filter(c -> p.getCategory().getId().equals(c.getId())).toList().get(0).getName()
-                            , categories.stream().filter(c -> p.getCategory().getId().equals(c.getId())).toList().get(0).getType()
+                            categories.stream().filter(c -> p.getCategory().getId().equals(c.getId())).toList().get(0)
                             , p.getPlannedAmount()
                             , budPos.stream().filter( b -> p.getId().equals(b.getBudgetPositionId())).toList().get(0).getSum()
                             , p.getDescription()
@@ -180,45 +195,19 @@ public class BudgetService
     {
         var monthYear = convertDateToMonthYear(date);
 
-        var budget = this.budgetQueryRepo.findByMonthYearAndUserId(monthYear, userId)
-                .orElseGet(BudgetSnapshot::new);
+        try
+        {
+            var budget = getBudgetByMonthYearAndUserId(monthYear, userId);
 
-        if (budget.getId() == null)
+            return prepareBudgetAsDto(budget);
+        }
+        catch (IllegalArgumentException ex)
+        {
             return new BudgetDTO();
-
-//        if (!this.budgetQueryRepo.existsByMonthYearAndUserId(monthYear, userId))
-//            throw new IllegalArgumentException("Budget for given monthYear not found!");
-
-//        var actualValues = this.billService.getXXXNoNameYetByMonthYearAndUserId(monthYear, userId);
-////        TODO
-////        wyjątek
-////        też sprawdzenie czy nie trzeba utworzyć pozycji budżetu
-//        var budget = this.budgetQueryRepo.findByMonthYearAndUserId(monthYear, userId)
-//                .orElseThrow(() -> new IllegalArgumentException("Exception!"));
-//
-//        var plannedIncomes = budget.getPositions()
-//                .stream()
-//                .filter(p -> this.categoryService.getCategoryTypeById(p.getCategory().getId()).equals(CategoryType.INCOME))
-//                .mapToDouble(BudgetPositionSnapshot::getPlannedAmount)
-//                .sum();
-//
-//        var plannedExpenses = budget.getPositions()
-//                .stream()
-//                .filter(p -> this.categoryService.getCategoryTypeById(p.getCategory().getId()).equals(CategoryType.EXPENSE))
-//                .mapToDouble(BudgetPositionSnapshot::getPlannedAmount)
-//                .sum();
-//
-//        return new BudgetDTO(
-//                date
-//                , plannedIncomes
-//                , actualValues.incomes()
-//                , plannedExpenses
-//                , actualValues.expenses());
-
-        return toDto(prepareBudget(budget));
+        }
     }
 
-    private LocalDate convertDateToMonthYear(final LocalDate date)
+    LocalDate convertDateToMonthYear(final LocalDate date)
     {
         if (date.getDayOfMonth() != 1)
             return LocalDate.of(date.getYear(), date.getMonthValue(), 1);

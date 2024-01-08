@@ -72,9 +72,9 @@ public class BillPositionDTO
         return this.category;
     }
 
-     public String getCategoryName()
+     public Long getCategoryId()
     {
-        return this.categoryName;
+        return this.category.getId();
     }
 
     public String getGainerName()

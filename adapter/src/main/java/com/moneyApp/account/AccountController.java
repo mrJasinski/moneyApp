@@ -32,9 +32,10 @@ class AccountController
     }
 
     @DeleteMapping("/deleteAccount")
-    ResponseEntity<?> deleteAccount(HttpServletRequest request)
+    ResponseEntity<?> deleteAccount(@RequestParam String name, HttpServletRequest request)
     {
-//        TODO
+        this.accountService.deleteAccountByNameAndUserId(name, this.jwtService.getUserIdFromToken(request));
+
         return ResponseEntity.ok("Account successfully deleted");
     }
 

@@ -118,8 +118,8 @@ class Payment
 
             return generator.nextInt(99, 1000);
         }
-//TODO generowanie hasha w konstruktorze bądź okolicy
-        public int hashCode(int random)
+
+        int hashCode(int random)
         {
             return Objects.hash(this.paymentDate, random);
         }

@@ -32,10 +32,6 @@ public class MoneyAppAuthenticationManager implements AuthenticationManager
     {
         var username = authentication.getName();
         var pwd = authentication.getCredentials().toString();
-//        TODO test
-        System.out.println("username auth mgr");
-        System.out.println(username);
-
 
         var user = this.service.getUserByEmailAsDto(username);
 

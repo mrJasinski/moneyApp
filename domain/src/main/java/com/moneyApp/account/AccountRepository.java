@@ -6,5 +6,5 @@ interface AccountRepository
 
     void updateActualBalanceById(Double amount, Long accountId);
 
-//    Account update(Account account);
+    void deleteByNameAndUserId(String name, Long userId);
 }

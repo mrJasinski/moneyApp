@@ -61,6 +61,11 @@ class BudgetPositionSnapshot
         return this.category;
     }
 
+    Long getCategoryId()
+    {
+        return this.category.getId();
+    }
+
     public Double getPlannedAmount()
     {
         return this.plannedAmount;
