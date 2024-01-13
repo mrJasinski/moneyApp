@@ -59,8 +59,8 @@ class Bill
     {
         return new BillSnapshot(
                 this.id
-                , this.number
                 , this.billDate
+                , this.number
                 , this.payee
                 , this.account
                 , this.budget

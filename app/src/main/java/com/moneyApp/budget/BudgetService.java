@@ -49,33 +49,31 @@ public class BudgetService
 
         if (!billPositionsDto.isEmpty())
         {
-            var categoriesIdsFromBudgetPositions = budget.getPositions()
-                                                    .stream()
-                                                    .map(BudgetPositionSnapshot::getCategoryId)
-                                                    .toList();
+            var categoriesIdsFromBudgetPositions = extractCategoriesIdsFromBudgetPositions(budget.getPositions());
 
-            var map = new HashMap<Long, List<Long>>();
+            var map = new HashMap<Long, Set<Long>>();
 
             for (BillPositionDTO bp : billPositionsDto)
             {
                 var billPositionCategoryId = bp.getCategoryId();
 
-                if (categoriesIdsFromBudgetPositions.contains(billPositionCategoryId))
+                if (!categoriesIdsFromBudgetPositions.contains(billPositionCategoryId))
                 {
-                    updateBudgetPositionsMap(budget.getPositions(), bp, map);
-                }
-                else
-                    budget.addPosition(new BudgetPositionSnapshot(
+                    var budPos = new BudgetPositionSnapshot(
                             0L
                             , new CategorySource(billPositionCategoryId)
                             , 0d
                             , ""
                             , budget
-                            , Set.of(new BillPositionSource(bp.getId()))
-                    ));
-            }
+                            , Set.of(new BillPositionSource(bp.getId())));
 
-            saveCreatedBudgetPositionsInDb(budget.getPositions());
+                    budget.addPosition(budPos);
+
+                    this.budgetRepo.save(budPos);
+                }
+
+                updateBudgetPositionsMap(budget.getPositions(), bp, map);
+            }
 
             map.forEach(this.billService::updateBudgetPositionInBillPositionById);
         }
@@ -83,7 +81,7 @@ public class BudgetService
         return budget;
     }
 
-    void updateBudgetPositionsMap(Set<BudgetPositionSnapshot> budgetPositions, BillPositionDTO  billPosition, Map<Long, List<Long>> map)
+    void updateBudgetPositionsMap(Set<BudgetPositionSnapshot> budgetPositions, BillPositionDTO  billPosition, Map<Long, Set<Long>> map)
     {
         var budgetPosition = budgetPositions
                 .stream()
@@ -98,28 +96,22 @@ public class BudgetService
         var budgetPositionId = budgetPosition.getId();
 
         if (!map.containsKey(budgetPositionId))
-            map.put(budgetPositionId, new ArrayList<>(List.of(billPositionId)));
+            map.put(budgetPositionId, Set.of(billPositionId));
         else
             map.get(budgetPositionId).add(billPositionId);
+    }
+
+    List<Long> extractCategoriesIdsFromBudgetPositions(Set<BudgetPositionSnapshot> positions)
+    {
+        return positions
+                .stream()
+                .map(BudgetPositionSnapshot::getCategoryId)
+                .toList();
     }
 
     BudgetDTO prepareBudgetAsDto(BudgetSnapshot budget)
     {
         return toDto(prepareBudget(budget));
-    }
-
-    void saveCreatedBudgetPositionsInDb(Set<BudgetPositionSnapshot> positions)
-    {
-        filterPositionsToBeSaved(positions)
-                .forEach(this.budgetRepo::save);
-    }
-
-    List<BudgetPositionSnapshot> filterPositionsToBeSaved(Set<BudgetPositionSnapshot> positions)
-    {
-        return positions
-                .stream()
-                .filter(p -> p.getId() < 1)
-                .toList();
     }
 
     BudgetSnapshot getBudgetByNumberAndUserId(String number, Long userId)
@@ -150,9 +142,14 @@ public class BudgetService
         return LocalDate.of(year, month, 1);
     }
 
+    List<BudgetSnapshot> getBudgetsByUserId(Long userId)
+    {
+        return this.budgetQueryRepo.findAllByUserId(userId);
+    }
+
     List<BudgetDTO> getBudgetsByUserIdAsDto(Long userId)
     {
-        return this.budgetQueryRepo.findAllByUserId(userId)
+        return getBudgetsByUserId(userId)
                 .stream()
                 .map(this::prepareBudgetAsDto)
                 .collect(Collectors.toList());
@@ -160,10 +157,7 @@ public class BudgetService
 
     BudgetDTO toDto(BudgetSnapshot budget)
     {
-        var catIds = budget.getPositions()
-                .stream()
-                .map(BudgetPositionSnapshot::getCategoryId)
-                .toList();
+        var catIds = extractCategoriesIdsFromBudgetPositions(budget.getPositions());
 
         var categories = this.categoryService.getCategoriesByIdsAsDto(catIds);
 
@@ -172,8 +166,10 @@ public class BudgetService
         budget.getPositions().forEach(p -> p.addBillPositionSources(this.billService.getBillPositionSourcesByBudgetPositionId(p.getId())));
 
         for (BudgetPositionSnapshot bp : budget.getPositions())
-                for (BillPositionSource b : bp.getBillPositions())
-                    billPosIds.add(b.getId());
+            billPosIds.addAll(bp.getBillPositions()
+                    .stream()
+                    .map(BillPositionSource::getId)
+                    .toList());
 
         var budPos = this.billService.getBudgetPositionsIdsWithSumsByBillPositionIds(billPosIds);
 
@@ -215,18 +211,23 @@ public class BudgetService
         return date;
     }
 
-    BudgetDTO createBudgetByUserIdAsDto(final BudgetDTO toSave, final Long userId)
+    BudgetSnapshot createBudgetByUserId(final BudgetDTO toSave, final Long userId)
     {
 //        check if budget for given month already exists in database for user
         if (this.budgetQueryRepo.existsByMonthYearAndUserId(toSave.getMonthYear(), userId))
-           throw new IllegalArgumentException("Budget for given month and year already exists!");
+            throw new IllegalArgumentException("Budget for given month and year already exists!");
 
-        return toDto(this.budgetRepo.save(new BudgetSnapshot(
+        return this.budgetRepo.save(new BudgetSnapshot(
                 0L
                 , toSave.getMonthYear()
                 , toSave.getDescription()
                 , new UserSource(userId)
-                , new HashSet<>())));
+                , new HashSet<>()));
+    }
+
+    BudgetDTO createBudgetByUserIdAsDto(final BudgetDTO toSave, final Long userId)
+    {
+        return toDto(createBudgetByUserId(toSave, userId));
     }
 
     void deleteBudgetByNumberAndUserId(final String number, final Long userId)

@@ -29,7 +29,7 @@ class BudgetSnapshot
         this.monthYear = monthYear;
         this.description = description;
         this.user = user;
-        this.positions = positions;
+        addPositions(positions);
     }
 
     void addPositions(final Set<BudgetPositionSnapshot> positions)

@@ -1,6 +1,7 @@
 package com.moneyApp.bill;
 
 import java.util.List;
+import java.util.Set;
 
 interface BillRepository
 {
@@ -8,7 +9,7 @@ interface BillRepository
 
     void deleteByNumberAndUserId(String number, Long userId);
 
-    void updateBudgetPositionInBillPositionByIds(Long budgetPositionId, List<Long> billPositionIds);
+    void updateBudgetPositionInBillPositionByIds(Long budgetPositionId, Set<Long> billPositionIds);
 
     void updateBudgetInBills(long budgetId, List<Long> billIds);
 }

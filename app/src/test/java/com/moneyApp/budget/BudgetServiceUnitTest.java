@@ -24,55 +24,25 @@ import static org.mockito.Mockito.mock;
 class BudgetServiceUnitTest
 {
     @Test
-    void prepareBudget_shouldReturnBudgetWithSamePositionsAmountWhenNoBillPositionsWithoutBudgetPositionIdFoundForGivenBudget()
+    void prepareBudget_shouldCreateNewBudgetPositionAndAddItToBudgetIfBudgetPositionForGivenCategoryDoesNotExist()
     {
 //        given
-        var positions = Set.of(new BudgetPositionSnapshot());
+        var budgetPosition = new BudgetPositionSnapshot(9L, new CategorySource(3L), 0d, "", null, new HashSet<>());
+        var positions = Set.of(budgetPosition);
+        var budget = new BudgetSnapshot(5L, LocalDate.now(), "", new UserSource(4L), positions);
 
-        var budget = new BudgetSnapshot(5L, LocalDate.now(), "", new UserSource(2L), positions);
-
-        var mockBillService = mock(BillService.class);
-        given(mockBillService.getBillPositionsWithoutBudgetPositionByMonthYearAndUserIdAsDto(any(), anyLong())).willReturn(new ArrayList<>());
-
-//        system under test
-        var toTest = new BudgetService(null, null, mockBillService, null);
-
-//        when
-        var result = toTest.prepareBudget(budget);
-
-//        then
-        assertEquals(1, result.getPositions().size());
-    }
-//gdy catId jest takie samo powinna się zwiększyć ilość billPos w stosownej budPos
-    @Test
-    void prepareBudget_shouldReturnBudgetWithSamePositionsAmountAndIncreaseBillPositionsInBudgetPositionsWhenBillPositionsWithoutBudgetPositionIdFoundForGivenBudgetAndBudgetDoesHavePositionsForAllBillsCategories()
-    {
-
-    }
-//    jeśli jest inne to powinno się zwiększyć ilość budPos
-    @Test
-    void prepareBudget_shouldReturnBudgetWithIncreasedPositionsAmountWhenBillPositionsWithoutBudgetPositionIdFoundForGivenBudgetAndBudgetDoesNotHavePositionsForAllBillsCategories()
-    {
-//        given
-        var budget = new BudgetSnapshot(5L, LocalDate.now(), "", new UserSource(2L), new HashSet<>());
-
-        var positions = Set.of(new BudgetPositionSnapshot(2L, new CategorySource(1L), 0d, "", null, new HashSet<>()));
-
-        budget.addPositions(positions);
-
-        var billPosition1 = BillPositionDTO.builder()
-                .withId(2L)
-                .withAmount(10d)
-                .withDate(LocalDate.now())
-                .withCategory(new CategoryDTO(8L, ""))
-                .build();
-
-        var billPositions = List.of(billPosition1);
+        var initPositionsSize = budget.getPositions().size();
 
         var mockBudgetRepo = mock(BudgetRepository.class);
 
+        var billPosition = BillPositionDTO.builder()
+                .withId(2L)
+                .withCategory(new CategoryDTO(1L, ""))
+                .build();
+
         var mockBillService = mock(BillService.class);
-        given(mockBillService.getBillPositionsWithoutBudgetPositionByMonthYearAndUserIdAsDto(any(), anyLong())).willReturn(billPositions);
+        given(mockBillService.getBillPositionsWithoutBudgetPositionByMonthYearAndUserIdAsDto(any(), anyLong()))
+                .willReturn(List.of(billPosition));
 
 //        system under test
         var toTest = new BudgetService(mockBudgetRepo, null, mockBillService, null);
@@ -81,75 +51,127 @@ class BudgetServiceUnitTest
         var result = toTest.prepareBudget(budget);
 
 //        then
-        assertEquals(2, result.getPositions().size());
+        assertEquals(initPositionsSize + positions.size(), result.getPositions().size());
     }
 
+    @Test
+    void prepareBudget_shouldNotCreateNewBudgetPositionIfBudgetPositionForGivenCategoryExists()
+    {
+//        given
+        var budgetPosition = new BudgetPositionSnapshot(9L, new CategorySource(1L), 0d, "", null, new HashSet<>());
 
-//    BudgetSnapshot prepareBudget(final BudgetSnapshot budget)
+        var budget = new BudgetSnapshot(5L, LocalDate.now(), "", new UserSource(4L), Set.of(budgetPosition));
+
+        var initPositionsSize = budget.getPositions().size();
+
+        var mockBudgetRepo = mock(BudgetRepository.class);
+
+        var billPosition = BillPositionDTO.builder()
+                .withId(2L)
+                .withCategory(new CategoryDTO(1L, ""))
+                .build();
+
+        var mockBillService = mock(BillService.class);
+        given(mockBillService.getBillPositionsWithoutBudgetPositionByMonthYearAndUserIdAsDto(any(), anyLong()))
+                .willReturn(List.of(billPosition));
+
+//        system under test
+        var toTest = new BudgetService(mockBudgetRepo, null, mockBillService, null);
+
+//        when
+        var result = toTest.prepareBudget(budget);
+
+//        then
+        assertEquals(initPositionsSize, result.getPositions().size());
+    }
+
+//BudgetSnapshot prepareBudget(final BudgetSnapshot budget)
 //    {
-//        var userId = budget.getUser().getId();
+//        var userId = budget.getUserId();
 //        var monthYear = budget.getMonthYear();
 //
 //        this.billService.updateBudgetInBillsByMonthYearAndUserId(monthYear, budget.getId(), userId);
 //
 //        var billPositionsDto = this.billService.getBillPositionsWithoutBudgetPositionByMonthYearAndUserIdAsDto(monthYear, userId);
 //
-//        if (!billPositionsDto.isEmpty())
+// if (!billPositionsDto.isEmpty())
 //        {
-//            var categoriesIdFromBudgetPositions = budget.getPositions()
-//                                                    .stream()
-//                                                    .map(BudgetPositionSnapshot::getCategory)
-//                                                    .map(CategorySource::getId)
-//                                                    .toList();
+//            var categoriesIdsFromBudgetPositions = extractCategoriesIdsFromBudgetPositions(budget.getPositions());
 //
-//            var map = new HashMap<Long, List<Long>>();
+//            var map = new HashMap<Long, Set<Long>>();
 //
 //            for (BillPositionDTO bp : billPositionsDto)
 //            {
-//                var billPositionCategoryId = bp.getCategory().getId();
+//                var billPositionCategoryId = bp.getCategoryId();
 //
-//                if (categoriesIdFromBudgetPositions.contains(billPositionCategoryId))
+//                if (!categoriesIdsFromBudgetPositions.contains(billPositionCategoryId))
 //                {
-//                    var budgetPosition = budget.getPositions()
-//                            .stream()
-//                            .filter(p -> p.getCategory().getId().equals(billPositionCategoryId)).
-//                            toList()
-//                            .get(0);
-//
-//                    var billPositionId = bp.getId();
-//
-//                    budgetPosition.addBillPositionSource(new BillPositionSource(billPositionId));
-//
-//                    var budgetPositionId = budgetPosition.getId();
-//
-//                    if (!map.containsKey(budgetPositionId))
-//                        map.put(budgetPositionId, new ArrayList<>(List.of(billPositionId)));
-//                    else
-//                        map.get(budgetPositionId).add(billPositionId);
-//                }
-//                else
-//                    budget.addPosition(new BudgetPositionSnapshot(
+//                    var budPos = new BudgetPositionSnapshot(
 //                            0L
 //                            , new CategorySource(billPositionCategoryId)
 //                            , 0d
 //                            , ""
 //                            , budget
-//                            , Set.of(new BillPositionSource(bp.getId()))
-//                    ));
+//                            , Set.of(new BillPositionSource(bp.getId())));
+//
+//                    budget.addPosition(budPos);
+//
+//                    this.budgetRepo.save(budPos);
+//                }
+//
+//                updateBudgetPositionsMap(budget.getPositions(), bp, map);
 //            }
-//
-//            var positionsToSave = budget.getPositions()
-//                                    .stream()
-//                                    .filter(p -> p.getId() < 1)
-//                                    .toList();
-//
-//            positionsToSave.forEach(this::saveBudgetPositionInDb);
 //
 //            map.forEach(this.billService::updateBudgetPositionInBillPositionById);
 //        }
 //
 //        return budget;
 //    }
+
+    @Test
+    void updateBudgetPositionsMap_shouldPutKVPairInMapIfMapDoesNotContainGivenBudgetPosition()
+    {
+//        given
+        var map = new HashMap<Long, Set<Long>>();
+        var budgetPositions = Set.of(new BudgetPositionSnapshot(1L, new CategorySource(2L), 0d, "", null, new HashSet<>()));
+        var billPosition = BillPositionDTO.builder()
+                .withId(3L)
+                .withCategory(new CategoryDTO(2L, ""))
+                .build();
+
+//        system under test
+        var toTest = new BudgetService(null, null, null, null);
+
+//        when
+        toTest.updateBudgetPositionsMap(budgetPositions, billPosition, map);
+
+//        then
+        assertEquals(1, map.size());
+        assertEquals(1, map.get(1L).size());
+    }
+
+    @Test
+    void updateBudgetPositionsMap_shouldAddBillPositionToValueInMapIfMapContainsGivenBudgetPosition()
+    {
+//        given
+        var map = new HashMap<Long, Set<Long>>();
+        map.put(1L, Set.of(5L));
+        var budgetPositions = Set.of(new BudgetPositionSnapshot(1L, new CategorySource(2L), 0d, "", null, new HashSet<>()));
+        var billPosition = BillPositionDTO.builder()
+                .withId(3L)
+                .withCategory(new CategoryDTO(2L, ""))
+                .build();
+
+//        system under test
+        var toTest = new BudgetService(null, null, null, null);
+
+//        when
+        toTest.updateBudgetPositionsMap(budgetPositions, billPosition, map);
+
+//        then
+        assertEquals(1, map.size());
+        assertEquals(2, map.get(1L).size());
+    }
 
     @Test
     void getBudgetByNumberAndUserId_shouldThrowExceptionWhenBudgetForGivenNumberNotFound()

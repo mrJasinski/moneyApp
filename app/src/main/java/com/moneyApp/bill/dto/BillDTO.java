@@ -28,6 +28,7 @@ public class BillDTO
             , final String payeeName
             , final String accountName
             , final String description
+            , final Double billSum
             , final List<BillPositionDTO> positions)
     {
         this.id = id;
@@ -36,22 +37,8 @@ public class BillDTO
         this.payeeName = payeeName;
         this.accountName = accountName;
         this.description = description;
+        this.billSum = billSum;
         this.positions = positions;
-        this.billSum = sumBillPositionsAmounts();
-    }
-
-    private Double sumBillPositionsAmounts()
-    {
-        var sum = 0d;
-
-        for (BillPositionDTO bp : this.positions)
-            switch (bp.getCategory().getType())
-            {
-                case EXPENSE :  sum -= bp.getAmount();
-                case INCOME : sum += bp.getAmount();
-            }
-
-        return sum;
     }
 
     public BillSource toSource()
@@ -107,6 +94,7 @@ public class BillDTO
         private String payeeName;
         private String accountName;
         private String description;
+        private Double billSum;
         List<BillPositionDTO> positions;
 
         public Builder withId(Long id)
@@ -145,6 +133,12 @@ public class BillDTO
             return this;
         }
 
+        public Builder withBillSum(Double billSum)
+        {
+            this.billSum = billSum;
+            return this;
+        }
+
         public Builder withPositions(List<BillPositionDTO> positions)
         {
             this.positions = positions;
@@ -153,7 +147,7 @@ public class BillDTO
 
         public BillDTO build()
         {
-            return new BillDTO(this.id, this.number, this.date, this.payeeName, this.accountName, this.description, this.positions);
+            return new BillDTO(this.id, this.number, this.date, this.payeeName, this.accountName, this.description, this.billSum, this.positions);
         }
 
     }

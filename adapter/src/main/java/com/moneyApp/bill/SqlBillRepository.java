@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 interface SqlBillRepository extends BillRepository, JpaRepository<BillSnapshot, Long>
@@ -18,7 +19,7 @@ interface SqlBillRepository extends BillRepository, JpaRepository<BillSnapshot, 
                    "SET b.budget_position_id = :budgetPositionId " +
                    "WHERE id IN :billPositionIds"
                     , nativeQuery = true)
-    void updateBudgetPositionInBillPositionByIds(Long budgetPositionId, List<Long> billPositionIds);
+    void updateBudgetPositionInBillPositionByIds(Long budgetPositionId, Set<Long> billPositionIds);
 
     @Transactional
     @Modifying

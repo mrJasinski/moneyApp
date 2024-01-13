@@ -163,4 +163,10 @@ public class CategoryService
 
         return result;
     }
+
+    public CategoryType getCategoryTypeById(final Long categoryId)
+    {
+        return this.categoryQueryRepo.findTypeById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category type for given id not found!"));
+    }
 }

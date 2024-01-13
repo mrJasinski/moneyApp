@@ -12,8 +12,8 @@ import java.util.Set;
 class BillSnapshot
 {
     private Long id;
-    private String number;  // format yearMonthValue_number(counted bills in given month + 1)
     private LocalDate billDate;
+    private String number;  // format yearMonthValue_number(counted bills in given month + 1)
     private PayeeSource payee;
     private AccountSource account;
     private BudgetSource budget;
@@ -28,8 +28,8 @@ class BillSnapshot
 
     BillSnapshot(
             final Long id
-            , final String number
             , final LocalDate billDate
+            , final String number
             , final PayeeSource payee
             , final AccountSource account
             , final BudgetSource budget
@@ -38,14 +38,23 @@ class BillSnapshot
             , final UserSource user)
     {
         this.id = id;
-        this.number = number;
         this.billDate = billDate;
+        this.number = generateNumber(number);
         this.payee = payee;
         this.account = account;
         this.budget = budget;
         this.description = description;
         this.positions.addAll(positions);
         this.user = user;
+    }
+
+//    TODO rozwazania
+    String generateNumber(String number)
+    {
+        if (!number.contains("_"))
+            return String.format("%s%s_%s", this.billDate.getYear(), this.billDate.getMonthValue(), number);
+
+        return number;
     }
 
     Long getId()
