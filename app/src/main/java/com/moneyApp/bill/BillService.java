@@ -85,14 +85,9 @@ public class BillService
 
     BillDTO toDto(BillSnapshot snap)
     {
-        var gainerIds = snap.getPositions()
-                        .stream()
-                        .map(BillPositionSnapshot::getGainerId)
-                        .toList();
+        var gainers = this.payeeService.getPayeesByIdsAsDto(snap.getGainerIds());
 
-        var gainers = this.payeeService.getPayeesByIdsAsDto(gainerIds);
-
-      return BillDTO.builder()
+        return BillDTO.builder()
                 .withId(snap.getId())
                 .withNumber(snap.getNumber())
                 .withDate(snap.getBillDate())
@@ -113,22 +108,18 @@ public class BillService
     }
 
 //    TODO konkretna nazwa
-    BillDTO returnBillDTO(BillDTO toSave, Long userId)
+    BillSnapshot saveBill(BillDTO toSave, Long userId)
     {
         var payee = this.payeeService.getPayeeSourceByNameAndUserId(toSave.getPayeeName(), userId);
         var account = this.accountService.getAccountSourceByNameAndUserId(toSave.getAccountName(), userId);
 
-        var gainerNames = toSave.getPositions()
-                            .stream()
-                            .map(BillPositionDTO::getGainerName)
-                            .toList();
+        var gainerNames = toSave.getGainerNames();
 
         var gainers = this.payeeService.getPayeesByNamesAndUserIdAsDto(gainerNames, userId);
 
         var toSaveDate = toSave.getDate();
 
         long billId;
-        int count;
         String billNumber;
         BudgetSource budget;
         var oldBillSum = 0d;
@@ -139,30 +130,23 @@ public class BillService
         {
             var bill = getBillByNumberAndUserId(toSave.getNumber(), userId);
 
-            billId = bill.getId();
-            billNumber = bill.getNumber();
-            budget = bill.getBudget();
             var billDate = bill.getBillDate();
-
-            oldBillSum = sumBillPositionsAmounts(bill);
-
             monthYearMatches = checkIfMonthYearMatch(billDate, toSaveDate);
 
-            if (!monthYearMatches)
-            {
-                //        +1 so lowest number (for first bill in month) is 1
-                count = getBillCountByMonthYearAndUserId(toSaveDate, userId) + 1;
-                billNumber = String.valueOf(count);
-                budget = null;
-            }
+            billId = bill.getId();
+            billNumber = monthYearMatches ? bill.getNumber() : setBillsCountAsBillNumber(toSaveDate, userId);
+            budget = monthYearMatches ? bill.getBudget() : null;
+
+            oldBillSum = sumBillPositionsAmounts(bill);
         }
         catch (IllegalArgumentException ex)
         {
             billId = 0L;
-            count = getBillCountByMonthYearAndUserId(toSaveDate, userId) + 1;
-            billNumber = String.valueOf(count);
+            billNumber = setBillsCountAsBillNumber(toSaveDate, userId);
             budget = null;
         }
+//TODO jak to obejść?
+        final boolean finalMonthYearMatches = monthYearMatches;
 
         var result = this.billRepo.save(new BillSnapshot(
                 billId
@@ -175,23 +159,13 @@ public class BillService
                 , toSave.getPositions()
                     .stream()
                     .map(dto ->
-                        {
-//                            null jest w przypadku gdy zmienia się data -> patrz flaga oraz nowoutworzonego
-                            BudgetPositionSource budgetPosition = null;
-                            if (monthYearMatches)
-                                budgetPosition = bill.getPositions().stream().toList().get(Math.toIntExact(dto.getId())).getBudgetPosition();
+                    {
+                        var index = toSave.getPositionIndex(dto);
+                        //                                    TODO czy tu się też nie oprzeć o obiekt jak w przypadku category?
+                        var gainerId = gainers.stream().filter(g -> dto.getGainerName().equals(g.getName())).toList().get(0).getId();
 
-                            return new BillPositionSnapshot(
-                                    dto.getId() == null ? 0L : dto.getId()
-                                    , dto.getNumber() == null ? toSave.getPositions().indexOf(dto) + 1 : dto.getNumber()
-                                    , dto.getAmount()
-                                    , new CategorySource(dto.getCategory().getId())
-//                                    TODO czy tu się też nie oprzeć o obiekt jak w przypadku category?
-                                    , new PayeeSource(gainers.stream().filter(p -> dto.getGainerName().equals(p.getName())).toList().get(0).getId())
-                                    , dto.getDescription()
-                                    , budgetPosition
-                            );
-                        })
+                       return prepareBillPosition(dto, finalMonthYearMatches, index, gainerId);
+                    })
                 .collect(Collectors.toSet())
                 , new UserSource(userId)
         ));
@@ -199,14 +173,40 @@ public class BillService
         var billSum = sumBillPositionsAmounts(result);
         updateAccountBalanceByBillSum(billSum, oldBillSum, account.getId());
 
-        return toDto(result);
+        return result;
+    }
+
+    BillPositionSnapshot prepareBillPosition(BillPositionDTO dto, boolean monthYearMatches, int index, long gainerId)
+    {
+//        set to null in two cases
+//        when it's newly created object and has no budget position assigned
+//        when during update bill date was changed (only month or/and year are important) and bill will be assigned to another budget
+        var budgetPosition = dto.getBudgetPosition();
+        if (!monthYearMatches)
+            budgetPosition = null;
+
+        return new BillPositionSnapshot(
+                dto.getId() == null ? 0L : dto.getId()
+                , dto.getNumber() == null ? index + 1 : dto.getNumber()
+                , dto.getAmount()
+                , new CategorySource(dto.getCategoryId())
+                , new PayeeSource(gainerId)
+                , dto.getDescription()
+                , budgetPosition);
+    }
+
+    String setBillsCountAsBillNumber(LocalDate toSaveDate, long userId)
+    {
+        //        +1 so lowest number (for first bill in month) is 1
+        var count = getBillCountByMonthYearAndUserId(toSaveDate, userId) + 1;
+
+        return String.valueOf(count);
     }
 
     boolean checkIfMonthYearMatch(LocalDate billDate, LocalDate toSaveDate)
     {
         return billDate.getYear() == toSaveDate.getYear() && billDate.getMonthValue() == toSaveDate.getMonthValue();
     }
-
 
     BillDTO updateBillByNumberAndUserAsDto(final BillDTO toUpdate, final Long userId)
     {
@@ -274,15 +274,9 @@ public class BillService
 
     Double sumBillPositionsAmounts(BillSnapshot bill)
     {
-        var sum = bill.getPositions()
-                .stream()
-                .mapToDouble(BillPositionSnapshot::getAmount)
-                .sum();
+        var sum = bill.getBillSum();
 
-        var type = this.categoryService.getCategoryTypeById(bill.getPositions()
-                                                                    .stream()
-                                                                    .toList()
-                                                                    .get(0).getCategory().getId());
+        var type = this.categoryService.getCategoryTypeById(bill.getExemplaryCategoryId());
 
         if (EXPENSE.equals(type))
             sum = -sum;
@@ -292,12 +286,10 @@ public class BillService
 
     void updateAccountBalanceByBillSum(double billSum, double oldBillSum, long accountId)
     {
-        if (oldBillSum != billSum)
-        {
-            var sum = billSum - oldBillSum;
+        var sum = billSum - oldBillSum;
 
+        if (sum != 0)
             this.accountService.updateAccountBalanceByAccountId(sum, accountId);
-        }
     }
 
     void deleteBillByNumberAndUserId(final String number, final Long userId)
@@ -305,23 +297,23 @@ public class BillService
         this.billRepo.deleteByNumberAndUserId(number, userId);
     }
 
-    List<BillSnapshot> getBillSByUserId(Long userId)
+    List<BillSnapshot> getBillsByUserId(Long userId)
     {
         return this.billQueryRepo.findByUserId(userId);
     }
 
     List<BillDTO> getBillsByUserIdAsDto(Long userId)
     {
-        return getBillSByUserId(userId)
+        return getBillsByUserId(userId)
                 .stream()
                 .map(this::toDto)
                 .toList();
     }
 
-    Integer getBillCountByMonthYearAndUserId(final LocalDate date, final Long userId)
+    int getBillCountByMonthYearAndUserId(final LocalDate monthYear, final Long userId)
     {
-        var startDate = LocalDate.of(date.getYear(), date.getMonthValue(), 1);
-        var endDate = LocalDate.of(date.getYear(), date.getMonthValue(), date.lengthOfMonth());
+        var startDate = Utils.getMonthYearStartDate(monthYear);
+        var endDate = Utils.getMonthYearEndDate(monthYear);
 
         return this.billQueryRepo.findBillCountBetweenDatesAndUserId(startDate, endDate, userId);
     }
@@ -363,27 +355,34 @@ public class BillService
         this.billRepo.updateBudgetPositionInBillPositionByIds(budgetPositionId, billPositionIds);
     }
 
+    Set<Long> getBillPositionIdsByBudgetPositionId(final long budPosId)
+    {
+        return this.billQueryRepo.findBillPositionIdsByBudgetPositionId(budPosId);
+    }
+
     public Set<BillPositionSource> getBillPositionSourcesByBudgetPositionId(final Long budPosId)
     {
-        return this.billQueryRepo.findBillPositionIdsByBudgetPositionId(budPosId)
+        return getBillPositionIdsByBudgetPositionId(budPosId)
                 .stream()
                 .map(BillPositionSource::new)
                 .collect(Collectors.toSet());
     }
 
-    List<BillPositionSnapshot> getBillPositionsWithoutBudgetPositionByMonthYearAndUserId(final LocalDate monthYear, final Long userId)
+    List<BillSnapshot> getBillsByMonthYearAndUserId(final LocalDate monthYear, final long userId)
     {
         var startDate = Utils.getMonthYearStartDate(monthYear);
         var endDate = Utils.getMonthYearEndDate(monthYear);
 
-        var bills = this.billQueryRepo.findByDatesAndUserId(startDate, endDate, userId);
+        return this.billQueryRepo.findByDatesAndUserId(startDate, endDate, userId);
+    }
+
+    List<BillPositionSnapshot> getBillPositionsWithoutBudgetPositionByMonthYearAndUserId(final LocalDate monthYear, final Long userId)
+    {
+        var bills = getBillsByMonthYearAndUserId(monthYear, userId);
         var positions = new ArrayList<BillPositionSnapshot>();
 
         for (BillSnapshot b : bills)
-            positions.addAll(b.getPositions()
-                    .stream()
-                    .filter(p -> p.getBudgetPosition() == null)
-                    .toList());
+            positions.addAll(b.filterPositionsWithoutBudgetPositions());
 
         return positions;
     }
@@ -398,10 +397,7 @@ public class BillService
 
     public void updateBudgetInBillsByMonthYearAndUserId(final LocalDate monthYear, final long budgetId, final Long userId)
     {
-        var startDate = Utils.getMonthYearStartDate(monthYear);
-        var endDate = Utils.getMonthYearEndDate(monthYear);
-
-        var billIds = this.billQueryRepo.findByDatesAndUserId(startDate, endDate, userId)
+        var billIds = getBillsByMonthYearAndUserId(monthYear, userId)
                 .stream()
                 .filter(b -> b.getBudget() == null)
                 .map(BillSnapshot::getId)

@@ -2,6 +2,7 @@ package com.moneyApp.bill.dto;
 
 import com.moneyApp.category.dto.CategoryDTO;
 import com.moneyApp.vo.BillPositionSource;
+import com.moneyApp.vo.BudgetPositionSource;
 
 import java.time.LocalDate;
 
@@ -13,7 +14,7 @@ public class BillPositionDTO
     }
 
     private final Long id;
-    private final long number;
+    private final Long number;
     private final Double amount;
     private final String categoryName;
     private final CategoryDTO category;
@@ -22,10 +23,11 @@ public class BillPositionDTO
     private final LocalDate date;
     private final String payeeName;
     private final String accountName;
+    private final BudgetPositionSource budgetPosition;
 
     BillPositionDTO(
             Long id
-            , long number
+            , Long number
             , LocalDate date
             , String payeeName
             , String accountName
@@ -33,7 +35,8 @@ public class BillPositionDTO
             , CategoryDTO category
             , String categoryName
             , String gainerName
-            , String description)
+            , String description
+            , BudgetPositionSource budgetPosition)
     {
         this.id = id;
         this.number = number;
@@ -45,11 +48,7 @@ public class BillPositionDTO
         this.date = date;
         this.payeeName = payeeName;
         this.accountName = accountName;
-    }
-
-    public BillPositionSource toSource()
-    {
-        return new BillPositionSource(this.id);
+        this.budgetPosition = budgetPosition;
     }
 
     public Long getId()
@@ -102,10 +101,15 @@ public class BillPositionDTO
         return this.accountName;
     }
 
+    public BudgetPositionSource getBudgetPosition()
+    {
+        return this.budgetPosition;
+    }
+
     public static class Builder
     {
         private Long id;
-        private long number;
+        private Long number;
         private Double amount;
         private CategoryDTO category;
         private String categoryName;
@@ -114,6 +118,7 @@ public class BillPositionDTO
         private LocalDate date;
         private String payeeName;
         private String accountName;
+        private BudgetPositionSource budgetPosition;
 
         public Builder withId(Long id)
         {
@@ -121,7 +126,7 @@ public class BillPositionDTO
             return this;
         }
 
-        public Builder withNumber(long number)
+        public Builder withNumber(Long number)
         {
             this.number = number;
             return this;
@@ -175,6 +180,12 @@ public class BillPositionDTO
             return this;
         }
 
+        public Builder withBudgetPosition(BudgetPositionSource budgetPosition)
+        {
+            this.budgetPosition = budgetPosition;
+            return this;
+        }
+
         public BillPositionDTO build()
         {
             return new BillPositionDTO(
@@ -187,7 +198,8 @@ public class BillPositionDTO
                     , this.category
                     , this.categoryName
                     , this.gainerName
-                    , this.description);
+                    , this.description
+                    , this.budgetPosition);
         }
     }
 }

@@ -86,6 +86,19 @@ public class BillDTO
         return this.positions;
     }
 
+    public int getPositionIndex(BillPositionDTO dto)
+    {
+        return  this.positions.indexOf(dto);
+    }
+
+    public List<String> getGainerNames()
+    {
+        return this.positions
+                .stream()
+                .map(BillPositionDTO::getGainerName)
+                .toList();
+    }
+
     public static class Builder
     {
         private Long id;

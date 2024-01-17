@@ -7,6 +7,7 @@ import com.moneyApp.vo.UserSource;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 class BillSnapshot
@@ -57,6 +58,30 @@ class BillSnapshot
         return number;
     }
 
+    double getBillSum()
+    {
+        return this.positions
+            .stream()
+            .mapToDouble(BillPositionSnapshot::getAmount)
+            .sum();
+    }
+
+    long getExemplaryCategoryId()
+    {
+        return this.positions
+                .stream()
+                .toList()
+                .get(0).getCategoryId();
+    }
+
+    List<BillPositionSnapshot> filterPositionsWithoutBudgetPositions()
+    {
+        return this.positions
+                .stream()
+                .filter(p -> p.getBudgetPosition() == null)
+                .toList();
+    }
+
     Long getId()
     {
         return this.id;
@@ -105,6 +130,14 @@ class BillSnapshot
     Set<BillPositionSnapshot> getPositions()
     {
         return this.positions;
+    }
+
+    List<Long> getGainerIds()
+    {
+        return this.positions
+                .stream()
+                .map(BillPositionSnapshot::getGainerId)
+                .toList();
     }
 
     UserSource getUser()

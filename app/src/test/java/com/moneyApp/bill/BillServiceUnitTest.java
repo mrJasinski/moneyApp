@@ -1,7 +1,11 @@
 package com.moneyApp.bill;
 
+import com.moneyApp.bill.dto.BillDTO;
+import com.moneyApp.bill.dto.BillPositionDTO;
 import com.moneyApp.category.CategoryService;
 import com.moneyApp.category.CategoryType;
+import com.moneyApp.category.dto.CategoryDTO;
+import com.moneyApp.vo.BudgetPositionSource;
 import com.moneyApp.vo.CategorySource;
 import org.junit.jupiter.api.Test;
 
@@ -94,7 +98,246 @@ class BillServiceUnitTest
 //                        ).collect(Collectors.toList()))
 //                .build();
 //    }
-//
+
+    @Test
+    void prepareBillPosition_shouldSetBudgetPositionAsNullForDtoWithoutBudgetPositionAndMonthYearMatchesIsFalse()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withCategory(new CategoryDTO(1L, ""))
+                .withBudgetPosition(null)
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, false, 0, 0);
+
+//        then
+        assertNull(result.getBudgetPosition());
+    }
+
+    @Test
+    void prepareBillPosition_shouldSetBudgetPositionAsNullForDtoWithoutBudgetPositionAndMonthYearMatchesIsTrue()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withCategory(new CategoryDTO(1L, ""))
+                .withBudgetPosition(null)
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, true, 0, 0);
+
+//        then
+        assertNull(result.getBudgetPosition());
+    }
+
+    @Test
+    void prepareBillPosition_shouldSetBudgetPositionAsNullWhenMonthYearMatchesIsFalseAndDtoHasNullBudgetPosition()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withCategory(new CategoryDTO(1L, ""))
+                .withBudgetPosition(null)
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, false, 0, 0);
+
+//        then
+        assertNull(result.getBudgetPosition());
+    }
+
+    @Test
+    void prepareBillPosition_shouldSetBudgetPositionAsNullWhenMonthYearMatchesIsFalseEvenIfDtoHasBudgetPosition()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withCategory(new CategoryDTO(1L, ""))
+                .withBudgetPosition(new BudgetPositionSource(10L))
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, false, 0, 0);
+
+//        then
+        assertNull(result.getBudgetPosition());
+    }
+
+    @Test
+    void prepareBillPosition_shouldSetBudgetPositionValueWhenMonthYearMatchesIsTrueAndDtoHasBudgetPosition()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withCategory(new CategoryDTO(1L, ""))
+                .withBudgetPosition(new BudgetPositionSource(11L))
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, true, 0, 0);
+
+//        then
+        assertNotNull(result.getBudgetPosition());
+        assertEquals(11L, dto.getBudgetPosition().getId());
+    }
+
+    @Test
+    void prepareBillPosition_shouldSetBillPositionIdZeroWhenIdFromDtoIsNull()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withId(null)
+                .withCategory(new CategoryDTO(1L, ""))
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, false, 0, 0);
+
+//        then
+        assertEquals(0L, result.getId());
+    }
+
+    @Test
+    void prepareBillPosition_shouldSetBillPositionIdAsDtoIdWhenIdFromDtoIsNotNull()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withId(5L)
+                .withCategory(new CategoryDTO(1L, ""))
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, false, 0, 0);
+
+//        then
+        assertEquals(5L, result.getId());
+    }
+
+    @Test
+    void prepareBillPosition_shouldSetNumberToGivenIndexPlusOneWhenBillPositionNumberIsNull()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withCategory(new CategoryDTO(1L, ""))
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, false, 2, 0);
+
+//        then
+        assertEquals(3L, result.getNumber());
+    }
+
+    @Test
+    void prepareBillPosition_shouldSetNumberToDtoNumberWhenBillPositionNumberIsNotNull()
+    {
+//        given
+        var dto = BillPositionDTO.builder()
+                .withNumber(4L)
+                .withCategory(new CategoryDTO(1L, ""))
+                .build();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.prepareBillPosition(dto, false, 2, 0);
+
+//        then
+        assertEquals(4L, result.getNumber());
+    }
+
+    @Test
+    void checkIfMonthYearMatch_shouldReturnTrueWhenMonthsAndYearsOfGivenDatesMatch()
+    {
+//        given
+        var billDate = LocalDate.now();
+        var toSaveDate = LocalDate.now();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.checkIfMonthYearMatch(billDate, toSaveDate);
+
+//        then
+        assertTrue(result);
+    }
+
+    @Test
+    void checkIfMonthYearMatch_shouldReturnFalseWhenMonthsOfGivenDatesDontMatch()
+    {
+//        given
+        var billDate = LocalDate.now().minusMonths(1);
+        var toSaveDate = LocalDate.now();
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.checkIfMonthYearMatch(billDate, toSaveDate);
+
+//        then
+        assertFalse(result);
+    }
+
+    @Test
+    void checkIfMonthYearMatch_shouldReturnFalseWhenYearsOfGivenDatesDontMatch()
+    {
+//        given
+        var billDate = LocalDate.now();
+        var toSaveDate = LocalDate.now().plusYears(1);
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.checkIfMonthYearMatch(billDate, toSaveDate);
+
+//        then
+        assertFalse(result);
+    }
+
+    @Test
+    void checkIfMonthYearMatch_shouldReturnFalseWhenMonthsAndYearsOfGivenDatesDontMatch()
+    {
+//        given
+        var billDate = LocalDate.now().minusMonths(1);
+        var toSaveDate = LocalDate.now().plusYears(1);
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.checkIfMonthYearMatch(billDate, toSaveDate);
+
+//        then
+        assertFalse(result);
+    }
+
 //    BillDTO updateBillByNumberAndUserAsDto(final BillDTO toUpdate, final Long userId)
 //    {
 //        var bill = getBillByNumberAndUserId(toUpdate.getNumber(), userId);
@@ -229,28 +472,6 @@ class BillServiceUnitTest
         assertEquals(25d, result);
     }
 
-//    Double sumBillPositionsAmounts(BillSnapshot bill)
-//    {
-//        var sum = bill.getPositions().stream().mapToDouble(BillPositionSnapshot::getAmount).sum();
-//
-//        var type = this.categoryService.getCategoryTypeById(bill.getPositions().stream().toList().get(0).getCategory().getId());
-//
-//        if (EXPENSE.equals(type))
-//            sum = -sum;
-//
-//        return sum;
-//    }
-//
-//    void updateAccountBalanceWhenBillIsUpdated(double billSum, double oldBillSum, long accountId)
-//    {
-//        if (oldBillSum != billSum)
-//        {
-//            var diff = billSum - oldBillSum;
-//
-//            this.accountService.updateAccountBalanceByAccountId(diff, accountId);
-//        }
-//    }
-
     @Test
     void checkIfMonthYearMatch_shouldReturnFalseWhenYearsDontMatch()
     {
@@ -323,13 +544,31 @@ class BillServiceUnitTest
 //    {
 //        this.billRepo.deleteByNumberAndUserId(number, userId);
 //    }
+
+    @Test
+    void getBillsByUserId_shouldReturnBillsFromDbForGivenUser()
+    {
+//        given
+
+//        system under test
+
+//        when
+
+//        then
+
+    }
+
+//      List<BillSnapshot> getBillsByUserId(Long userId)
+//    {
+//        return this.billQueryRepo.findByUserId(userId);
+//    }
 //
 //    List<BillDTO> getBillsByUserIdAsDto(Long userId)
 //    {
-//        return this.billQueryRepo.findByUserId(userId)
+//        return getBillsByUserId(userId)
 //                .stream()
 //                .map(this::toDto)
-//                .collect(Collectors.toList());
+//                .toList();
 //    }
 //
 //    Integer getBillCountByMonthYearAndUserId(final LocalDate date, final Long userId)
@@ -350,13 +589,12 @@ class BillServiceUnitTest
 //        return this.billQueryRepo.existsByNumberAndUserId(number, userId);
 //    }
 
-//    TODO - przekazanie null skutkuje nieznalezieniem rachunku z danym numerem więc nie potrzeba zabezpieczenia przeciwnullowego
     @Test
-    void getBillByNumberAndUserId_whatWillHappenIfNullNumberGiven()
+    void getBillByNumberAndUserId_shouldThrowExceptionBecauseBillWithNullNumberIsNotFound()
     {
 //        given
         var mockBillQueryRepo = mock(BillQueryRepository.class);
-        given(mockBillQueryRepo.findByNumberAndUserId(anyString(), anyLong())).willReturn(Optional.of(new BillSnapshot()));
+        given(mockBillQueryRepo.findByNumberAndUserId(anyString(), anyLong())).willReturn(Optional.empty());
 
 //        system under test
         var toTest = new BillService(null, mockBillQueryRepo, null ,null, null);
@@ -369,11 +607,43 @@ class BillServiceUnitTest
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("given number not found");
     }
-//    BillSnapshot getBillByNumberAndUserId(final String number, final Long userId)
-//    {
-//        return this.billQueryRepo.findByNumberAndUserId(number, userId)
-//                .orElseThrow(() -> new IllegalArgumentException("Bill with given number not found!"));
-//    }
+
+    @Test
+    void getBillByNumberAndUserId_shouldThrowExceptionWhenBillWithGivenNumberIsNotFound()
+    {
+//        given
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findByNumberAndUserId(anyString(), anyLong())).willReturn(Optional.empty());
+
+//        system under test
+        var toTest = new BillService(null, mockBillQueryRepo, null ,null, null);
+
+//        when
+        var result = catchThrowable(() -> toTest.getBillByNumberAndUserId("2022_10", 1L));
+
+//        then
+        assertThat(result)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("given number not found");
+    }
+
+    @Test
+    void getBillByNumberAndUserId_shouldReturnBillWhenBilLWithGivenNumberIsFound()
+    {
+//        given
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findByNumberAndUserId(anyString(), anyLong())).willReturn(Optional.of(new BillSnapshot()));
+
+//        system under test
+        var toTest = new BillService(null, mockBillQueryRepo, null ,null, null);
+
+//        when
+        var result = toTest.getBillByNumberAndUserId("2022_10", 1L);
+
+//        then
+        assertNotNull(result);
+    }
+
 //
 //    public Set<BillWithSumsDTO> getBudgetPositionsIdsWithSumsByBillPositionIds(final List<Long> billPosIds)
 //    {
@@ -396,38 +666,49 @@ class BillServiceUnitTest
 //        this.billRepo.updateBudgetPositionInBillPositionByIds(budgetPositionId, billPositionIds);
 //    }
 //
+//    Set<Long> getBillPositionIdsByBudgetPositionId(final long budPosId)
+//    {
+//        return this.billQueryRepo.findBillPositionIdsByBudgetPositionId(budPosId);
+//    }
+//
 //    public Set<BillPositionSource> getBillPositionSourcesByBudgetPositionId(final Long budPosId)
 //    {
-//        return this.billQueryRepo.findBillPositionIdsByBudgetPositionId(budPosId)
+//        return getBillPositionIdsByBudgetPositionId(budPosId)
 //                .stream()
 //                .map(BillPositionSource::new)
 //                .collect(Collectors.toSet());
 //    }
 //
-//    public List<BillPositionDTO> getBillPositionsWithoutBudgetPositionByMonthYearAndUserIdAsDto(final LocalDate monthYear, final Long userId)
+//    List<BillSnapshot> getBillsByMonthYearAndUserId(final LocalDate monthYear, final long userId)
 //    {
 //        var startDate = Utils.getMonthYearStartDate(monthYear);
 //        var endDate = Utils.getMonthYearEndDate(monthYear);
 //
-//        var bills = this.billQueryRepo.findByDatesAndUserId(startDate, endDate, userId);
-//        var positions = new ArrayList<BillPositionDTO>();
+//        return this.billQueryRepo.findByDatesAndUserId(startDate, endDate, userId);
+//    }
+//
+//    List<BillPositionSnapshot> getBillPositionsWithoutBudgetPositionByMonthYearAndUserId(final LocalDate monthYear, final Long userId)
+//    {
+//        var bills = getBillsByMonthYearAndUserId(monthYear, userId);
+//        var positions = new ArrayList<BillPositionSnapshot>();
 //
 //        for (BillSnapshot b : bills)
-//            positions.addAll(b.getPositions()
-//                    .stream()
-//                    .filter(p -> p.getBudgetPosition() == null)
-//                    .map(this::toDto)
-//                    .toList());
+//            positions.addAll(b.filterPositionsWithoutBudgetPositions());
 //
 //        return positions;
 //    }
 //
+//    public List<BillPositionDTO> getBillPositionsWithoutBudgetPositionByMonthYearAndUserIdAsDto(final LocalDate monthYear, final Long userId)
+//    {
+//        return getBillPositionsWithoutBudgetPositionByMonthYearAndUserId(monthYear, userId)
+//                .stream()
+//                .map(this::toDto)
+//                .toList();
+//    }
+//
 //    public void updateBudgetInBillsByMonthYearAndUserId(final LocalDate monthYear, final long budgetId, final Long userId)
 //    {
-//        var startDate = Utils.getMonthYearStartDate(monthYear);
-//        var endDate = Utils.getMonthYearEndDate(monthYear);
-//
-//        var billIds = this.billQueryRepo.findByDatesAndUserId(startDate, endDate, userId)
+//        var billIds = getBillsByMonthYearAndUserId(monthYear, userId)
 //                .stream()
 //                .filter(b -> b.getBudget() == null)
 //                .map(BillSnapshot::getId)
@@ -435,5 +716,4 @@ class BillServiceUnitTest
 //
 //        this.billRepo.updateBudgetInBills(budgetId, billIds);
 //    }
-
 }
