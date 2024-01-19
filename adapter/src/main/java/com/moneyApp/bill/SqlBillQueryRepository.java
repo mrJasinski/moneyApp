@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -15,7 +16,7 @@ interface SqlBillQueryRepository extends BillQueryRepository, JpaRepository<Bill
     @Override
     @Query(value = "SELECT COUNT (*) " +
                    "FROM BillSnapshot b " +
-                   "WHERE b.billDate BETWEEN :startDate AND :endDate AND b.user.id = :userId")
+                   "WHERE (b.billDate BETWEEN :startDate AND :endDate) AND b.user.id = :userId")
     Integer findBillCountBetweenDatesAndUserId(LocalDate startDate, LocalDate endDate, Long userId);
 
     @Override
@@ -37,7 +38,7 @@ interface SqlBillQueryRepository extends BillQueryRepository, JpaRepository<Bill
     Set<Long> findBillPositionIdsByBudgetPositionId(Long budPosId);
 
     @Override
-    @Query(value = "FROM BillSnapshot b " +
-                   "WHERE b.billDate BETWEEN :startDate AND :endDate AND b.user.id = :userId")
-    List<BillSnapshot> getBillsBetweenDatesAndByUserId(LocalDate startDate, LocalDate endDate, Long userId);
+    @Query(value = "FROM BillPositionSnapshot bp " +
+                   "WHERE bp.id = :billPositionId")
+    Optional<BillPositionSnapshot> findPositionById(Long billPositionId);
 }

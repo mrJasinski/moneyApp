@@ -20,12 +20,6 @@ public class PayeeDTO
     {
     }
 
-    PayeeDTO(final Long id, final String name)
-    {
-        this.id = id;
-        this.name = name;
-    }
-
     public PayeeDTO(String name, PayeeRole role)
     {
         this.name = name;
@@ -34,13 +28,24 @@ public class PayeeDTO
 
     PayeeDTO(final String name, final PayeeRole role, final Set<BillDTO> bills, final Set<BillPositionDTO> billPositions)
     {
-        this.name = name;
-        this.role = role;
+        this(name, role);
         this.bills = bills;
         this.billPositions = billPositions;
     }
 
-     public Long getId()
+    public PayeeDTO(final long id, final String name)
+    {
+        this.id = id;
+        this.name = name;
+    }
+
+    public PayeeDTO(final Long id, final String name, final PayeeRole role)
+    {
+        this(id, name);
+        this.role = role;
+    }
+
+    public Long getId()
     {
         return this.id;
     }

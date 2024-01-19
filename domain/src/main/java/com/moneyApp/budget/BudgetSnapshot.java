@@ -4,6 +4,7 @@ import com.moneyApp.vo.UserSource;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 class BudgetSnapshot
@@ -72,4 +73,20 @@ class BudgetSnapshot
         return this.positions;
     }
 
+    List<Long> getCategoriesIdsFromPositions()
+    {
+        return this.positions
+                .stream()
+                .map(BudgetPositionSnapshot::getCategoryId)
+                .toList();
+    }
+
+    BudgetPositionSnapshot getPositionByCategoryId(long categoryId)
+    {
+        return this.positions
+                .stream()
+                .filter(p -> p.getCategoryId().equals(categoryId))
+                .toList()
+                .get(0);
+    }
 }

@@ -132,7 +132,7 @@ class BudgetServiceUnitTest
     void updateBudgetPositionsMap_shouldPutKVPairInMapIfMapDoesNotContainGivenBudgetPosition()
     {
 //        given
-        var map = new HashMap<Long, Set<Long>>();
+        var map = new HashMap<Long, List<Long>>();
         var budgetPositions = Set.of(new BudgetPositionSnapshot(1L, new CategorySource(2L), 0d, "", null, new HashSet<>()));
         var billPosition = BillPositionDTO.builder()
                 .withId(3L)
@@ -154,8 +154,10 @@ class BudgetServiceUnitTest
     void updateBudgetPositionsMap_shouldAddBillPositionToValueInMapIfMapContainsGivenBudgetPosition()
     {
 //        given
-        var map = new HashMap<Long, Set<Long>>();
-        map.put(1L, Set.of(5L));
+        var map = new HashMap<Long, List<Long>>();
+        var list = new ArrayList<Long>();
+        list.add(5L);
+        map.put(1L, list);
         var budgetPositions = Set.of(new BudgetPositionSnapshot(1L, new CategorySource(2L), 0d, "", null, new HashSet<>()));
         var billPosition = BillPositionDTO.builder()
                 .withId(3L)

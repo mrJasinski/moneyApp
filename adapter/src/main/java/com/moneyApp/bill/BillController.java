@@ -30,7 +30,7 @@ public class BillController
     @PostMapping("/addBill")
     ResponseEntity<?> createBill(@RequestBody BillDTO toSave, HttpServletRequest request)
     {
-        var result = this.billService.createBillByUserId(toSave, this.jwtService.getUserIdFromToken(request));
+        var result = this.billService.createBillByUserIdAsDto(toSave, this.jwtService.getUserIdFromToken(request));
 
         return ResponseEntity.created(URI.create("/" + result.getNumber())).body(result);
     }

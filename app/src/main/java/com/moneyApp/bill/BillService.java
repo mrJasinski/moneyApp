@@ -40,47 +40,9 @@ public class BillService
 
     }
 
-    BillDTO createBillByUserId(BillDTO toSave, Long userId)
+    BillDTO createBillByUserIdAsDto(BillDTO toSave, Long userId)
     {
-        var payee = this.payeeService.getPayeeSourceByNameAndUserId(toSave.getPayeeName(), userId);
-        var account = this.accountService.getAccountSourceByNameAndUserId(toSave.getAccountName(), userId);
-
-//        +1 so lowest number (for first bill in month) is 1
-        var count = getBillCountByMonthYearAndUserId(toSave.getDate(), userId) + 1;
-
-        var gainerNames = toSave.getPositions()
-                            .stream()
-                            .map(BillPositionDTO::getGainerName)
-                            .toList();
-
-        var gainers = this.payeeService.getPayeesByNamesAndUserIdAsDto(gainerNames, userId);
-
-        var bill = this.billRepo.save(new BillSnapshot(
-                null
-                , toSave.getDate()
-                , String.valueOf(count)
-                , payee
-                , account
-                , null
-                , toSave.getDescription()
-                , toSave.getPositions()
-                    .stream()
-                    .map(dto -> new BillPositionSnapshot(
-                            null
-                        , toSave.getPositions().indexOf(dto) + 1
-                        , dto.getAmount()
-                        , new CategorySource(dto.getCategory().getId())
-                        , new PayeeSource(gainers.stream().filter(p -> dto.getGainerName().equals(p.getName())).toList().get(0).getId())
-                        , dto.getDescription()
-                        ,null))
-                    .collect(Collectors.toSet())
-                , new UserSource(userId)));
-
-//TODO aktualizacja stanu konta w dopiero gdy jest ono wywoływane? bo tak ot tez update powinien wywoływać i aktualizować o róznicę jeśli odszło do zmian
-        var billSum = sumBillPositionsAmounts(bill);
-        this.accountService.updateAccountBalanceByAccountId(billSum, account.getId());
-
-        return toDto(bill);
+        return toDto(saveBill(toSave, userId));
     }
 
     BillDTO toDto(BillSnapshot snap)
@@ -108,7 +70,7 @@ public class BillService
     }
 
 //    TODO konkretna nazwa
-    BillSnapshot saveBill(BillDTO toSave, Long userId)
+    BillSnapshot prepareBillToSave(BillDTO toSave, Long userId)
     {
         var payee = this.payeeService.getPayeeSourceByNameAndUserId(toSave.getPayeeName(), userId);
         var account = this.accountService.getAccountSourceByNameAndUserId(toSave.getAccountName(), userId);
@@ -148,7 +110,7 @@ public class BillService
 //TODO jak to obejść?
         final boolean finalMonthYearMatches = monthYearMatches;
 
-        var result = this.billRepo.save(new BillSnapshot(
+        var result = new BillSnapshot(
                 billId
                 , toSaveDate
                 , billNumber
@@ -157,23 +119,27 @@ public class BillService
                 , budget
                 , toSave.getDescription()
                 , toSave.getPositions()
-                    .stream()
-                    .map(dto ->
-                    {
-                        var index = toSave.getPositionIndex(dto);
-                        //                                    TODO czy tu się też nie oprzeć o obiekt jak w przypadku category?
-                        var gainerId = gainers.stream().filter(g -> dto.getGainerName().equals(g.getName())).toList().get(0).getId();
+                .stream()
+                .map(dto ->
+                {
+                    var index = toSave.getPositionIndex(dto);
+                    //                                    TODO czy tu się też nie oprzeć o obiekt jak w przypadku category?
+                    var gainerId = gainers.stream().filter(g -> dto.getGainerName().equals(g.getName())).toList().get(0).getId();
 
-                       return prepareBillPosition(dto, finalMonthYearMatches, index, gainerId);
-                    })
+                    return prepareBillPosition(dto, finalMonthYearMatches, index, gainerId);
+                })
                 .collect(Collectors.toSet())
-                , new UserSource(userId)
-        ));
+                , new UserSource(userId));
 
         var billSum = sumBillPositionsAmounts(result);
         updateAccountBalanceByBillSum(billSum, oldBillSum, account.getId());
 
         return result;
+    }
+
+    BillSnapshot saveBill(BillDTO toSave, Long userId)
+    {
+        return this.billRepo.save(prepareBillToSave(toSave, userId));
     }
 
     BillPositionSnapshot prepareBillPosition(BillPositionDTO dto, boolean monthYearMatches, int index, long gainerId)
@@ -210,66 +176,7 @@ public class BillService
 
     BillDTO updateBillByNumberAndUserAsDto(final BillDTO toUpdate, final Long userId)
     {
-        var bill = getBillByNumberAndUserId(toUpdate.getNumber(), userId);
-
-        var oldBillSum = sumBillPositionsAmounts(bill);
-
-        var gainerNames = toUpdate.getPositions()
-                .stream()
-                .map(BillPositionDTO::getGainerName)
-                .toList();
-
-        var gainers = this.payeeService.getPayeesByNamesAndUserIdAsDto(gainerNames, userId);
-
-        var billNumber = toUpdate.getNumber();
-        var budget = bill.getBudget();
-
-        if (bill.getBillDate().getYear() != toUpdate.getDate().getYear() || bill.getBillDate().getMonthValue() != toUpdate.getDate().getMonthValue())
-        {
-            var count = getBillCountByMonthYearAndUserId(toUpdate.getDate(), userId) + 1;
-
-            billNumber = String.valueOf(count);
-            budget = null;
-        }
-
-        var payee = this.payeeService.getPayeeSourceByNameAndUserId(toUpdate.getPayeeName(), userId);
-        var account = this.accountService.getAccountSourceByNameAndUserId(toUpdate.getAccountName(), userId);
-
-        var result = this.billRepo.save(new BillSnapshot(
-                bill.getId()
-                , toUpdate.getDate()
-                , billNumber
-                , payee
-                , account
-                , budget
-                , toUpdate.getDescription()
-                , toUpdate.getPositions()
-                    .stream()
-                    .map(dto ->
-                    {
-                        var budgetPosition = bill.getPositions().stream().toList().get(Math.toIntExact(dto.getId())).getBudgetPosition();
-
-                        if (bill.getBillDate().getYear() != toUpdate.getDate().getYear() || bill.getBillDate().getMonthValue() != toUpdate.getDate().getMonthValue())
-                            budgetPosition = null;
-
-                       return new BillPositionSnapshot(
-                                dto.getId()
-                                , dto.getNumber()
-                                , dto.getAmount()
-                                , new CategorySource(dto.getCategory().getId())
-                                , new PayeeSource(gainers.stream().filter(g -> dto.getGainerName().equals(g.getName())).toList().get(0).getId())
-                                , dto.getDescription()
-                                , budgetPosition);
-                    })
-                .collect(Collectors.toSet())
-                , bill.getUser()
-        ));
-
-        var billSum = sumBillPositionsAmounts(bill);
-
-        updateAccountBalanceByBillSum(billSum, oldBillSum, account.getId());
-
-        return toDto(result);
+        return toDto(saveBill(toUpdate, userId));
     }
 
     Double sumBillPositionsAmounts(BillSnapshot bill)
@@ -350,9 +257,9 @@ public class BillService
                 .build();
     }
 
-    public void updateBudgetPositionInBillPositionById(final Long budgetPositionId, final Set<Long> billPositionIds)
+    public void updateBudgetPositionInBillPositionById(final Long budgetPositionId, final List<Long> billPositionIds)
     {
-        this.billRepo.updateBudgetPositionInBillPositionByIds(budgetPositionId, billPositionIds);
+        this.billRepo.updateBudgetPositionInBillPositionByIds(budgetPositionId, Set.copyOf(billPositionIds));
     }
 
     Set<Long> getBillPositionIdsByBudgetPositionId(final long budPosId)

@@ -1,75 +1,30 @@
 package com.moneyApp.bill;
 
+import com.moneyApp.account.AccountService;
 import com.moneyApp.bill.dto.BillDTO;
 import com.moneyApp.bill.dto.BillPositionDTO;
 import com.moneyApp.category.CategoryService;
 import com.moneyApp.category.CategoryType;
 import com.moneyApp.category.dto.CategoryDTO;
-import com.moneyApp.vo.BudgetPositionSource;
-import com.moneyApp.vo.CategorySource;
+import com.moneyApp.payee.PayeeService;
+import com.moneyApp.payee.dto.PayeeDTO;
+import com.moneyApp.vo.*;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 class BillServiceUnitTest
 {
-//    najpewniej zsotanie złączone z update więc test będzei później już dla wspólnej metody
-
-//    BillDTO createBillByUserId(BillDTO toSave, Long userId)
-//    {
-//        var payee = this.payeeService.getPayeeSourceByNameAndUserId(toSave.getPayeeName(), userId);
-//        var account = this.accountService.getAccountSourceByNameAndUserId(toSave.getAccountName(), userId);
-//
-////        +1 so lowest number (for first bill in month) is 1
-//        var count = getBillCountByMonthYearAndUserId(toSave.getDate(), userId) + 1;
-//
-//        var gainerNames = toSave.getPositions()
-//                            .stream()
-//                            .map(BillPositionDTO::getGainerName)
-//                            .toList();
-//
-//        var gainers = this.payeeService.getPayeesByNamesAndUserIdAsDto(gainerNames, userId);
-//
-//        var bill = this.billRepo.save(new BillSnapshot(
-//                null
-//                , toSave.getDate()
-//                , String.valueOf(count)
-//
-//                , payee
-//                , account
-//                , null
-//                , toSave.getDescription()
-//                , toSave.getPositions()
-//                    .stream()
-//                    .map(dto -> new BillPositionSnapshot(
-//                            null
-//                        , toSave.getPositions().indexOf(dto) + 1
-//                        , dto.getAmount()
-//                        , new CategorySource(dto.getCategory().getId())
-//                        , new PayeeSource(gainers.stream().filter(p -> dto.getGainerName().equals(p.getName())).toList().get(0).getId())
-//                        , dto.getDescription()
-//                        ,null))
-//                    .collect(Collectors.toSet())
-//                , new UserSource(userId)));
-//
-//        var dto = toDto(bill);
-////TODO aktualizacja stanu konta w dopiero gdy jest ono wywoływane? bo tak ot tez update powinien wywoływać i aktualizować o róznicę jeśli odszło do zmian
-//        var billSum = sumBillPositionsAmounts(bill);
-//        this.accountService.updateAccountBalanceByAccountId(billSum, account.getId());
-//
-//        return dto;
-//    }
-//
 //    BillDTO toDto(BillSnapshot snap)
 //    {
 //        var gainerIds = snap.getPositions()
@@ -97,6 +52,245 @@ class BillServiceUnitTest
 //                                .build()
 //                        ).collect(Collectors.toList()))
 //                .build();
+//    }
+
+    @Test
+    void prepareBillToSave_shouldGetBillDataWhenBillAlreadyExistsAndMonthYearMatchesIsTrueAndIsUpdated()
+    {
+//        given
+        var dtoPositions = List.of(BillPositionDTO.builder()
+                        .withId(7L)
+                        .withCategory(new CategoryDTO(3L, "bar"))
+                        .withGainerName("foo")
+                        .withAmount(15d)
+                        .build());
+
+        var toSave = BillDTO.builder()
+                .withId(2L)
+                .withAccountName("foo")
+                .withDate(LocalDate.now())
+                .withNumber("2024_1")
+                .withPayeeName("bar")
+                .withDescription("foobar")
+                .withPositions(dtoPositions)
+                .build();
+
+        var positions = Set.of(new BillPositionSnapshot(1L, 4L, 12d, new CategorySource(12L), new PayeeSource(8L), "foo", null));
+        var bill = new BillSnapshot(
+                2L
+                , LocalDate.now()
+                , "2024_5"
+                , new PayeeSource(2L)
+                , new AccountSource(9L)
+                , new BudgetSource(1L)
+                , "foo", positions
+                , new UserSource(2L));
+
+        var mockBillRepo = mock(BillRepository.class);
+        given(mockBillRepo.save(any())).willReturn(bill);
+
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findByNumberAndUserId(anyString(), anyLong())).willReturn(Optional.of(bill));
+
+        var mockPayeeService = mock(PayeeService.class);
+        given(mockPayeeService.getPayeeSourceByNameAndUserId(anyString(), anyLong())).willReturn(new PayeeSource(2L));
+        given(mockPayeeService.getPayeesByNamesAndUserIdAsDto(anySet(), anyLong())).willReturn(Set.of(new PayeeDTO(1L, "foo")));
+
+        var mockAccountService = mock(AccountService.class);
+        given(mockAccountService.getAccountSourceByNameAndUserId(anyString(), anyLong())).willReturn(new AccountSource(9L));
+
+        var mockCategoryRepo = mock(CategoryService.class);
+
+//        system under test
+        var toTest = new BillService(mockBillRepo, mockBillQueryRepo, mockCategoryRepo, mockPayeeService, mockAccountService);
+
+//        when
+        var result = toTest.prepareBillToSave(toSave, 2L);
+
+//        then
+        assertEquals(bill.getId(), result.getId());
+        assertEquals(bill.getNumber(), result.getNumber());
+        assertEquals(bill.getBudget(), result.getBudget());
+    }
+
+    @Test
+    void prepareBillToSave_shouldGetBillDataWhenBillAlreadyExistsAndMonthYearMatchesIsFalseAndIsUpdated()
+    {
+//        given
+        var dtoPositions = List.of(BillPositionDTO.builder()
+                .withId(7L)
+                .withCategory(new CategoryDTO(3L, "bar"))
+                .withGainerName("foo")
+                .withAmount(15d)
+                .build());
+
+        var toSave = BillDTO.builder()
+                .withId(2L)
+                .withAccountName("foo")
+                .withDate(LocalDate.now().plusMonths(1))
+                .withNumber("2024_1")
+                .withPayeeName("bar")
+                .withDescription("foobar")
+                .withPositions(dtoPositions)
+                .build();
+
+        var positions = Set.of(new BillPositionSnapshot(1L, 4L, 12d, new CategorySource(12L), new PayeeSource(8L), "foo", null));
+        var bill = new BillSnapshot(
+                2L
+                , LocalDate.now()
+                , "2024_5"
+                , new PayeeSource(2L)
+                , new AccountSource(9L)
+                , new BudgetSource(1L)
+                , "foo", positions
+                , new UserSource(2L));
+
+        var mockBillRepo = mock(BillRepository.class);
+        given(mockBillRepo.save(any())).willReturn(bill);
+
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findByNumberAndUserId(anyString(), anyLong())).willReturn(Optional.of(bill));
+        given(mockBillQueryRepo.findBillCountBetweenDatesAndUserId(any(), any(), anyLong())).willReturn(5);
+
+        var mockPayeeService = mock(PayeeService.class);
+        given(mockPayeeService.getPayeeSourceByNameAndUserId(anyString(), anyLong())).willReturn(new PayeeSource(2L));
+        given(mockPayeeService.getPayeesByNamesAndUserIdAsDto(anySet(), anyLong())).willReturn(Set.of(new PayeeDTO(1L, "foo")));
+
+        var mockAccountService = mock(AccountService.class);
+        given(mockAccountService.getAccountSourceByNameAndUserId(anyString(), anyLong())).willReturn(new AccountSource(9L));
+
+        var mockCategoryRepo = mock(CategoryService.class);
+
+//        system under test
+        var toTest = new BillService(mockBillRepo, mockBillQueryRepo, mockCategoryRepo, mockPayeeService, mockAccountService);
+
+//        when
+        var result = toTest.prepareBillToSave(toSave, 2L);
+
+//        then
+        assertEquals(bill.getId(), result.getId());
+        assertEquals("20242_6", result.getNumber());
+        assertNull(result.getBudget());
+    }
+
+    @Test
+    void prepareBillToSave_shouldSaveNewDataWhenBillDoesntExist()
+    {
+//        given
+        var dtoPositions = List.of(BillPositionDTO.builder()
+                .withId(7L)
+                .withCategory(new CategoryDTO(3L, "bar"))
+                .withGainerName("foo")
+                .withAmount(15d)
+                .build());
+
+        var toSave = BillDTO.builder()
+                .withId(2L)
+                .withAccountName("foo")
+                .withDate(LocalDate.now().plusMonths(1))
+                .withNumber("2024_1")
+                .withPayeeName("bar")
+                .withDescription("foobar")
+                .withPositions(dtoPositions)
+                .build();
+
+        var bill = new BillSnapshot();
+
+        var mockBillRepo = mock(BillRepository.class);
+        given(mockBillRepo.save(any())).willReturn(bill);
+
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findByNumberAndUserId(anyString(), anyLong())).willReturn(Optional.empty());
+        given(mockBillQueryRepo.findBillCountBetweenDatesAndUserId(any(), any(), anyLong())).willReturn(5);
+
+        var mockPayeeService = mock(PayeeService.class);
+        given(mockPayeeService.getPayeeSourceByNameAndUserId(anyString(), anyLong())).willReturn(new PayeeSource(2L));
+        given(mockPayeeService.getPayeesByNamesAndUserIdAsDto(anySet(), anyLong())).willReturn(Set.of(new PayeeDTO(1L, "foo")));
+
+        var mockAccountService = mock(AccountService.class);
+        given(mockAccountService.getAccountSourceByNameAndUserId(anyString(), anyLong())).willReturn(new AccountSource(9L));
+
+        var mockCategoryRepo = mock(CategoryService.class);
+
+//        system under test
+        var toTest = new BillService(mockBillRepo, mockBillQueryRepo, mockCategoryRepo, mockPayeeService, mockAccountService);
+
+//        when
+        var result = toTest.prepareBillToSave(toSave, 2L);
+
+//        then
+        assertEquals(0L, result.getId());
+        assertEquals("20242_6", result.getNumber());
+        assertNull(result.getBudget());
+    }
+
+//    BillSnapshot prepareBillToSave(BillDTO toSave, Long userId)
+//    {
+//        var payee = this.payeeService.getPayeeSourceByNameAndUserId(toSave.getPayeeName(), userId);
+//        var account = this.accountService.getAccountSourceByNameAndUserId(toSave.getAccountName(), userId);
+//
+//        var gainerNames = toSave.getGainerNames();
+//
+//        var gainers = this.payeeService.getPayeesByNamesAndUserIdAsDto(gainerNames, userId);
+//
+//        var toSaveDate = toSave.getDate();
+//
+//        long billId;
+//        String billNumber;
+//        BudgetSource budget;
+//        var oldBillSum = 0d;
+//
+//        var monthYearMatches = false;
+//
+//        try
+//        {
+//            var bill = getBillByNumberAndUserId(toSave.getNumber(), userId);
+//
+//            var billDate = bill.getBillDate();
+//            monthYearMatches = checkIfMonthYearMatch(billDate, toSaveDate);
+//
+//            billId = bill.getId();
+//            billNumber = monthYearMatches ? bill.getNumber() : setBillsCountAsBillNumber(toSaveDate, userId);
+//            budget = monthYearMatches ? bill.getBudget() : null;
+//
+//            oldBillSum = sumBillPositionsAmounts(bill);
+//        }
+//        catch (IllegalArgumentException ex)
+//        {
+//            billId = 0L;
+//            billNumber = setBillsCountAsBillNumber(toSaveDate, userId);
+//            budget = null;
+//        }
+////TODO jak to obejść?
+//      final boolean finalMonthYearMatches = monthYearMatches;
+//
+//        var result = new BillSnapshot(
+//                billId
+//                , toSaveDate
+//                , billNumber
+//                , payee
+//                , account
+//                , budget
+//                , toSave.getDescription()
+//                , toSave.getPositions()
+//                .stream()
+//                .map(dto ->
+//                {
+//                    var index = toSave.getPositionIndex(dto);
+//                    //                                    TODO czy tu się też nie oprzeć o obiekt jak w przypadku category?
+//                    var gainerId = gainers.stream().filter(g -> dto.getGainerName().equals(g.getName())).toList().get(0).getId();
+//
+//                    return prepareBillPosition(dto, finalMonthYearMatches, index, gainerId);
+//                })
+//                .collect(Collectors.toSet())
+//                , new UserSource(userId));
+//
+//        this.billRepo.save(result);
+//
+//        var billSum = sumBillPositionsAmounts(result);
+//        updateAccountBalanceByBillSum(billSum, oldBillSum, account.getId());
+//
+//        return result;
 //    }
 
     @Test
@@ -340,90 +534,7 @@ class BillServiceUnitTest
 
 //    BillDTO updateBillByNumberAndUserAsDto(final BillDTO toUpdate, final Long userId)
 //    {
-//        var bill = getBillByNumberAndUserId(toUpdate.getNumber(), userId);
-//
-//        var oldBillSum = sumBillPositionsAmounts(bill);
-//
-//        var gainerNames = toUpdate.getPositions()
-//                .stream()
-//                .map(BillPositionDTO::getGainerName)
-//                .toList();
-//
-//        var gainers = this.payeeService.getPayeesByNamesAndUserIdAsDto(gainerNames, userId);
-//
-//        var billNumber = toUpdate.getNumber();
-//        var budget = bill.getBudget();
-//
-//        if (bill.getBillDate().getYear() != toUpdate.getDate().getYear() || bill.getBillDate().getMonthValue() != toUpdate.getDate().getMonthValue())
-//        {
-//            var count = getBillCountByMonthYearAndUserId(toUpdate.getDate(), userId) + 1;
-//
-//            billNumber = String.valueOf(count);
-//            budget = null;
-//        }
-//
-////        var payee = this.payeeService.getPayeeSourceByNameAndUserId(toSave.getPayeeName(), userId);
-////        var account = this.accountService.getAccountSourceByNameAndUserId(toSave.getAccountName(), userId);
-//
-////        var bill = this.billRepo.save(new BillSnapshot(
-////                null                                                                                                  xxxxxxx
-////                , toSave.getDate()
-////                , String.valueOf(count)                                                                               xxxxxxx
-////                , payee
-////                , account
-////                , null                                                                                                xxxxxxx
-////                , toSave.getDescription()
-////                , toSave.getPositions()
-////                    .stream()
-////                    .map(dto -> new BillPositionSnapshot(
-////                            null
-////                        , toSave.getPositions().indexOf(dto) + 1
-////                        , dto.getAmount()
-////                        , new CategorySource(dto.getCategory().getId())
-////                        , new PayeeSource(gainers.stream().filter(p -> dto.getGainerName().equals(p.getName())).toList().get(0).getId())
-////                        , dto.getDescription()
-////                        ,null))
-////                    .collect(Collectors.toSet())
-////                , new UserSource(userId)));
-//
-//        var payee = this.payeeService.getPayeeSourceByNameAndUserId(toUpdate.getPayeeName(), userId);
-//        var account = this.accountService.getAccountSourceByNameAndUserId(toUpdate.getAccountName(), userId);
-//
-//        var result = this.billRepo.save(new BillSnapshot(
-//                bill.getId()
-//                , toUpdate.getDate()
-//                , billNumber
-//                , payee
-//                , account
-//                , budget
-//                , toUpdate.getDescription()
-//                , toUpdate.getPositions()
-//                    .stream()
-//                    .map(dto ->
-//                    {
-//                        var budgetPosition = bill.getPositions().stream().toList().get(Math.toIntExact(dto.getId())).getBudgetPosition();
-//
-//                        if (bill.getBillDate().getYear() != toUpdate.getDate().getYear() || bill.getBillDate().getMonthValue() != toUpdate.getDate().getMonthValue())
-//                            budgetPosition = null;
-//
-//                       return new BillPositionSnapshot(
-//                                dto.getId()
-//                                , dto.getNumber()
-//                                , dto.getAmount()
-//                                , new CategorySource(dto.getCategory().getId())
-//                                , new PayeeSource(gainers.stream().filter(g -> dto.getGainerName().equals(g.getName())).toList().get(0).getId())
-//                                , dto.getDescription()
-//                                , budgetPosition);
-//                    })
-//                .collect(Collectors.toSet())
-//                , bill.getUser()
-//        ));
-//
-//        var billSum = sumBillPositionsAmounts(bill);
-//
-//        updateAccountBalanceWhenBillIsUpdated(billSum, oldBillSum, account.getId());
-//
-//        return toDto(result);
+//        toDto(saveBill(toUpdate, userId));
 //    }
 
     @Test
@@ -549,19 +660,21 @@ class BillServiceUnitTest
     void getBillsByUserId_shouldReturnBillsFromDbForGivenUser()
     {
 //        given
+        var bills = List.of(new BillSnapshot(), new BillSnapshot(), new BillSnapshot());
+
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findByUserId(anyLong())).willReturn(bills);
 
 //        system under test
+        var toTest = new BillService(null, mockBillQueryRepo, null, null, null);
 
 //        when
+        var result = toTest.getBillsByUserId(12L);
 
 //        then
-
+        assertEquals(3, result.size());
     }
 
-//      List<BillSnapshot> getBillsByUserId(Long userId)
-//    {
-//        return this.billQueryRepo.findByUserId(userId);
-//    }
 //
 //    List<BillDTO> getBillsByUserIdAsDto(Long userId)
 //    {
@@ -570,24 +683,79 @@ class BillServiceUnitTest
 //                .map(this::toDto)
 //                .toList();
 //    }
-//
-//    Integer getBillCountByMonthYearAndUserId(final LocalDate date, final Long userId)
-//    {
-//        var startDate = LocalDate.of(date.getYear(), date.getMonthValue(), 1);
-//        var endDate = LocalDate.of(date.getYear(), date.getMonthValue(), date.lengthOfMonth());
-//
-//        return this.billQueryRepo.findBillCountBetweenDatesAndUserId(startDate, endDate, userId);
-//    }
-//
+
+    @Test
+    void getBillCountByMonthYearAndUserId_shouldReturnZeroWhenNoBillsFound()
+    {
+//        given
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findBillCountBetweenDatesAndUserId(any(), any(), anyLong())).willReturn(0);
+
+//        system under test
+        var toTest = new BillService(null, mockBillQueryRepo, null, null, null);
+
+//        when
+        var result = toTest.getBillCountByMonthYearAndUserId(LocalDate.now(), 3L);
+
+//        then
+        assertEquals(0, result);
+    }
+
+    @Test
+    void getBillCountByMonthYearAndUserId_shouldReturnCountedBillsFound()
+    {
+//        given
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findBillCountBetweenDatesAndUserId(any(), any(), anyLong())).willReturn(5);
+
+//        system under test
+        var toTest = new BillService(null, mockBillQueryRepo, null, null, null);
+
+//        when
+        var result = toTest.getBillCountByMonthYearAndUserId(LocalDate.now(), 3L);
+
+//        then
+        assertEquals(5, result);
+    }
+
 //    BillDTO getBillByNumberAndUserIdAsDto(final String number, final Long userId)
 //    {
 //        return toDto(getBillByNumberAndUserId(number, userId));
 //    }
-//
-//    boolean existsByNumberAndUserId(final String number, final Long userId)
-//    {
-//        return this.billQueryRepo.existsByNumberAndUserId(number, userId);
-//    }
+
+    @Test
+    void existsByNumberAndUserId_shouldReturnTrueIfBillExistsInDb()
+    {
+//        given
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.existsByNumberAndUserId(anyString(), anyLong())).willReturn(true);
+
+//        system under test
+        var toTest = new BillService(null, mockBillQueryRepo, null, null, null);
+
+//        when
+        var result = toTest.existsByNumberAndUserId("202401_12", 2L);
+
+//        then
+        assertTrue(result);
+    }
+
+    @Test
+    void existsByNumberAndUserId_shouldReturnFalseIfBillDoesntExistInDb()
+    {
+//        given
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.existsByNumberAndUserId(anyString(), anyLong())).willReturn(false);
+
+//        system under test
+        var toTest = new BillService(null, mockBillQueryRepo, null, null, null);
+
+//        when
+        var result = toTest.existsByNumberAndUserId("202401_12", 2L);
+
+//        then
+        assertFalse(result);
+    }
 
     @Test
     void getBillByNumberAndUserId_shouldThrowExceptionBecauseBillWithNullNumberIsNotFound()
@@ -644,12 +812,11 @@ class BillServiceUnitTest
         assertNotNull(result);
     }
 
-//
 //    public Set<BillWithSumsDTO> getBudgetPositionsIdsWithSumsByBillPositionIds(final List<Long> billPosIds)
 //    {
 //        return this.billQueryRepo.findBudgetPositionsIdsWithSumsByBillPositionIds(billPosIds);
 //    }
-//
+
 //    BillPositionDTO toDto(BillPositionSnapshot snap)
 //    {
 //        return BillPositionDTO.builder()

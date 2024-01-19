@@ -49,9 +49,9 @@ public class BudgetService
 
         if (!billPositionsDto.isEmpty())
         {
-            var categoriesIdsFromBudgetPositions = extractCategoriesIdsFromBudgetPositions(budget.getPositions());
+            var categoriesIdsFromBudgetPositions = budget.getCategoriesIdsFromPositions();
 
-            var map = new HashMap<Long, Set<Long>>();
+            var map = new HashMap<Long, List<Long>>();
 
             for (BillPositionDTO bp : billPositionsDto)
             {
@@ -60,7 +60,7 @@ public class BudgetService
                 if (!categoriesIdsFromBudgetPositions.contains(billPositionCategoryId))
                 {
                     var budPos = new BudgetPositionSnapshot(
-                            0L
+                            null
                             , new CategorySource(billPositionCategoryId)
                             , 0d
                             , ""
@@ -72,7 +72,7 @@ public class BudgetService
                     this.budgetRepo.save(budPos);
                 }
 
-                updateBudgetPositionsMap(budget.getPositions(), bp, map);
+                updateBudgetPositionsMap(budget, bp, map);
             }
 
             map.forEach(this.billService::updateBudgetPositionInBillPositionById);
@@ -81,13 +81,9 @@ public class BudgetService
         return budget;
     }
 
-    void updateBudgetPositionsMap(Set<BudgetPositionSnapshot> budgetPositions, BillPositionDTO  billPosition, Map<Long, Set<Long>> map)
+    void updateBudgetPositionsMap(BudgetSnapshot budget, BillPositionDTO  billPosition, Map<Long, List<Long>> map)
     {
-        var budgetPosition = budgetPositions
-                .stream()
-                .filter(p -> p.getCategory().getId().equals(billPosition.getCategoryId()))
-                .toList()
-                .get(0);
+        var budgetPosition = budget.getPositionByCategoryId(billPosition.getCategoryId());
 
         var billPositionId = billPosition.getId();
 
@@ -96,17 +92,13 @@ public class BudgetService
         var budgetPositionId = budgetPosition.getId();
 
         if (!map.containsKey(budgetPositionId))
-            map.put(budgetPositionId, Set.of(billPositionId));
+        {
+            var list = new ArrayList<Long>();
+            list.add(billPositionId);
+            map.put(budgetPositionId, list);
+        }
         else
             map.get(budgetPositionId).add(billPositionId);
-    }
-
-    List<Long> extractCategoriesIdsFromBudgetPositions(Set<BudgetPositionSnapshot> positions)
-    {
-        return positions
-                .stream()
-                .map(BudgetPositionSnapshot::getCategoryId)
-                .toList();
     }
 
     BudgetDTO prepareBudgetAsDto(BudgetSnapshot budget)
@@ -157,7 +149,7 @@ public class BudgetService
 
     BudgetDTO toDto(BudgetSnapshot budget)
     {
-        var catIds = extractCategoriesIdsFromBudgetPositions(budget.getPositions());
+        var catIds = budget.getCategoriesIdsFromPositions();
 
         var categories = this.categoryService.getCategoriesByIdsAsDto(catIds);
 

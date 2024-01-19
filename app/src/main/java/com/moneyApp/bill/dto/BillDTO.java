@@ -4,6 +4,8 @@ import com.moneyApp.vo.BillSource;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BillDTO
 {
@@ -91,12 +93,12 @@ public class BillDTO
         return  this.positions.indexOf(dto);
     }
 
-    public List<String> getGainerNames()
+    public Set<String> getGainerNames()
     {
         return this.positions
                 .stream()
                 .map(BillPositionDTO::getGainerName)
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     public static class Builder

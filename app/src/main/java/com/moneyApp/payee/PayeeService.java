@@ -7,6 +7,7 @@ import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,7 +50,8 @@ public class PayeeService
     PayeeDTO toDto(PayeeSnapshot snap)
     {
         return new PayeeDTO(
-                snap.getName()
+                snap.getId()
+                , snap.getName()
                 , snap.getRole()
         );
     }
@@ -92,9 +94,17 @@ public class PayeeService
         return toDto(result);
     }
 
-    public List<PayeeWithIdAndNameDTO> getPayeesByNamesAndUserIdAsDto(final List<String> payeeNames, final Long userId)
+    Set<PayeeSnapshot> getPayeesByNamesAndUserId(final Set<String> payeeNames, final Long userId)
     {
-        return this.payeeQueryRepo.findPayeesIdsAndNamesByNamesAndUserId(payeeNames, userId);
+        return this.payeeQueryRepo.findPayeesByNamesAndUserId(payeeNames, userId);
+    }
+
+    public Set<PayeeDTO> getPayeesByNamesAndUserIdAsDto(final Set<String> payeeNames, final Long userId)
+    {
+        return getPayeesByNamesAndUserId(payeeNames, userId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toSet());
     }
 
     public List<PayeeWithIdAndNameDTO> getPayeesByIdsAsDto(final List<Long> payeeIds)

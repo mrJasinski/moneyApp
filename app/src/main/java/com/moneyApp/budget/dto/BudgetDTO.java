@@ -49,22 +49,27 @@ public class BudgetDTO
                 this.positions.add(p);
         });
 
-        splitPositionsIntoIncomesAndExpenses(positions);
+        if (!this.positions.isEmpty())
+        {
+            splitPositionsIntoIncomesAndExpenses(positions);
 
-        sumPositionsAmounts();
+            sumPositionsAmounts();
+        }
     }
 
     void splitPositionsIntoIncomesAndExpenses(List<BudgetPositionDTO> positions)
     {
-        this.incomes.addAll(positions
-                .stream()
-                .filter(p -> p.getType().equals(CategoryType.INCOME))
-                .toList());
+        this.incomes.addAll(filterByCategoryType(positions, CategoryType.INCOME));
 
-        this.expenses.addAll(positions
+        this.expenses.addAll(filterByCategoryType(positions, CategoryType.EXPENSE));
+    }
+
+    List<BudgetPositionDTO> filterByCategoryType(List<BudgetPositionDTO> positions, CategoryType type)
+    {
+        return positions
                 .stream()
-                .filter(p -> p.getType().equals(CategoryType.EXPENSE))
-                .toList());
+                .filter(p -> p.getCategory().getType().equals(type))
+                .toList();
     }
 
     void sumPositionsAmounts()

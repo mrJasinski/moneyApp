@@ -60,10 +60,13 @@ class BillSnapshot
 
     double getBillSum()
     {
-        return this.positions
-            .stream()
-            .mapToDouble(BillPositionSnapshot::getAmount)
-            .sum();
+        if (!this.positions.isEmpty())
+            return this.positions
+                .stream()
+                .mapToDouble(BillPositionSnapshot::getAmount)
+                .sum();
+
+        return 0;
     }
 
     long getExemplaryCategoryId()

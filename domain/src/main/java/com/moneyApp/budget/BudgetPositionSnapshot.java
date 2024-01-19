@@ -85,5 +85,4 @@ class BudgetPositionSnapshot
     {
         return this.billPositions;
     }
-
 }
