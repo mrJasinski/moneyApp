@@ -17,7 +17,6 @@ import static com.moneyApp.category.CategoryType.EXPENSE;
 @Service
 public class BillService
 {
-
     private final BillRepository billRepo;
     private final BillQueryRepository billQueryRepo;
     private final AccountService accountService;
@@ -37,7 +36,6 @@ public class BillService
         this.accountService = accountService;
         this.categoryService = categoryService;
         this.payeeService = payeeService;
-
     }
 
     BillDTO createBillByUserIdAsDto(BillDTO toSave, Long userId)
@@ -302,11 +300,18 @@ public class BillService
                 .toList();
     }
 
+    List<BillSnapshot> filterBillsWithoutBudgetAssigned(final LocalDate monthYear, final Long userId)
+    {
+        return getBillsByMonthYearAndUserId(monthYear, userId)
+            .stream()
+            .filter(b -> b.getBudget() == null)
+            .toList();
+    }
+
     public void updateBudgetInBillsByMonthYearAndUserId(final LocalDate monthYear, final long budgetId, final Long userId)
     {
-        var billIds = getBillsByMonthYearAndUserId(monthYear, userId)
+        var billIds = filterBillsWithoutBudgetAssigned(monthYear, userId)
                 .stream()
-                .filter(b -> b.getBudget() == null)
                 .map(BillSnapshot::getId)
                 .toList();
 

@@ -12,6 +12,7 @@ import com.moneyApp.vo.*;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -646,11 +647,6 @@ class BillServiceUnitTest
         assertTrue(result);
     }
 
-//    void deleteBillByNumberAndUserId(final String number, final Long userId)
-//    {
-//        this.billRepo.deleteByNumberAndUserId(number, userId);
-//    }
-
     @Test
     void getBillsByUserId_shouldReturnBillsFromDbForGivenUser()
     {
@@ -670,7 +666,7 @@ class BillServiceUnitTest
         assertEquals(3, result.size());
     }
 
-//
+
 //    List<BillDTO> getBillsByUserIdAsDto(Long userId)
 //    {
 //        return getBillsByUserId(userId)
@@ -867,12 +863,45 @@ class BillServiceUnitTest
 //                .map(this::toDto)
 //                .toList();
 //    }
+
+    @Test
+    void filterBillsWithoutBudgetAssigned_shouldFilterBillsWithoutBudgetAssigned()
+    {
+//        given
+        var bill1 = new BillSnapshot(1L, LocalDate.now(), "1", new PayeeSource(1L), new AccountSource(1L)
+                , new BudgetSource(1L), "null", new HashSet<>(), new UserSource(1L));
+        var bill2 = new BillSnapshot(1L, LocalDate.now(), "2", new PayeeSource(1L), new AccountSource(1L)
+                , new BudgetSource(1L), "null", new HashSet<>(), new UserSource(1L));
+        var bill3 = new BillSnapshot(1L, LocalDate.now(), "3", new PayeeSource(1L), new AccountSource(1L)
+                , null, "null", new HashSet<>(), new UserSource(1L));
+
+        var bills = List.of(bill1, bill2, bill3);
+
+        var mockBillQueryRepo = mock(BillQueryRepository.class);
+        given(mockBillQueryRepo.findByDatesAndUserId(any(), any(), anyLong())).willReturn(bills);
+
+//        system under test
+        var toTest = new BillService(null, mockBillQueryRepo, null, null, null);
+
+//        when
+        var result = toTest.filterBillsWithoutBudgetAssigned(LocalDate.now(), 1L);
+
+//        then
+        assertEquals(1, result.size());
+    }
+
+//List<BillSnapshot> filterBillsWithoutBudgetAssigned(final LocalDate monthYear, final Long userId)
+//    {
+//        return getBillsByMonthYearAndUserId(monthYear, userId)
+//            .stream()
+//            .filter(b -> b.getBudget() == null)
+//            .toList();
+//    }
 //
 //    public void updateBudgetInBillsByMonthYearAndUserId(final LocalDate monthYear, final long budgetId, final Long userId)
 //    {
-//        var billIds = getBillsByMonthYearAndUserId(monthYear, userId)
+//        var billIds = filterBillsWithoutBudgetAssigned(monthYear, userId)
 //                .stream()
-//                .filter(b -> b.getBudget() == null)
 //                .map(BillSnapshot::getId)
 //                .toList();
 //

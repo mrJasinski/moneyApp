@@ -4,7 +4,7 @@ public enum PayeeRole
 {
 //    TODO ładne nazwy PL
     PAYEE("Kontrahent"),
-    GAINER("Dla"),
+    GAINER("Beneficjent"),
     BOTH("Oba");
 
     private final String name;

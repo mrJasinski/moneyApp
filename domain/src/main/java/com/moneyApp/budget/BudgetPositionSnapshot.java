@@ -13,7 +13,7 @@ class BudgetPositionSnapshot
     private Double plannedAmount;
     private String description;
     private BudgetSnapshot budget;
-    private final Set<BillPositionSource> billPositions = new HashSet<>();
+    private Set<BillPositionSource> billPositions = new HashSet<>();
 
     BudgetPositionSnapshot()
     {
@@ -40,12 +40,22 @@ class BudgetPositionSnapshot
         if (sources == null)
             sources = new HashSet<>();
 
+        initBillPositions();
+
         this.billPositions.addAll(sources);
     }
 
     void addBillPositionSource(final BillPositionSource billPositionSource)
     {
+        initBillPositions();
+
         this.billPositions.add(billPositionSource);
+    }
+
+    void initBillPositions()
+    {
+        if (this.billPositions == null)
+            this.billPositions = new HashSet<>();
     }
 
     public Long getId()
