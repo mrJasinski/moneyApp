@@ -26,13 +26,8 @@ import static org.mockito.Mockito.mock;
 class BillServiceUnitTest
 {
 //    BillDTO toDto(BillSnapshot snap)
-//    {
-//        var gainerIds = snap.getPositions()
-//                        .stream()
-//                        .map(BillPositionSnapshot::getGainerId)
-//                        .toList();
 //
-//        var gainers = this.payeeService.getPayeesByIdsAsDto(gainerIds);
+//        var gainers = this.payeeService.getPayeesByIdsAsDto(snap.getGainerIds());
 //
 //      return BillDTO.builder()
 //                .withId(snap.getId())

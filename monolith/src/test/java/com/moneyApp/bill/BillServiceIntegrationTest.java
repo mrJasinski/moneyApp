@@ -6,7 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -364,7 +364,7 @@ class BillServiceIntegrationTest
         var billPositionId1 = 7L;
         var billPositionId2 = 8L;
         var billPositionId3 = 9L;
-        var billPositionIds = Set.of(billPositionId1, billPositionId2, billPositionId3);
+        var billPositionIds = List.of(billPositionId1, billPositionId2, billPositionId3);
 
         var budgetPositionId = 5L;
 
@@ -399,6 +399,7 @@ class BillServiceIntegrationTest
 //        then
         assertTrue(result.isEmpty());
     }
+
 //    Set<Long> getBillPositionIdsByBudgetPositionId(final long budPosId)
 //    {
 //        return this.billQueryRepo.findBillPositionIdsByBudgetPositionId(budPosId);

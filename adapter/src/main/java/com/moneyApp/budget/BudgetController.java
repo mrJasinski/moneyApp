@@ -32,15 +32,6 @@ public class BudgetController
         return ResponseEntity.created(URI.create("/" + result.getMonthYear())).body(result);
     }
 
-//    @PostMapping("/addBudget")
-//    ResponseEntity<?> createBudget(@RequestBody BudgetDTO toSave, HttpServletRequest request, @RequestParam MonthType monthType,
-//                                   @RequestParam CalculationType calculationType, @RequestParam Integer monthsCount)
-//    {
-//        var result = this.budgetService.createBudgetByUserEmail(toSave, monthType, calculationType, monthsCount , this.jwtService.getUserEmail(request));
-//
-//        return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
-//    }
-//
     @GetMapping
     ResponseEntity<?> getBudgetsByUserAsDto(HttpServletRequest request)
     {
@@ -63,13 +54,6 @@ public class BudgetController
         return ResponseEntity.ok(String.format("Budget with number %s deleted!", number));
     }
 
-////    kopiowanie budżetu
-//    @GetMapping("/plan/copy")
-//    ResponseEntity<?> getBudgetPlannedAsCopyOfMonth(@RequestParam LocalDate date, HttpServletRequest request)
-//    {
-//        return ResponseEntity.ok().body(this.budgetService.getBudgetPlannedAsCopyOfMonth(date, this.jwtService.getUserEmail(request)));
-//    }
-//
 ////    TODO test
 //    @GetMapping("/{number}/export")
 //    void exportBudgetToCSV(@PathVariable String number, HttpServletRequest request, HttpServletResponse response) throws IOException

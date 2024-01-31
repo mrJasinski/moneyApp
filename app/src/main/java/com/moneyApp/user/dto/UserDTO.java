@@ -58,9 +58,4 @@ public class UserDTO
     {
         return this.role;
     }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
 }

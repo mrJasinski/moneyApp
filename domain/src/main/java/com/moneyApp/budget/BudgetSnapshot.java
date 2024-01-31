@@ -35,6 +35,9 @@ class BudgetSnapshot
 
     void addPositions(final Set<BudgetPositionSnapshot> positions)
     {
+        if (this.positions == null)
+            this.positions = new HashSet<>();
+
         this.positions.addAll(positions);
     }
 

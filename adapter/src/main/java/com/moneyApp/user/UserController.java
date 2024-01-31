@@ -38,7 +38,7 @@ public class UserController
     }
 
     @PostMapping("/authenticate")
-    ResponseEntity<?> generateToken(@RequestBody JwtRequest user)
+    ResponseEntity<?> authenticateUser(@RequestBody JwtRequest user)
     {
         var userDetails = this.authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 

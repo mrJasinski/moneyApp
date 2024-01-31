@@ -114,17 +114,17 @@ class BudgetServiceIntegrationTest
     void getBudgetsByUserId_shouldReturnListOfAllBudgetsForGivenUser()
     {
 //        given
-        this.budgetRepo.save(new BudgetSnapshot(0L, LocalDate.now(), "", new UserSource(6L), new HashSet<>()));
-        this.budgetRepo.save(new BudgetSnapshot(0L, LocalDate.now(), "", new UserSource(6L), new HashSet<>()));
+//        this.budgetRepo.save(new BudgetSnapshot(0L, LocalDate.now(), "", new UserSource(6L), new HashSet<>()));
+//        this.budgetRepo.save(new BudgetSnapshot(0L, LocalDate.now(), "", new UserSource(6L), new HashSet<>()));
 
 //        system under test
         var toTest = new BudgetService(null, this.budgetQueryRepo, null, null);
 
 //        when
-        var result = toTest.getBudgetsByUserId(6L);
+        var result = toTest.getBudgetsByUserId(2L);
 
 //        then
-        assertEquals(2, result.size());
+        assertEquals(3, result.size());
     }
 
 //    BudgetDTO toDto(BudgetSnapshot budget)

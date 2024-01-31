@@ -133,7 +133,11 @@ class BudgetServiceUnitTest
     {
 //        given
         var map = new HashMap<Long, List<Long>>();
+
+
         var budgetPositions = Set.of(new BudgetPositionSnapshot(1L, new CategorySource(2L), 0d, "", null, new HashSet<>()));
+
+        var budget = new BudgetSnapshot(1L, LocalDate.now(), "", new UserSource(1L), budgetPositions);
         var billPosition = BillPositionDTO.builder()
                 .withId(3L)
                 .withCategory(new CategoryDTO(2L, ""))
@@ -143,7 +147,7 @@ class BudgetServiceUnitTest
         var toTest = new BudgetService(null, null, null, null);
 
 //        when
-        toTest.updateBudgetPositionsMap(budgetPositions, billPosition, map);
+        toTest.updateBudgetPositionsMap(budget, billPosition, map);
 
 //        then
         assertEquals(1, map.size());
@@ -158,7 +162,10 @@ class BudgetServiceUnitTest
         var list = new ArrayList<Long>();
         list.add(5L);
         map.put(1L, list);
+
         var budgetPositions = Set.of(new BudgetPositionSnapshot(1L, new CategorySource(2L), 0d, "", null, new HashSet<>()));
+        var budget = new BudgetSnapshot(1L, LocalDate.now(), "", new UserSource(1L), budgetPositions);
+
         var billPosition = BillPositionDTO.builder()
                 .withId(3L)
                 .withCategory(new CategoryDTO(2L, ""))
@@ -168,7 +175,7 @@ class BudgetServiceUnitTest
         var toTest = new BudgetService(null, null, null, null);
 
 //        when
-        toTest.updateBudgetPositionsMap(budgetPositions, billPosition, map);
+        toTest.updateBudgetPositionsMap(budget, billPosition, map);
 
 //        then
         assertEquals(1, map.size());

@@ -37,6 +37,8 @@ public class UserService
         this.paymentService = paymentService;
     }
 
+
+
     User getUserByEmail(String email)
     {
         var snap = this.userQueryRepo.findByEmail(email)
