@@ -1,11 +1,13 @@
 package com.moneyApp.bill;
 
+import com.moneyApp.vo.UserSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -207,7 +209,7 @@ class BillServiceIntegrationTest
         var userId = 2L;
 
 //        system under test
-        var toTest = new BillService(null, billQueryRepo, null, null, null);
+        var toTest = new BillService(null, this.billQueryRepo, null, null, null);
 
 //        when
         var result = toTest.getBillCountByMonthYearAndUserId(monthYear, userId);
@@ -274,11 +276,23 @@ class BillServiceIntegrationTest
     void existsByNumberAndUserId_shouldReturnTrueWhenBillIsFoundInDb()
     {
 //        given
-        var billNumber = "202312_4";
         var userId = 2L;
+        var billNumber = "202312_4";
+
+        if (!this.billQueryRepo.existsByNumberAndUserId(billNumber, userId))
+            this.billRepo.save(new BillSnapshot(
+                    null
+                    , LocalDate.of(2023, 12, 1)
+                    , "4"
+                    , null
+                    , null
+                    , null
+                    , null
+                    , new HashSet<>()
+                    , new UserSource(userId)));
 
 //        system under test
-        var toTest = new BillService(null,this.billQueryRepo, null, null, null);
+        var toTest = new BillService(null, this.billQueryRepo, null, null, null);
 
 //        when
         var result = toTest.existsByNumberAndUserId(billNumber, userId);

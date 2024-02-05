@@ -49,7 +49,7 @@ public class ScheduleConfig
     {
         var dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
-        dataSourceBuilder.url("jdbc:mysql://localhost:3306/moneyTest");
+        dataSourceBuilder.url("jdbc:mysql://localhost:3306/moneyDb");
         dataSourceBuilder.username("root");
 //        dataSourceBuilder.password("");
 

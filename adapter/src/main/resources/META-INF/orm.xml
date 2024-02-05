@@ -7,6 +7,21 @@
 
     <description>XML Mapping file</description>
 
+    <entity class="com.moneyApp.user.UserSnapshot" access="FIELD">
+        <table name="users" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="email"/>
+            <basic name="password"/>
+            <basic name="role" >
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="name"/>
+        </attributes>
+    </entity>
+
     <entity class="com.moneyApp.account.AccountSnapshot" access="FIELD">
         <table name="accounts" />
         <attributes>
@@ -19,6 +34,33 @@
             <embedded name="user">
                 <attribute-override name="id" >
                     <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.bill.BillPositionSnapshot" access="FIELD">
+        <table name="bill_positions" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="number" />
+            <basic name="amount" />
+            <basic name="description" />
+            <embedded name="category">
+                <attribute-override name="id" >
+                    <column name="category_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="gainer">
+                <attribute-override name="id" >
+                    <column name="gainer_id" />
+                </attribute-override>
+            </embedded>
+            <embedded name="budgetPosition">
+                <attribute-override name="id" >
+                    <column name="budget_position_id" />
                 </attribute-override>
             </embedded>
         </attributes>
@@ -62,52 +104,6 @@
         </attributes>
     </entity>
 
-    <entity class="com.moneyApp.bill.BillPositionSnapshot" access="FIELD">
-        <table name="bill_positions" />
-        <attributes>
-            <id name="id">
-                <generated-value strategy="IDENTITY"/>
-            </id>
-            <basic name="number" />
-            <basic name="amount" />
-            <basic name="description" />
-            <embedded name="category">
-                <attribute-override name="id" >
-                    <column name="category_id" />
-                </attribute-override>
-            </embedded>
-            <embedded name="gainer">
-                <attribute-override name="id" >
-                    <column name="gainer_id" />
-                </attribute-override>
-            </embedded>
-            <embedded name="budgetPosition">
-                <attribute-override name="id" >
-                    <column name="budget_position_id" />
-                </attribute-override>
-            </embedded>
-        </attributes>
-    </entity>
-
-    <entity class="com.moneyApp.budget.BudgetSnapshot" access="FIELD">
-        <table name="budgets" />
-        <attributes>
-            <id name="id">
-                <generated-value strategy="IDENTITY"/>
-            </id>
-            <basic name="monthYear" />
-            <basic name="description" />
-            <one-to-many name="positions" fetch="EAGER">
-                <join-column name="budget_id"/>
-            </one-to-many>
-            <embedded name="user">
-                <attribute-override name="id" >
-                    <column name="user_id" />
-                </attribute-override>
-            </embedded>
-        </attributes>
-    </entity>
-
     <entity class="com.moneyApp.budget.BudgetPositionSnapshot" access="FIELD">
         <table name="budget_positions" />
         <attributes>
@@ -130,29 +126,17 @@
         </attributes>
     </entity>
 
-    <entity class="com.moneyApp.category.CategorySnapshot" access="FIELD">
-        <table name="categories" />
+    <entity class="com.moneyApp.budget.BudgetSnapshot" access="FIELD">
+        <table name="budgets" />
         <attributes>
             <id name="id">
                 <generated-value strategy="IDENTITY"/>
             </id>
-            <basic name="type" >
-                <enumerated>STRING</enumerated>
-            </basic>
+            <basic name="monthYear" />
             <basic name="description" />
-            <basic name="name" />
-            <many-to-one name="mainCategory">
-                <join-column name="main_category_id"/>
-                <cascade>
-                    <cascade-all/>
-                </cascade>
-            </many-to-one>
-            <many-to-one name="subCategory">
-                <join-column name="sub_category_id"/>
-                <cascade>
-                    <cascade-all/>
-                </cascade>
-            </many-to-one>
+            <one-to-many name="positions" fetch="EAGER">
+                <join-column name="budget_id"/>
+            </one-to-many>
             <embedded name="user">
                 <attribute-override name="id" >
                     <column name="user_id" />
@@ -186,6 +170,37 @@
             <basic name="name" />
             <many-to-one name="mainCategory" >
                 <join-column name="main_category_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </many-to-one>
+            <embedded name="user">
+                <attribute-override name="id" >
+                    <column name="user_id" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <entity class="com.moneyApp.category.CategorySnapshot" access="FIELD">
+        <table name="categories" />
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="type" >
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="description" />
+            <basic name="name" />
+            <many-to-one name="mainCategory">
+                <join-column name="main_category_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </many-to-one>
+            <many-to-one name="subCategory">
+                <join-column name="sub_category_id"/>
                 <cascade>
                     <cascade-all/>
                 </cascade>
@@ -263,20 +278,7 @@
         </attributes>
     </entity>
 
-    <entity class="com.moneyApp.user.UserSnapshot" access="FIELD">
-        <table name="users" />
-        <attributes>
-            <id name="id">
-                <generated-value strategy="IDENTITY"/>
-            </id>
-            <basic name="email"/>
-            <basic name="password"/>
-            <basic name="role" >
-                <enumerated>STRING</enumerated>
-            </basic>
-            <basic name="name"/>
-        </attributes>
-    </entity>
+
 
     <embeddable class="com.moneyApp.vo.AccountSource" access="FIELD" >
         <attributes>
@@ -307,13 +309,11 @@
     <embeddable class="com.moneyApp.vo.CategorySource" access="FIELD" >
         <attributes>
             <basic name="id" />
-            <basic name="name" />
         </attributes>
     </embeddable>
     <embeddable class="com.moneyApp.vo.PayeeSource" access="FIELD" >
         <attributes>
             <basic name="id" />
-            <basic name="name" />
         </attributes>
     </embeddable>
     <embeddable class="com.moneyApp.vo.UserSource" access="FIELD" >

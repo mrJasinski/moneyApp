@@ -39,12 +39,10 @@ public class UserService
 
 
 
-    User getUserByEmail(String email)
+    UserSnapshot getUserByEmail(String email)
     {
-        var snap = this.userQueryRepo.findByEmail(email)
+        return this.userQueryRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User with given email not found!"));
-
-        return User.restore(snap);
     }
 
     public UserDTO getUserByEmailAsDto(String email)
@@ -52,10 +50,8 @@ public class UserService
         return toDto(getUserByEmail(email));
     }
 
-    UserDTO toDto(User user)
+    UserDTO toDto(UserSnapshot snap)
     {
-        var snap = user.getSnapshot();
-
         return new UserDTO(
                 snap.getEmail()
                 , snap.getPassword()
@@ -88,7 +84,7 @@ public class UserService
 
         var hashedPassword = hashPassword(toSave.getPassword());
 
-        var user = this.userRepo.save(new User(toSave.getId(), toSave.getEmail(), hashedPassword, toSave.getRole(), toSave.getName()));
+        var user = this.userRepo.save(new UserSnapshot(toSave.getId(), toSave.getEmail(), hashedPassword, toSave.getRole(), toSave.getName()));
 
         var dto = toDto(user);
 

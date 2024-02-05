@@ -1,10 +1,8 @@
 package com.moneyApp.user;
 
-import java.util.Optional;
-
 public interface UserRepository
 {
-    User save(User entity);
+    UserSnapshot save(UserSnapshot entity);
 
     void deleteById(Long userId);
 }
