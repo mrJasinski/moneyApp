@@ -4,6 +4,7 @@ import com.moneyApp.category.dto.CategoryWithIdAndNameDTO;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 interface CategoryQueryRepository
 {
@@ -22,4 +23,8 @@ interface CategoryQueryRepository
                                                                     , Long userId);
 
     Optional<CategorySnapshot> findByNameAndUserId(String nameFromUrlName, Long userId);
+
+    boolean existsByNameAndUserId(String catName, long userId);
+
+    Set<Long> findCategoriesIdsByType(CategoryType categoryType);
 }

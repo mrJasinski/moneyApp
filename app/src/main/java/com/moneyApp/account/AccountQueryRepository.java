@@ -2,6 +2,7 @@ package com.moneyApp.account;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 interface AccountQueryRepository
@@ -15,4 +16,8 @@ interface AccountQueryRepository
     Optional<AccountSnapshot> findByNameAndUserId(String name, Long userId);
 
     boolean existsByNameAndUserId(String name, Long userId);
+
+    Set<Long> findAllIds();
+
+    Optional<Double> findBalanceByAccountId(long accountId);
 }

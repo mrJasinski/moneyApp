@@ -31,20 +31,25 @@ public class PayeeService
                 .orElseThrow(() -> new IllegalArgumentException("Payee with given name not found!"));
     }
 
-    PayeeDTO createPayeeByUserIdAsDto(PayeeDTO toSave, Long userId)
+    PayeeSnapshot createPayeeByUserId(PayeeDTO toSave, Long userId)
     {
-//        check if payee with given name already exists for given user
+        //        check if payee with given name already exists for given user
         if (this.payeeRepo.existsByNameAndUserId(toSave.getName(), userId))
             throw new IllegalArgumentException("Payee with given name already exists!");
 
-        return toDto(this.payeeRepo.save(new PayeeSnapshot(
+        return this.payeeRepo.save(new PayeeSnapshot(
                 null
                 , toSave.getName()
                 , toSave.getRole()
 //                , toSave.getBills().stream().map(BillDTO::toSource).collect(Collectors.toSet())
 //                , toSave.getBillPositions().stream().map(BillPositionDTO::toSource).collect(Collectors.toSet())
                 , new UserSource(userId)
-        )));
+        ));
+    }
+
+    public PayeeDTO createPayeeByUserIdAsDto(PayeeDTO toSave, Long userId)
+    {
+        return toDto(createPayeeByUserId(toSave, userId));
     }
 
     PayeeDTO toDto(PayeeSnapshot snap)
@@ -110,5 +115,10 @@ public class PayeeService
     public List<PayeeWithIdAndNameDTO> getPayeesByIdsAsDto(final List<Long> payeeIds)
     {
         return this.payeeQueryRepo.findPayeesIdsAndNamesByIds(payeeIds);
+    }
+
+    public boolean existsByNameAndUserId(final String name, final long userId)
+    {
+       return this.payeeQueryRepo.existsByNameAndUserId(name, userId);
     }
 }

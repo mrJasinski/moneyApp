@@ -533,6 +533,38 @@ class BillServiceUnitTest
 //        toDto(saveBill(toUpdate, userId));
 //    }
 
+    //    Double sumBillPositionsAmounts(BillSnapshot bill)
+//    {
+//        if (bill.getPositions().isEmpty())
+//           return 0d;
+
+//        var sum = bill.getBillSum();
+//
+//        var type = this.categoryService.getCategoryTypeById(bill.getExemplaryCategoryId());
+//
+//        if (EXPENSE.equals(type))
+//            sum = -sum;
+//
+//        return sum;
+//    }
+
+    @Test
+    void sumBillPositionsAmounts_shouldReturnZeroWhenNoPositionsInBill()
+    {
+//        given
+        var bill = new BillSnapshot(null , null, "0_0", null, null, null, null, new HashSet<>(), null);
+
+//        system under test
+        var toTest = new BillService(null, null, null, null, null);
+
+//        when
+        var result = toTest.sumBillPositionsAmounts(bill);
+
+//        then
+        assertEquals(0, result);
+
+    }
+
     @Test
     void sumBillPositionsAmounts_shouldReturnMinusSumWhenBillCategoriesTypeIsExpense()
     {

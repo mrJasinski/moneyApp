@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 interface SqlCategoryQueryRepository extends CategoryQueryRepository, JpaRepository<CategorySnapshot, Long>
@@ -28,4 +29,10 @@ interface SqlCategoryQueryRepository extends CategoryQueryRepository, JpaReposit
     @Query(value = "FROM CategorySnapshot c " +
                    "WHERE c.id IN :catIds")
     List<CategorySnapshot> findCategoriesByIds(List<Long> catIds);
+
+    @Override
+    @Query(value = "SELECT c.id " +
+                   "FROM CategorySnapshot c " +
+                   "WHERE c.type = :categoryType ")
+    Set<Long> findCategoriesIdsByType(CategoryType categoryType);
 }

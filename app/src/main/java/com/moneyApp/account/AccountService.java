@@ -6,6 +6,7 @@ import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,10 +21,10 @@ public class AccountService
         this.accountQueryRepo = accountQueryRepo;
     }
 
-    public AccountDTO createAccountByUserIdAsDto(AccountDTO toSave, Long userId)
+     public AccountDTO createAccountByUserIdAsDto(AccountDTO toSave, Long userId)
     {
 //        check if account with given name already exists for given user
-        if (this.accountQueryRepo.existsByNameAndUserId(toSave.getName(), userId))
+        if (existsByNameAndUserId(toSave.getName(), userId))
             throw new IllegalArgumentException("Account with given name already exists!");
 
         return toDto(this.accountRepo.save(new AccountSnapshot(
@@ -92,5 +93,24 @@ public class AccountService
     void deleteAccountByNameAndUserId(final String name, final Long userId)
     {
         this.accountRepo.deleteByNameAndUserId(name, userId);
+    }
+
+    public boolean existsByNameAndUserId(final String name, final long userId)
+    {
+        return this.accountQueryRepo.existsByNameAndUserId(name, userId);
+    }
+
+    public long getExemplaryAccountId()
+    {
+        return this.accountQueryRepo.findAllIds()
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NoSuchElementException("Account ids not found!"));
+    }
+
+    public double getAccountBalanceByAccountId(final long accountId)
+    {
+        return this.accountQueryRepo.findBalanceByAccountId(accountId)
+                .orElseThrow(() -> new NoSuchElementException("Account balance for given id not found!"));
     }
 }

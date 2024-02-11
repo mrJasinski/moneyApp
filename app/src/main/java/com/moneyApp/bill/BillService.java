@@ -179,6 +179,9 @@ public class BillService
 
     Double sumBillPositionsAmounts(BillSnapshot bill)
     {
+        if (bill.getPositions().isEmpty())
+            return 0d;
+
         var sum = bill.getBillSum();
 
         var type = this.categoryService.getCategoryTypeById(bill.getExemplaryCategoryId());

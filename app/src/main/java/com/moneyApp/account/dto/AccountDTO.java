@@ -31,9 +31,7 @@ public class AccountDTO
 
     public AccountDTO(final String name, final String description, final Double actualBalance, final List<BillDTO> bills, final List<BillPositionDTO> billPositions)
     {
-        this.name = name;
-        this.description = description;
-        this.actualBalance = actualBalance;
+        this(name, description, actualBalance);
         this.bills = bills;
         this.billPositions = billPositions;
     }

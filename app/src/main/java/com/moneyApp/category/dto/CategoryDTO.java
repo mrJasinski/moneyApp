@@ -32,13 +32,13 @@ public class CategoryDTO
     {
         this.mainCategory = mainCategory;
         this.subCategory = subCategory;
+        this.name = addName(mainCategory, subCategory);
         this.type = type;
     }
 
     public CategoryDTO(String mainCategory, String subCategory, CategoryType type, String description)
     {
         this(mainCategory, subCategory, type);
-        this.name = addName(mainCategory, subCategory);
         this.description = description;
     }
 

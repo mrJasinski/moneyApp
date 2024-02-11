@@ -1,5 +1,6 @@
 package com.moneyApp.bill;
 
+import com.moneyApp.utils.Utils;
 import com.moneyApp.vo.AccountSource;
 import com.moneyApp.vo.BudgetSource;
 import com.moneyApp.vo.PayeeSource;
@@ -53,7 +54,7 @@ class BillSnapshot
     String generateNumber(String number)
     {
         if (!number.contains("_"))
-            return String.format("%s%s_%s", this.billDate.getYear(), this.billDate.getMonthValue(), number);
+            return Utils.createBillNumber(this.billDate, Integer.parseInt(number));
 
         return number;
     }

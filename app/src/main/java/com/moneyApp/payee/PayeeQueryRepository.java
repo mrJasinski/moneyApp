@@ -17,4 +17,6 @@ interface PayeeQueryRepository
     Set<PayeeSnapshot> findPayeesByNamesAndUserId(Set<String> payeeNames, Long userId);
 
     List<PayeeWithIdAndNameDTO> findPayeesIdsAndNamesByIds(List<Long> payeeIds);
+
+    boolean existsByNameAndUserId(String name, long userId);
 }

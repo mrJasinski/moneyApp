@@ -195,15 +195,15 @@
             <basic name="name" />
             <many-to-one name="mainCategory">
                 <join-column name="main_category_id"/>
-                <cascade>
-                    <cascade-all/>
-                </cascade>
+<!--                <cascade>-->
+<!--                    <cascade-all/>-->
+<!--                </cascade>-->
             </many-to-one>
             <many-to-one name="subCategory">
                 <join-column name="sub_category_id"/>
-                <cascade>
-                    <cascade-all/>
-                </cascade>
+<!--                <cascade>-->
+<!--                    <cascade-all/>-->
+<!--                </cascade>-->
             </many-to-one>
             <embedded name="user">
                 <attribute-override name="id" >

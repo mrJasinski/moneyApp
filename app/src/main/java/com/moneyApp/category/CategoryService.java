@@ -1,15 +1,13 @@
 package com.moneyApp.category;
 
 import com.moneyApp.category.dto.CategoryDTO;
-import com.moneyApp.category.dto.CategoryWithIdAndNameAndTypeDTO;
 import com.moneyApp.category.dto.CategoryWithIdAndNameDTO;
-import com.moneyApp.user.UserService;
-import com.moneyApp.vo.CategorySource;
 import com.moneyApp.vo.UserSource;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +37,7 @@ public class CategoryService
         this.subCategoryQueryRepo = subCategoryQueryRepo;
     }
 
-    CategoryDTO createCategoryByUserId(CategoryDTO toSave, Long userId)
+    public CategoryDTO createCategoryByUserIdAsDto(CategoryDTO toSave, Long userId)
     {
         var user = new UserSource(userId);
 
@@ -168,5 +166,18 @@ public class CategoryService
     {
         return this.categoryQueryRepo.findTypeById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category type for given id not found!"));
+    }
+
+    public boolean existsByNameAndUserId(final String catName, final long userId)
+    {
+        return this.categoryQueryRepo.existsByNameAndUserId(catName, userId);
+    }
+
+    public long getExemplaryCategoryIdByType(final CategoryType categoryType)
+    {
+        return this.categoryQueryRepo.findCategoriesIdsByType(categoryType)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NoSuchElementException("Category id for given type not found!"));
     }
 }
