@@ -81,4 +81,9 @@ class BillPositionSnapshot
     {
         return this.budgetPosition;
     }
+
+    long getBudgetPositionId()
+    {
+        return this.budgetPosition.getId();
+    }
 }

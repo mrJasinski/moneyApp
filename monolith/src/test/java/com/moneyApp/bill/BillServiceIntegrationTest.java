@@ -84,13 +84,13 @@ class BillServiceIntegrationTest
         var toSaveDate = LocalDate.of(2004, 9, 12);
 
         var count = this.billQueryRepo.findBillCountBetweenDatesAndUserId(Utils.getMonthYearStartDate(toSaveDate), Utils.getMonthYearEndDate(toSaveDate), userId) + 1;
-        var number = Utils.createBillNumber(toSaveDate , count);
+        var number = BillSnapshot.createBillNumber(toSaveDate , count);
         var exists = this.billQueryRepo.existsByNumberAndUserId(number, userId);
 
         while(exists)
         {
             count = this.billQueryRepo.findBillCountBetweenDatesAndUserId(Utils.getMonthYearStartDate(toSaveDate), Utils.getMonthYearEndDate(toSaveDate), userId) + 1;
-            number = Utils.createBillNumber(toSaveDate , count);
+            number = BillSnapshot.createBillNumber(toSaveDate , count);
             exists = this.billQueryRepo.existsByNumberAndUserId(number, userId);
             toSaveDate = toSaveDate.plusMonths(1);
         }
@@ -150,7 +150,7 @@ class BillServiceIntegrationTest
 
 //        then
         assertEquals(0L, result.getId());
-        assertEquals(Utils.createBillNumber(toSaveDate, count) , result.getNumber());
+        assertEquals(BillSnapshot.createBillNumber(toSaveDate, count) , result.getNumber());
         assertNull(result.getBudget());
     }
 
@@ -162,7 +162,7 @@ class BillServiceIntegrationTest
         var toSaveDate = LocalDate.of(2004, 9, 12);
         var count = 1;
 
-        var number = Utils.createBillNumber(toSaveDate, count);
+        var number = BillSnapshot.createBillNumber(toSaveDate, count);
 
         var catDto1 = new CategoryDTO(1L,"Spożywka", "Jedzenie", CategoryType.EXPENSE, "");
         var catDto2 = new CategoryDTO(2L,"Spożywka", "Słodycze", CategoryType.EXPENSE, "");
@@ -247,7 +247,7 @@ class BillServiceIntegrationTest
         var toSaveDate = LocalDate.of(2004, 9, 12);
         var count = 1;
 
-        var number = Utils.createBillNumber(toSaveDate, count);
+        var number = BillSnapshot.createBillNumber(toSaveDate, count);
 
         var catDto1 = new CategoryDTO(1L,"Spożywka", "Jedzenie", CategoryType.EXPENSE, "");
         var catDto2 = new CategoryDTO(2L,"Spożywka", "Słodycze", CategoryType.EXPENSE, "");
@@ -781,7 +781,7 @@ class BillServiceIntegrationTest
         var userId = 2L;
         var date = LocalDate.of(2023, 12, 1);
         var count = 4;
-        var billNumber = Utils.createBillNumber(date, count);
+        var billNumber = BillSnapshot.createBillNumber(date, count);
 
         if (!this.billQueryRepo.existsByNumberAndUserId(billNumber, userId))
             this.billRepo.save(new BillSnapshot(
@@ -911,8 +911,8 @@ class BillServiceIntegrationTest
         toTest.updateBudgetPositionInBillPositionById(budgetPositionId, billPositionIds);
 
 //        then
-//        TODO poprawić wyjście z optionala
-        assertEquals(budgetPositionId, this.billQueryRepo.findPositionById(billPositionId1).get().getBudgetPosition().getId());
+//      used optional.get() since it's 100% sure that it exists
+        assertEquals(budgetPositionId, this.billQueryRepo.findPositionById(billPositionId1).get().getBudgetPositionId());
     }
 
 //    public void updateBudgetPositionInBillPositionById(final Long budgetPositionId, final Set<Long> billPositionIds)

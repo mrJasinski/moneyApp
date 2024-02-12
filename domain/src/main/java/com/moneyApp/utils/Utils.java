@@ -20,9 +20,4 @@ public class Utils
     {
         return LocalDate.of(monthYear.getYear(), monthYear.getMonthValue(), monthYear.lengthOfMonth());
     }
-
-    public static String createBillNumber(LocalDate date, int count)
-    {
-        return String.format("%s%s_%s", date.getYear(), date.getMonthValue(), count);
-    }
 }
